@@ -992,6 +992,18 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">🛡️ Security</div>
+      <div class="sidebar-item" onclick="showTool('passgen', this)" data-title="Password Generator">
+        <span class="sidebar-item-icon">🔑</span> Password Generator
+      </div>
+      <div class="sidebar-item" onclick="showTool('aes', this)" data-title="AES Encrypt/Decrypt">
+        <span class="sidebar-item-icon">🔒</span> AES Encrypt/Decrypt
+      </div>
+      <div class="sidebar-item" onclick="showTool('filehash', this)" data-title="File Hash Calculator">
+        <span class="sidebar-item-icon">📄</span> File Hash
+      </div>
+      <div class="sidebar-item" onclick="showTool('urlenc', this)" data-title="URL Encoder/Decoder">
+        <span class="sidebar-item-icon">🔗</span> URL Encoder/Decoder
+      </div>
       <div class="sidebar-item" onclick="showTool('privacy', this)" data-title="Security & Privacy">
         <span class="sidebar-item-icon">🛡️</span> Security & Privacy
       </div>
@@ -2116,6 +2128,236 @@
 
     </div>
     <!-- ══ END PRIVACY ═══════════════════════════════════════ -->
+
+    <!-- ══ PASSWORD GENERATOR ══════════════════════════════════ -->
+    <div class="tool-panel" id="panel-passgen">
+      <div class="tool-header">
+        <h1>Password <span>Generator</span></h1>
+        <p>Generate strong, secure passwords with custom rules</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Creates cryptographically secure passwords using Web Crypto API. Customize length, character sets, and generate in bulk. All generation happens locally — never sent anywhere.</div>
+      </div>
+      <div class="card">
+        <div class="input-row" style="align-items:center;flex-wrap:wrap;gap:16px">
+          <div class="input-group" style="min-width:140px;max-width:200px">
+            <label class="input-label">Length</label>
+            <input class="main-input" id="pg-length" type="number" min="4" max="128" value="20">
+          </div>
+          <div class="input-group" style="min-width:140px;max-width:200px">
+            <label class="input-label">Count</label>
+            <input class="main-input" id="pg-count" type="number" min="1" max="50" value="5">
+          </div>
+          <button class="calc-btn" onclick="pgGenerate()" style="align-self:flex-end">Generate</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:16px">
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="pg-upper" checked style="accent-color:var(--accent)"> Uppercase (A-Z)
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="pg-lower" checked style="accent-color:var(--accent)"> Lowercase (a-z)
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="pg-digits" checked style="accent-color:var(--accent)"> Digits (0-9)
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="pg-symbols" checked style="accent-color:var(--accent)"> Symbols (!@#$...)
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="pg-noambig" style="accent-color:var(--accent)"> Exclude ambiguous (0O1lI)
+          </label>
+        </div>
+      </div>
+      <div id="pg-results" style="display:none">
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="section-label" style="margin:0">Generated Passwords</div>
+            <button class="calc-btn" onclick="pgCopyAll()" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy All</button>
+          </div>
+          <div id="pg-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Password Strength</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Entropy</div><div class="info-val c-accent" id="pg-entropy"></div></div>
+            <div class="info-item"><div class="info-key">Charset Size</div><div class="info-val" id="pg-charset"></div></div>
+            <div class="info-item"><div class="info-key">Strength</div><div class="info-val" id="pg-strength"></div></div>
+            <div class="info-item"><div class="info-key">Est. Crack Time</div><div class="info-val c-info" id="pg-crack"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AES ENCRYPT/DECRYPT ══════════════════════════════════ -->
+    <div class="tool-panel" id="panel-aes">
+      <div class="tool-header">
+        <h1>AES <span>Encrypt / Decrypt</span></h1>
+        <p>Encrypt and decrypt text using AES-GCM 256-bit encryption</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Uses AES-GCM 256-bit via Web Crypto API — the same standard used by banks and governments. Everything runs in your browser. The encrypted output includes the IV, so you can decrypt it back anytime with the same password.</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="calc-btn" id="aes-tab-enc" onclick="aesSetMode('encrypt')" style="padding:8px 18px;font-size:13px">🔒 Encrypt</button>
+          <button class="calc-btn" id="aes-tab-dec" onclick="aesSetMode('decrypt')" style="padding:8px 18px;font-size:13px;opacity:0.6">🔓 Decrypt</button>
+        </div>
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label" id="aes-input-label">Plaintext</label>
+          <textarea class="main-input" id="aes-input" placeholder="Enter text to encrypt..." style="min-height:100px;resize:vertical;font-family:var(--mono-font)" spellcheck="false"></textarea>
+        </div>
+        <div class="input-group" style="margin-bottom:16px">
+          <label class="input-label">Password / Key</label>
+          <div style="position:relative">
+            <input class="main-input" id="aes-key" type="password" placeholder="Enter your secret password..." style="padding-right:44px" autocomplete="off">
+            <button onclick="aesToggleKeyVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px" id="aes-eye">👁</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="aesRun()" id="aes-run-btn">🔒 Encrypt</button>
+          <button class="calc-btn" onclick="aesClear()" style="opacity:0.5;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+      </div>
+      <div id="aes-results" style="display:none">
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="section-label" style="margin:0" id="aes-output-label">Encrypted Output</div>
+            <button class="calc-btn" onclick="aesCopyOutput()" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <pre id="aes-output" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:12px;color:var(--text);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0"></pre>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Details</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Algorithm</div><div class="info-val c-accent">AES-GCM 256-bit</div></div>
+            <div class="info-item"><div class="info-key">Key Derivation</div><div class="info-val">PBKDF2 / SHA-256</div></div>
+            <div class="info-item"><div class="info-key">Mode</div><div class="info-val c-info" id="aes-mode-label">Encrypt</div></div>
+            <div class="info-item"><div class="info-key">Output Size</div><div class="info-val" id="aes-out-size"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FILE HASH CALCULATOR ═════════════════════════════════ -->
+    <div class="tool-panel" id="panel-filehash">
+      <div class="tool-header">
+        <h1>File Hash <span>Calculator</span></h1>
+        <p>Calculate SHA-256, SHA-512, SHA-1 hashes of any file</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Computes cryptographic hashes of files directly in your browser. No upload — the file never leaves your device. Use to verify file integrity, check downloads, or detect tampering.</div>
+      </div>
+      <div class="card">
+        <div id="fh-dropzone" onclick="document.getElementById('fh-file').click()" style="border:2px dashed var(--border2);border-radius:var(--r-card);padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.2s" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="fhDrop(event)">
+          <div style="font-size:40px;margin-bottom:12px">📄</div>
+          <div style="font-size:15px;color:var(--text);font-weight:600;margin-bottom:6px">Drop a file here or click to browse</div>
+          <div style="font-size:12px;color:var(--muted)">Any file type · No size limit · Never uploaded</div>
+          <input type="file" id="fh-file" style="display:none" onchange="fhProcess(this.files[0])">
+        </div>
+      </div>
+      <div id="fh-progress" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Processing...</div>
+          <div style="background:var(--surface2);border-radius:4px;overflow:hidden;height:6px">
+            <div id="fh-bar" style="height:6px;background:var(--accent);width:0%;transition:width 0.3s"></div>
+          </div>
+          <div style="font-family:var(--mono-font);font-size:11px;color:var(--muted);margin-top:8px" id="fh-status">Reading file...</div>
+        </div>
+      </div>
+      <div id="fh-results" style="display:none">
+        <div class="card animate">
+          <div class="section-label">File Info</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">File Name</div><div class="info-val c-accent" id="fh-name"></div></div>
+            <div class="info-item"><div class="info-key">Size</div><div class="info-val" id="fh-size"></div></div>
+            <div class="info-item"><div class="info-key">Type</div><div class="info-val c-info" id="fh-type"></div></div>
+            <div class="info-item"><div class="info-key">Last Modified</div><div class="info-val" id="fh-modified"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Hashes</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">SHA-256</div><div class="info-val c-accent" id="fh-sha256" style="word-break:break-all;font-size:12px"></div></div>
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">SHA-512</div><div class="info-val" id="fh-sha512" style="word-break:break-all;font-size:12px"></div></div>
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">SHA-1</div><div class="info-val c-warning" id="fh-sha1" style="word-break:break-all;font-size:12px"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">🔍 Verify Hash</div>
+          <div class="input-group">
+            <label class="input-label">Paste expected hash to verify</label>
+            <input class="main-input" id="fh-verify-input" type="text" placeholder="Paste SHA-256 / SHA-512 / SHA-1 here..." oninput="fhVerify()" spellcheck="false">
+          </div>
+          <div id="fh-verify-result" style="margin-top:10px;display:none"></div>
+        </div>
+        <div style="margin-top:8px;text-align:center">
+          <button class="calc-btn" onclick="fhReset()" style="opacity:0.6;padding:8px 18px;font-size:13px">Calculate another file</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ URL ENCODER/DECODER ═══════════════════════════════════ -->
+    <div class="tool-panel" id="panel-urlenc">
+      <div class="tool-header">
+        <h1>URL <span>Encoder / Decoder</span></h1>
+        <p>Encode and decode URLs, query strings, and URI components</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Encodes special characters for safe URL transmission and decodes percent-encoded strings back to readable text. Supports full URL encoding and component encoding (encodeURIComponent).</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="urlEncode()" style="padding:8px 18px;font-size:13px">Encode →</button>
+          <button class="calc-btn" onclick="urlDecode()" style="padding:8px 18px;font-size:13px;opacity:0.7">← Decode</button>
+          <button class="calc-btn" onclick="urlSwap()" style="padding:8px 18px;font-size:13px;opacity:0.6">⇄ Swap</button>
+          <button class="calc-btn" onclick="urlClear()" style="padding:8px 18px;font-size:13px;opacity:0.4">Clear</button>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <label style="font-size:12px;color:var(--muted)">Mode:</label>
+            <select id="url-mode" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-chip);color:var(--text);padding:6px 10px;font-family:var(--mono-font);font-size:11px;outline:none;cursor:pointer">
+              <option value="component">encodeURIComponent</option>
+              <option value="full">encodeURI (full)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:280px">
+          <div class="card" style="padding:0;display:flex;flex-direction:column">
+            <div style="padding:10px 16px;border-bottom:var(--bw) solid var(--border)">
+              <span class="section-label" style="margin:0;font-size:10px">Input</span>
+            </div>
+            <textarea id="url-input" placeholder="https://example.com/search?q=hello world&lang=ru" style="flex:1;background:transparent;border:none;outline:none;resize:none;padding:14px 16px;font-family:var(--mono-font);font-size:13px;color:var(--text);line-height:1.6;min-height:200px;width:100%" spellcheck="false" oninput="urlLiveStats()"></textarea>
+          </div>
+          <div class="card" style="padding:0;display:flex;flex-direction:column">
+            <div style="padding:10px 16px;border-bottom:var(--bw) solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <span class="section-label" style="margin:0;font-size:10px">Output</span>
+              <button onclick="urlCopyOutput()" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">copy</button>
+            </div>
+            <pre id="url-output" style="flex:1;padding:14px 16px;font-family:var(--mono-font);font-size:13px;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;min-height:200px;margin:0;color:var(--text)"></pre>
+          </div>
+        </div>
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Try:</span>
+          <div class="example-chip" onclick="urlSetExample('https://example.com/search?q=hello world&lang=ru&page=1')">URL with spaces</div>
+          <div class="example-chip" onclick="urlSetExample('user@example.com / 100% done!')">Special chars</div>
+          <div class="example-chip" onclick='urlSetExample("{\"name\":\"John\",\"city\":\"New York\"}")'>JSON in URL</div>
+        </div>
+      </div>
+      <div id="url-stats" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Stats</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Input Length</div><div class="info-val" id="url-in-len"></div></div>
+            <div class="info-item"><div class="info-key">Output Length</div><div class="info-val" id="url-out-len"></div></div>
+            <div class="info-item"><div class="info-key">Encoded Chars</div><div class="info-val c-accent" id="url-enc-chars"></div></div>
+            <div class="info-item"><div class="info-key">Mode</div><div class="info-val c-info" id="url-mode-used"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
   </main>
 </div>
@@ -4433,6 +4675,300 @@
     }
     copyToClipboard(matches, matches.split('\n').length + ' matches');
   }
+  // ── Password Generator ─────────────────────────────────────
+  function pgGenerate() {
+    const len    = Math.min(128, Math.max(4, parseInt(document.getElementById('pg-length').value) || 20));
+    const count  = Math.min(50,  Math.max(1, parseInt(document.getElementById('pg-count').value)  || 5));
+    const upper  = document.getElementById('pg-upper').checked;
+    const lower  = document.getElementById('pg-lower').checked;
+    const digits = document.getElementById('pg-digits').checked;
+    const syms   = document.getElementById('pg-symbols').checked;
+    const noAmb  = document.getElementById('pg-noambig').checked;
+
+    let charset = '';
+    if (upper)  charset += noAmb ? 'ABCDEFGHJKMNPQRSTUVWXYZ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (lower)  charset += noAmb ? 'abcdefghjkmnpqrstuvwxyz' : 'abcdefghijklmnopqrstuvwxyz';
+    if (digits) charset += noAmb ? '23456789' : '0123456789';
+    if (syms)   charset += '!@#$%^&*()-_=+[]{}|;:,.<>?';
+
+    if (!charset) { showToast('⚠ Select at least one character set'); return; }
+
+    const passwords = [];
+    for (let p = 0; p < count; p++) {
+      const arr = new Uint32Array(len);
+      crypto.getRandomValues(arr);
+      let pass = '';
+      for (let i = 0; i < len; i++) pass += charset[arr[i] % charset.length];
+      passwords.push(pass);
+    }
+
+    // Render list
+    const list = document.getElementById('pg-list');
+    list.innerHTML = '';
+    passwords.forEach((pw, i) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:10px 14px';
+      row.innerHTML = `
+        <span style="font-family:var(--mono-font);font-size:13px;color:var(--text);flex:1;word-break:break-all">${pw}</span>
+        <button onclick="copyToClipboard('${pw.replace(/'/g,"\\'")}','Password ${i+1}')" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted);white-space:nowrap;padding:2px 6px">copy</button>
+      `;
+      list.appendChild(row);
+    });
+
+    // Strength stats
+    const entropy = Math.floor(len * Math.log2(charset.length));
+    const charsetSize = charset.length;
+    let strength, strengthColor, crackTime;
+    if (entropy < 40)       { strength = '⚠ Weak';      strengthColor = 'var(--error)'; }
+    else if (entropy < 60)  { strength = '🔶 Fair';      strengthColor = 'var(--warning)'; }
+    else if (entropy < 80)  { strength = '✓ Strong';     strengthColor = 'var(--success)'; }
+    else if (entropy < 100) { strength = '✓✓ Very Strong'; strengthColor = 'var(--success)'; }
+    else                    { strength = '🛡 Unbreakable'; strengthColor = 'var(--info)'; }
+
+    if (entropy < 40)       crackTime = 'Minutes to hours';
+    else if (entropy < 60)  crackTime = 'Days to months';
+    else if (entropy < 80)  crackTime = 'Years to centuries';
+    else if (entropy < 100) crackTime = 'Millions of years';
+    else                    crackTime = 'Longer than universe age';
+
+    document.getElementById('pg-entropy').textContent   = entropy + ' bits';
+    document.getElementById('pg-charset').textContent   = charsetSize + ' characters';
+    document.getElementById('pg-strength').innerHTML    = `<span style="color:${strengthColor}">${strength}</span>`;
+    document.getElementById('pg-crack').textContent     = crackTime;
+    document.getElementById('pg-results').style.display = 'block';
+  }
+
+  function pgCopyAll() {
+    const items = document.querySelectorAll('#pg-list span[style]');
+    const all = Array.from(items).map(el => el.textContent).join('\n');
+    if (!all) { showToast('⚠ Generate passwords first'); return; }
+    copyToClipboard(all, items.length + ' passwords');
+  }
+
+  // ── AES Encrypt / Decrypt ──────────────────────────────────
+  let aesMode = 'encrypt';
+
+  function aesSetMode(mode) {
+    aesMode = mode;
+    document.getElementById('aes-input-label').textContent  = mode === 'encrypt' ? 'Plaintext' : 'Encrypted Text (Base64)';
+    document.getElementById('aes-input').placeholder        = mode === 'encrypt' ? 'Enter text to encrypt...' : 'Paste encrypted Base64 text here...';
+    document.getElementById('aes-run-btn').textContent      = mode === 'encrypt' ? '🔒 Encrypt' : '🔓 Decrypt';
+    document.getElementById('aes-tab-enc').style.opacity    = mode === 'encrypt' ? '1' : '0.6';
+    document.getElementById('aes-tab-dec').style.opacity    = mode === 'decrypt' ? '1' : '0.6';
+    document.getElementById('aes-results').style.display    = 'none';
+    document.getElementById('aes-mode-label').textContent   = mode === 'encrypt' ? 'Encrypt' : 'Decrypt';
+  }
+
+  function aesToggleKeyVis() {
+    const inp = document.getElementById('aes-key');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  async function aesRun() {
+    const text = document.getElementById('aes-input').value.trim();
+    const pass = document.getElementById('aes-key').value;
+    if (!text) { showToast('⚠ Enter text first'); return; }
+    if (!pass)  { showToast('⚠ Enter a password'); return; }
+    try {
+      const result = aesMode === 'encrypt' ? await aesEncrypt(text, pass) : await aesDecrypt(text, pass);
+      document.getElementById('aes-output').textContent       = result;
+      document.getElementById('aes-output-label').textContent = aesMode === 'encrypt' ? 'Encrypted Output' : 'Decrypted Text';
+      document.getElementById('aes-out-size').textContent     = result.length + ' chars';
+      document.getElementById('aes-results').style.display    = 'block';
+    } catch(e) {
+      showToast('✗ ' + (aesMode === 'decrypt' ? 'Wrong password or invalid data' : e.message));
+    }
+  }
+
+  async function aesEncrypt(plaintext, password) {
+    const enc      = new TextEncoder();
+    const salt     = crypto.getRandomValues(new Uint8Array(16));
+    const iv       = crypto.getRandomValues(new Uint8Array(12));
+    const keyMat   = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key      = await crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:100000, hash:'SHA-256' },
+      keyMat, { name:'AES-GCM', length:256 }, false, ['encrypt']
+    );
+    const cipherBuf = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(plaintext));
+    const combined  = new Uint8Array(salt.length + iv.length + cipherBuf.byteLength);
+    combined.set(salt, 0); combined.set(iv, 16); combined.set(new Uint8Array(cipherBuf), 28);
+    return btoa(String.fromCharCode(...combined));
+  }
+
+  async function aesDecrypt(b64, password) {
+    const enc      = new TextEncoder();
+    const combined = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const salt     = combined.slice(0, 16);
+    const iv       = combined.slice(16, 28);
+    const data     = combined.slice(28);
+    const keyMat   = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key      = await crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:100000, hash:'SHA-256' },
+      keyMat, { name:'AES-GCM', length:256 }, false, ['decrypt']
+    );
+    const plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data);
+    return new TextDecoder().decode(plain);
+  }
+
+  function aesCopyOutput() {
+    const txt = document.getElementById('aes-output').textContent;
+    if (txt) copyToClipboard(txt, 'Output');
+  }
+
+  function aesClear() {
+    document.getElementById('aes-input').value = '';
+    document.getElementById('aes-key').value   = '';
+    document.getElementById('aes-results').style.display = 'none';
+  }
+
+  // ── File Hash Calculator ────────────────────────────────────
+  async function fhProcess(file) {
+    if (!file) return;
+    document.getElementById('fh-progress').style.display = 'block';
+    document.getElementById('fh-results').style.display  = 'none';
+    document.getElementById('fh-bar').style.width        = '0%';
+    document.getElementById('fh-status').textContent     = 'Reading file...';
+
+    try {
+      const buf = await file.arrayBuffer();
+      document.getElementById('fh-bar').style.width    = '40%';
+      document.getElementById('fh-status').textContent = 'Computing SHA-256...';
+
+      const [sha256, sha512, sha1] = await Promise.all([
+        crypto.subtle.digest('SHA-256',  buf),
+        crypto.subtle.digest('SHA-512',  buf),
+        crypto.subtle.digest('SHA-1',    buf)
+      ]);
+
+      document.getElementById('fh-bar').style.width    = '100%';
+      document.getElementById('fh-status').textContent = 'Done';
+
+      const toHex = b => Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,'0')).join('');
+
+      // File info
+      document.getElementById('fh-name').textContent     = file.name;
+      document.getElementById('fh-size').textContent     = fhFormatSize(file.size);
+      document.getElementById('fh-type').textContent     = file.type || 'unknown';
+      document.getElementById('fh-modified').textContent = new Date(file.lastModified).toLocaleString();
+
+      // Hashes
+      document.getElementById('fh-sha256').textContent = toHex(sha256);
+      document.getElementById('fh-sha512').textContent = toHex(sha512);
+      document.getElementById('fh-sha1').textContent   = toHex(sha1);
+
+      document.getElementById('fh-verify-input').value    = '';
+      document.getElementById('fh-verify-result').style.display = 'none';
+      document.getElementById('fh-progress').style.display = 'none';
+      document.getElementById('fh-results').style.display  = 'block';
+    } catch(e) {
+      showToast('✗ Error: ' + e.message);
+      document.getElementById('fh-progress').style.display = 'none';
+    }
+  }
+
+  function fhFormatSize(bytes) {
+    if (bytes < 1024)          return bytes + ' B';
+    if (bytes < 1024*1024)     return (bytes/1024).toFixed(1) + ' KB';
+    if (bytes < 1024*1024*1024)return (bytes/(1024*1024)).toFixed(2) + ' MB';
+    return (bytes/(1024*1024*1024)).toFixed(2) + ' GB';
+  }
+
+  function fhDrop(e) {
+    e.preventDefault();
+    document.getElementById('fh-dropzone').style.borderColor = 'var(--border2)';
+    const file = e.dataTransfer.files[0];
+    if (file) fhProcess(file);
+  }
+
+  function fhVerify() {
+    const input  = document.getElementById('fh-verify-input').value.trim().toLowerCase();
+    const result = document.getElementById('fh-verify-result');
+    if (!input) { result.style.display = 'none'; return; }
+
+    const sha256 = document.getElementById('fh-sha256').textContent.toLowerCase();
+    const sha512 = document.getElementById('fh-sha512').textContent.toLowerCase();
+    const sha1   = document.getElementById('fh-sha1').textContent.toLowerCase();
+
+    let match = false, algo = '';
+    if (input === sha256) { match = true; algo = 'SHA-256'; }
+    else if (input === sha512) { match = true; algo = 'SHA-512'; }
+    else if (input === sha1)   { match = true; algo = 'SHA-1'; }
+
+    result.style.display = 'block';
+    result.innerHTML = match
+      ? `<span style="color:var(--success);font-family:var(--mono-font);font-size:13px">✓ Match! (${algo}) — File is authentic</span>`
+      : `<span style="color:var(--error);font-family:var(--mono-font);font-size:13px">✗ No match — File may be corrupted or tampered</span>`;
+  }
+
+  function fhReset() {
+    document.getElementById('fh-results').style.display  = 'none';
+    document.getElementById('fh-progress').style.display = 'none';
+    document.getElementById('fh-file').value = '';
+  }
+
+  // ── URL Encoder / Decoder ───────────────────────────────────
+  function urlEncode() {
+    const input = document.getElementById('url-input').value;
+    if (!input) { showToast('⚠ Enter text first'); return; }
+    const mode   = document.getElementById('url-mode').value;
+    const output = mode === 'component' ? encodeURIComponent(input) : encodeURI(input);
+    document.getElementById('url-output').textContent = output;
+    urlShowStats(input, output, mode);
+  }
+
+  function urlDecode() {
+    const input = document.getElementById('url-input').value;
+    if (!input) { showToast('⚠ Enter text first'); return; }
+    try {
+      const output = decodeURIComponent(input);
+      document.getElementById('url-output').textContent = output;
+      urlShowStats(input, output, 'decode');
+    } catch(e) {
+      showToast('✗ Invalid encoded string');
+    }
+  }
+
+  function urlSwap() {
+    const inp = document.getElementById('url-input');
+    const out = document.getElementById('url-output');
+    const tmp = inp.value;
+    inp.value = out.textContent;
+    out.textContent = tmp;
+    urlLiveStats();
+  }
+
+  function urlClear() {
+    document.getElementById('url-input').value       = '';
+    document.getElementById('url-output').textContent = '';
+    document.getElementById('url-stats').style.display = 'none';
+  }
+
+  function urlSetExample(val) {
+    document.getElementById('url-input').value = val;
+    urlEncode();
+  }
+
+  function urlCopyOutput() {
+    const txt = document.getElementById('url-output').textContent;
+    if (txt) copyToClipboard(txt, 'Output');
+  }
+
+  function urlShowStats(input, output, mode) {
+    document.getElementById('url-in-len').textContent    = input.length + ' chars';
+    document.getElementById('url-out-len').textContent   = output.length + ' chars';
+    const encCount = (output.match(/%[0-9A-F]{2}/gi) || []).length;
+    document.getElementById('url-enc-chars').textContent = encCount + ' sequences';
+    document.getElementById('url-mode-used').textContent = mode === 'component' ? 'encodeURIComponent' : mode === 'full' ? 'encodeURI' : 'Decode';
+    document.getElementById('url-stats').style.display   = 'block';
+  }
+
+  function urlLiveStats() {
+    const input = document.getElementById('url-input').value;
+    const output = document.getElementById('url-output').textContent;
+    if (input && output) urlShowStats(input, output, document.getElementById('url-mode').value);
+  }
+
+
 </script>
 
 <div class="about-modal" id="aboutModal" onclick="if(event.target===this)closeAboutModal()">
