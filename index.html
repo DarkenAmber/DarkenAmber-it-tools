@@ -2195,7 +2195,7 @@
     // Load Base64
     const savedBase64 = localStorage.getItem('da-base64-input');
     if (savedBase64) {
-      document.getElementById('base64-input').value = savedBase64;
+      document.getElementById('b64-input').value = savedBase64;
     }
     
     // Load Hash
@@ -2211,13 +2211,13 @@
       document.getElementById('regex-pattern').value = savedRegexPattern;
     }
     if (savedRegexTest) {
-      document.getElementById('regex-test').value = savedRegexTest;
+      document.getElementById('regex-input').value = savedRegexTest;
     }
     
     // Load Timestamp
     const savedTimestamp = localStorage.getItem('da-timestamp-input');
     if (savedTimestamp) {
-      document.getElementById('ts-unix').value = savedTimestamp;
+      document.getElementById('ts-input').value = savedTimestamp;
     }
     
     // Load UUID count
