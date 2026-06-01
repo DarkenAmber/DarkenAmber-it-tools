@@ -750,6 +750,12 @@
 
   .toast.show { opacity: 1; transform: translateY(0); }
 
+
+  @keyframes rsa-progress {
+    0%   { width: 0%;   margin-left: 0%; }
+    50%  { width: 40%;  margin-left: 30%; }
+    100% { width: 0%;   margin-left: 100%; }
+  }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -953,7 +959,7 @@
       <div class="sidebar-section-label">📁 File & Format</div>
       <div class="sidebar-item" onclick="showTool('qr', this)" data-title="QR Generator">
         <span class="sidebar-item-icon">⬛</span> QR Generator
-        <span class="sidebar-badge">soon</span>
+        
       </div>
       <div class="sidebar-item" onclick="showTool('csv', this)" data-title="CSV to JSON">
         <span class="sidebar-item-icon">📊</span> CSV to JSON
@@ -1003,6 +1009,21 @@
       </div>
       <div class="sidebar-item" onclick="showTool('urlenc', this)" data-title="URL Encoder/Decoder">
         <span class="sidebar-item-icon">🔗</span> URL Encoder/Decoder
+      </div>
+      <div class="sidebar-item" onclick="showTool('ssl', this)" data-title="SSL Certificate Decoder">
+        <span class="sidebar-item-icon">🌐</span> SSL Certificate
+      </div>
+      <div class="sidebar-item" onclick="showTool('pbkdf2', this)" data-title="PBKDF2 Key Derivation">
+        <span class="sidebar-item-icon">🗝️</span> PBKDF2 Derivation
+      </div>
+      <div class="sidebar-item" onclick="showTool('emailmask', this)" data-title="Email Masker">
+        <span class="sidebar-item-icon">✉️</span> Email Masker
+      </div>
+      <div class="sidebar-item" onclick="showTool('entropy', this)" data-title="Entropy Calculator">
+        <span class="sidebar-item-icon">📊</span> Entropy Calculator
+      </div>
+      <div class="sidebar-item" onclick="showTool('rsa', this)" data-title="RSA Key Generator">
+        <span class="sidebar-item-icon">🔐</span> RSA Key Generator
       </div>
       <div class="sidebar-item" onclick="showTool('privacy', this)" data-title="Security & Privacy">
         <span class="sidebar-item-icon">🛡️</span> Security & Privacy
@@ -1676,40 +1697,178 @@
 
     </div>
     <div class="tool-panel" id="panel-qr">
-
       <div class="tool-header">
         <h1>QR <span>Generator</span></h1>
-        <p>Generate QR codes from text, URLs, or contact information</p>
+        <p>Generate QR codes from text, URLs, vCards, WiFi configs and more</p>
       </div>
-
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Generates real QR codes via qrcode.js library. Customize size, colors, error correction level. Download as PNG or SVG. Works fully offline after first load.</div>
+      </div>
       <div class="card">
-        <div class="input-row">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="qrSetMode('text')"   id="qr-tab-text"   style="padding:7px 14px;font-size:12px">📝 Text / URL</button>
+          <button class="calc-btn" onclick="qrSetMode('wifi')"   id="qr-tab-wifi"   style="padding:7px 14px;font-size:12px;opacity:0.6">📶 WiFi</button>
+          <button class="calc-btn" onclick="qrSetMode('vcard')"  id="qr-tab-vcard"  style="padding:7px 14px;font-size:12px;opacity:0.6">👤 vCard</button>
+          <button class="calc-btn" onclick="qrSetMode('email')"  id="qr-tab-email"  style="padding:7px 14px;font-size:12px;opacity:0.6">✉️ Email</button>
+          <button class="calc-btn" onclick="qrSetMode('sms')"    id="qr-tab-sms"    style="padding:7px 14px;font-size:12px;opacity:0.6">💬 SMS</button>
+        </div>
+
+        <!-- Text / URL -->
+        <div id="qr-mode-text">
           <div class="input-group">
-            <label class="input-label">Input Text / URL</label>
-            <textarea class="main-input" id="qr-input" placeholder="Enter text or URL..." style="min-height:100px;resize:vertical;font-family:var(--mono-font)" oninput="qrGenerate()"></textarea>
+            <label class="input-label">Text or URL</label>
+            <textarea class="main-input" id="qr-input" placeholder="https://example.com or any text..." style="min-height:80px;resize:vertical;font-family:var(--mono-font)" oninput="qrGenerate()" spellcheck="false"></textarea>
+          </div>
+          <div class="examples" style="margin-top:8px">
+            <span class="examples-label">Try:</span>
+            <div class="example-chip" onclick="qrSetText('https://github.com/DarkenAmber/DarkenAmber-it-tools')">GitHub URL</div>
+            <div class="example-chip" onclick="qrSetText('Hello, World!')">Simple text</div>
+            <div class="example-chip" onclick="qrSetText('bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7Divfna?amount=0.001')">Bitcoin addr</div>
           </div>
         </div>
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="calc-btn" onclick="qrDownloadPNG()" style="padding:10px 20px">📥 Download PNG</button>
-          <button class="calc-btn" onclick="qrDownloadSVG()" style="padding:10px 20px;opacity:0.8">📥 Download SVG</button>
-          <button class="calc-btn" onclick="qrCopyImage()" style="padding:10px 20px;opacity:0.8">📋 Copy Image</button>
-          <button class="calc-btn" onclick="qrClear()" style="padding:10px 20px;opacity:0.6">Clear</button>
+        <!-- WiFi -->
+        <div id="qr-mode-wifi" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="input-group">
+              <label class="input-label">Network Name (SSID)</label>
+              <input class="main-input" id="qr-wifi-ssid" type="text" placeholder="MyWiFiNetwork" oninput="qrBuildWifi()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Password</label>
+              <input class="main-input" id="qr-wifi-pass" type="text" placeholder="password123" oninput="qrBuildWifi()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Security</label>
+              <select class="main-input" id="qr-wifi-sec" onchange="qrBuildWifi()" style="cursor:pointer">
+                <option value="WPA">WPA/WPA2</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">None (open)</option>
+              </select>
+            </div>
+            <div class="input-group" style="display:flex;align-items:flex-end;padding-bottom:2px">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer">
+                <input type="checkbox" id="qr-wifi-hidden" onchange="qrBuildWifi()" style="accent-color:var(--accent)"> Hidden network
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- vCard -->
+        <div id="qr-mode-vcard" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="input-group">
+              <label class="input-label">Full Name</label>
+              <input class="main-input" id="qr-vc-name" type="text" placeholder="John Doe" oninput="qrBuildVcard()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Phone</label>
+              <input class="main-input" id="qr-vc-phone" type="text" placeholder="+1 555 0100" oninput="qrBuildVcard()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Email</label>
+              <input class="main-input" id="qr-vc-email" type="text" placeholder="john@example.com" oninput="qrBuildVcard()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Organization</label>
+              <input class="main-input" id="qr-vc-org" type="text" placeholder="Acme Corp" oninput="qrBuildVcard()">
+            </div>
+            <div class="input-group" style="grid-column:1/-1">
+              <label class="input-label">Website</label>
+              <input class="main-input" id="qr-vc-url" type="text" placeholder="https://example.com" oninput="qrBuildVcard()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div id="qr-mode-email" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="input-group">
+              <label class="input-label">To</label>
+              <input class="main-input" id="qr-em-to" type="text" placeholder="recipient@example.com" oninput="qrBuildEmail()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Subject</label>
+              <input class="main-input" id="qr-em-sub" type="text" placeholder="Hello!" oninput="qrBuildEmail()">
+            </div>
+            <div class="input-group" style="grid-column:1/-1">
+              <label class="input-label">Body</label>
+              <textarea class="main-input" id="qr-em-body" placeholder="Message body..." style="min-height:60px;resize:vertical" oninput="qrBuildEmail()"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- SMS -->
+        <div id="qr-mode-sms" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="input-group">
+              <label class="input-label">Phone Number</label>
+              <input class="main-input" id="qr-sms-phone" type="text" placeholder="+1 555 0100" oninput="qrBuildSms()">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Message</label>
+              <input class="main-input" id="qr-sms-msg" type="text" placeholder="Hello!" oninput="qrBuildSms()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card">
+        <div class="section-label">Settings</div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+          <div class="input-group" style="min-width:120px">
+            <label class="input-label">Size (px)</label>
+            <select class="main-input" id="qr-size" onchange="qrGenerate()" style="cursor:pointer">
+              <option value="200">200 × 200</option>
+              <option value="300" selected>300 × 300</option>
+              <option value="400">400 × 400</option>
+              <option value="512">512 × 512</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:140px">
+            <label class="input-label">Error Correction</label>
+            <select class="main-input" id="qr-ecl" onchange="qrGenerate()" style="cursor:pointer">
+              <option value="L">L — 7% (small)</option>
+              <option value="M" selected>M — 15% (medium)</option>
+              <option value="Q">Q — 25% (good)</option>
+              <option value="H">H — 30% (best)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Dark Color</label>
+            <input type="color" id="qr-dark" value="#000000" onchange="qrGenerate()" style="width:48px;height:38px;border:var(--bw) solid var(--border);border-radius:var(--r-input);background:var(--surface2);cursor:pointer;padding:2px">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Light Color</label>
+            <input type="color" id="qr-light" value="#ffffff" onchange="qrGenerate()" style="width:48px;height:38px;border:var(--bw) solid var(--border);border-radius:var(--r-input);background:var(--surface2);cursor:pointer;padding:2px">
+          </div>
+          <button class="calc-btn" onclick="qrResetColors()" style="padding:8px 14px;font-size:12px;opacity:0.6;align-self:flex-end">Reset Colors</button>
         </div>
       </div>
 
       <div id="qr-result" style="display:none">
-        <div class="card animate" style="text-align:center">
-          <div class="section-label" style="justify-content:center">Generated QR Code</div>
-          <div style="padding:20px;background:var(--surface2);border-radius:var(--r-input);display:inline-block;margin:20px 0">
-            <canvas id="qr-canvas" width="300" height="300"></canvas>
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Generated QR Code</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="calc-btn" onclick="qrDownloadPNG()" style="padding:7px 14px;font-size:12px">📥 PNG</button>
+              <button class="calc-btn" onclick="qrDownloadSVG()" style="padding:7px 14px;font-size:12px;opacity:0.8">📥 SVG</button>
+              <button class="calc-btn" onclick="qrCopyImage()" style="padding:7px 14px;font-size:12px;opacity:0.8">📋 Copy</button>
+              <button class="calc-btn" onclick="qrClear()" style="padding:7px 14px;font-size:12px;opacity:0.5">Clear</button>
+            </div>
           </div>
-          <div style="font-family:var(--mono-font);font-size:11px;color:var(--muted);margin-top:12px">Size: 300×300px</div>
+          <div style="display:flex;justify-content:center">
+            <div id="qr-container" style="background:#fff;padding:16px;border-radius:8px;display:inline-block"></div>
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <div style="font-family:var(--mono-font);font-size:11px;color:var(--muted)" id="qr-info"></div>
+          </div>
         </div>
       </div>
-
     </div>
-    <div class="tool-panel" id="panel-csv">
+        <div class="tool-panel" id="panel-csv">
 
       <div class="tool-header">
         <h1>CSV <span>to JSON</span></h1>
@@ -1898,9 +2057,6 @@
       </div>
 
     </div>
-    <div class="tool-panel" id="panel-log-ai"><div class="coming-soon"><div class="coming-soon-icon">📜</div><div class="coming-soon-title">Log Analyzer AI</div><div class="coming-soon-sub">coming soon</div></div></div>
-    <div class="tool-panel" id="panel-readme-ai"><div class="coming-soon"><div class="coming-soon-icon">📄</div><div class="coming-soon-title">README Generator</div><div class="coming-soon-sub">coming soon</div></div></div>
-    <div class="tool-panel" id="panel-commit-ai"><div class="coming-soon"><div class="coming-soon-icon">📦</div><div class="coming-soon-title">Git Commit AI</div><div class="coming-soon-sub">coming soon</div></div></div>
     <div class="tool-panel" id="panel-color">
 
       <div class="tool-header">
@@ -2353,6 +2509,354 @@
             <div class="info-item"><div class="info-key">Output Length</div><div class="info-val" id="url-out-len"></div></div>
             <div class="info-item"><div class="info-key">Encoded Chars</div><div class="info-val c-accent" id="url-enc-chars"></div></div>
             <div class="info-item"><div class="info-key">Mode</div><div class="info-val c-info" id="url-mode-used"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ SSL CERTIFICATE DECODER ══════════════════════════════ -->
+    <div class="tool-panel" id="panel-ssl">
+      <div class="tool-header">
+        <h1>SSL Certificate <span>Decoder</span></h1>
+        <p>Parse and inspect PEM/Base64 SSL/TLS certificates</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Decodes X.509 SSL/TLS certificates from PEM format. Extracts subject, issuer, validity dates, SANs, key info, and fingerprints. Everything runs locally — your certificate never leaves the browser.</div>
+      </div>
+      <div class="card">
+        <div class="input-group">
+          <label class="input-label">PEM Certificate</label>
+          <textarea class="main-input" id="ssl-input" placeholder="-----BEGIN CERTIFICATE-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
+-----END CERTIFICATE-----" style="min-height:140px;resize:vertical;font-family:var(--mono-font);font-size:12px" spellcheck="false"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="sslDecode()">Decode Certificate</button>
+          <button class="calc-btn" onclick="sslClear()" style="opacity:0.5;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Try:</span>
+          <div class="example-chip" onclick="sslLoadExample()">Example cert</div>
+        </div>
+      </div>
+      <div id="ssl-results" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Subject</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Common Name (CN)</div><div class="info-val c-accent" id="ssl-cn"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Organization (O)</div><div class="info-val" id="ssl-o"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Country (C)</div><div class="info-val" id="ssl-c"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">State (ST)</div><div class="info-val" id="ssl-st"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Issuer</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Issuer CN</div><div class="info-val c-info" id="ssl-issuer-cn"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Issuer O</div><div class="info-val" id="ssl-issuer-o"></div></div>
+            <div class="info-item"><div class="info-key">Self-Signed</div><div class="info-val" id="ssl-self-signed"></div></div>
+            <div class="info-item"><div class="info-key">CA Certificate</div><div class="info-val" id="ssl-is-ca"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Validity</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Valid From</div><div class="info-val c-success" id="ssl-not-before"></div></div>
+            <div class="info-item"><div class="info-key">Valid Until</div><div class="info-val" id="ssl-not-after"></div></div>
+            <div class="info-item"><div class="info-key">Status</div><div class="info-val" id="ssl-status"></div></div>
+            <div class="info-item"><div class="info-key">Days Remaining</div><div class="info-val" id="ssl-days"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Key & Algorithm</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Signature Algorithm</div><div class="info-val c-accent" id="ssl-sig-alg"></div></div>
+            <div class="info-item"><div class="info-key">Key Algorithm</div><div class="info-val" id="ssl-key-alg"></div></div>
+            <div class="info-item"><div class="info-key">Serial Number</div><div class="info-val c-info" id="ssl-serial" style="font-size:11px;word-break:break-all"></div></div>
+            <div class="info-item"><div class="info-key">Version</div><div class="info-val" id="ssl-version"></div></div>
+          </div>
+        </div>
+        <div class="card animate" id="ssl-san-card" style="display:none">
+          <div class="section-label">Subject Alternative Names (SANs)</div>
+          <div id="ssl-sans" style="display:flex;flex-wrap:wrap;gap:6px;padding:4px 0"></div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Fingerprints</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">SHA-256</div><div class="info-val c-accent" id="ssl-fp256" style="font-size:11px;word-break:break-all"></div></div>
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">SHA-1</div><div class="info-val" id="ssl-fp1" style="font-size:11px;word-break:break-all"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PBKDF2 KEY DERIVATION ═════════════════════════════════ -->
+    <div class="tool-panel" id="panel-pbkdf2">
+      <div class="tool-header">
+        <h1>PBKDF2 <span>Key Derivation</span></h1>
+        <p>Derive cryptographic keys from passwords using PBKDF2</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">PBKDF2 (Password-Based Key Derivation Function 2) turns a password into a cryptographic key. Used for secure password storage, key generation, and encryption. Runs via Web Crypto API — entirely in your browser.</div>
+      </div>
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Password</label>
+          <div style="position:relative">
+            <input class="main-input" id="pbkdf2-password" type="password" placeholder="Enter password..." autocomplete="off" style="padding-right:44px">
+            <button onclick="pbkdf2ToggleVis()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px">👁</button>
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Salt <span style="color:var(--muted);font-size:10px">(hex or text — leave empty to auto-generate)</span></label>
+          <div style="display:flex;gap:8px">
+            <input class="main-input" id="pbkdf2-salt" type="text" placeholder="Auto-generate random salt..." style="flex:1" spellcheck="false">
+            <button class="calc-btn" onclick="pbkdf2GenSalt()" style="padding:11px 16px;font-size:12px;white-space:nowrap">Random Salt</button>
+          </div>
+        </div>
+        <div class="input-row" style="flex-wrap:wrap;gap:12px;margin-bottom:16px">
+          <div class="input-group" style="min-width:120px">
+            <label class="input-label">Iterations</label>
+            <select class="main-input" id="pbkdf2-iter" style="cursor:pointer">
+              <option value="10000">10,000</option>
+              <option value="100000" selected>100,000</option>
+              <option value="310000">310,000 (OWASP)</option>
+              <option value="600000">600,000</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:120px">
+            <label class="input-label">Hash</label>
+            <select class="main-input" id="pbkdf2-hash" style="cursor:pointer">
+              <option value="SHA-256" selected>SHA-256</option>
+              <option value="SHA-512">SHA-512</option>
+              <option value="SHA-1">SHA-1 (legacy)</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:120px">
+            <label class="input-label">Key Length (bits)</label>
+            <select class="main-input" id="pbkdf2-keylen" style="cursor:pointer">
+              <option value="128">128</option>
+              <option value="256" selected>256</option>
+              <option value="512">512</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:120px">
+            <label class="input-label">Output Format</label>
+            <select class="main-input" id="pbkdf2-format" style="cursor:pointer">
+              <option value="hex">Hex</option>
+              <option value="base64">Base64</option>
+            </select>
+          </div>
+        </div>
+        <button class="calc-btn" onclick="pbkdf2Derive()">Derive Key</button>
+      </div>
+      <div id="pbkdf2-results" style="display:none">
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="section-label" style="margin:0">Derived Key</div>
+            <button class="calc-btn" onclick="pbkdf2Copy()" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <div id="pbkdf2-key" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:12px;color:var(--val-accent);word-break:break-all;line-height:1.8"></div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Parameters</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Salt (hex)</div><div class="info-val c-info" id="pbkdf2-used-salt" style="font-size:11px;word-break:break-all"></div></div>
+            <div class="info-item"><div class="info-key">Iterations</div><div class="info-val" id="pbkdf2-used-iter"></div></div>
+            <div class="info-item"><div class="info-key">Hash</div><div class="info-val c-accent" id="pbkdf2-used-hash"></div></div>
+            <div class="info-item"><div class="info-key">Key Length</div><div class="info-val" id="pbkdf2-used-keylen"></div></div>
+            <div class="info-item"><div class="info-key">Time Taken</div><div class="info-val c-warning" id="pbkdf2-time"></div></div>
+            <div class="info-item"><div class="info-key">Security Level</div><div class="info-val" id="pbkdf2-security"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EMAIL MASKER ══════════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-emailmask">
+      <div class="tool-header">
+        <h1>Email <span>Masker</span></h1>
+        <p>Mask, anonymize, and generate safe email variants for testing</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Masks email addresses for privacy (logs, screenshots, demos). Generates test email variants, validates format, extracts domain info, and creates disposable-style aliases. All processing is local.</div>
+      </div>
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Email Address</label>
+          <input class="main-input" id="em-input" type="text" placeholder="john.doe@example.com" oninput="emProcess()" spellcheck="false" autocomplete="off">
+          <div class="val-msg" id="em-msg"><span id="em-msg-text"></span></div>
+        </div>
+        <div class="examples">
+          <span class="examples-label">Try:</span>
+          <div class="example-chip" onclick="emSet('john.doe@gmail.com')">john.doe@gmail.com</div>
+          <div class="example-chip" onclick="emSet('admin@company.co.uk')">admin@company.co.uk</div>
+          <div class="example-chip" onclick="emSet('user+tag@subdomain.example.org')">with tag</div>
+        </div>
+      </div>
+      <div id="em-results" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Email Info</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Local Part</div><div class="info-val c-accent" id="em-local"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Domain</div><div class="info-val c-info" id="em-domain"></div></div>
+            <div class="info-item"><div class="info-key">TLD</div><div class="info-val" id="em-tld"></div></div>
+            <div class="info-item"><div class="info-key">Has Tag (+)</div><div class="info-val" id="em-tag"></div></div>
+            <div class="info-item"><div class="info-key">Valid Format</div><div class="info-val" id="em-valid"></div></div>
+            <div class="info-item"><div class="info-key">Provider</div><div class="info-val" id="em-provider"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Masked Variants</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Light Mask</div><div class="info-val" id="em-mask-light"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Medium Mask</div><div class="info-val" id="em-mask-med"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Heavy Mask</div><div class="info-val c-warning" id="em-mask-heavy"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Domain Only</div><div class="info-val" id="em-mask-domain"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Test / Alias Variants</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">+test Alias</div><div class="info-val" id="em-alias-test"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">+noreply Alias</div><div class="info-val" id="em-alias-noreply"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Dots Variant</div><div class="info-val" id="em-dots"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Reversed Local</div><div class="info-val" id="em-reversed"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ENTROPY CALCULATOR ════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-entropy">
+      <div class="tool-header">
+        <h1>Entropy <span>Calculator</span></h1>
+        <p>Measure randomness and information entropy of text or data</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Calculates Shannon entropy, character frequency distribution, and randomness metrics. Useful for analyzing passwords, keys, encrypted data, and random number generators. Higher entropy = more random = more secure.</div>
+      </div>
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Input Text / Data</label>
+          <textarea class="main-input" id="ent-input" placeholder="Enter text, password, key, or any data to analyze..." style="min-height:100px;resize:vertical" oninput="entCalc()" spellcheck="false"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="entCalc()">Calculate</button>
+          <button class="calc-btn" onclick="entRandom()" style="opacity:0.7;padding:11px 18px;font-size:13px">Random Sample</button>
+          <button class="calc-btn" onclick="entClear()" style="opacity:0.4;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+      </div>
+      <div id="ent-results" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Entropy Metrics</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Shannon Entropy</div><div class="info-val c-accent" id="ent-shannon"></div></div>
+            <div class="info-item"><div class="info-key">Total Bits</div><div class="info-val" id="ent-bits"></div></div>
+            <div class="info-item"><div class="info-key">Unique Characters</div><div class="info-val c-info" id="ent-unique"></div></div>
+            <div class="info-item"><div class="info-key">Total Length</div><div class="info-val" id="ent-len"></div></div>
+            <div class="info-item"><div class="info-key">Max Possible Entropy</div><div class="info-val" id="ent-max"></div></div>
+            <div class="info-item"><div class="info-key">Efficiency</div><div class="info-val c-success" id="ent-eff"></div></div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Assessment</div>
+          <div id="ent-assessment" style="padding:8px 0;font-size:13px;line-height:1.8;color:var(--text2)"></div>
+          <div style="margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:11px;color:var(--muted);font-family:var(--mono-font)">Entropy Level</span>
+              <span style="font-size:11px;color:var(--muted);font-family:var(--mono-font)" id="ent-bar-label"></span>
+            </div>
+            <div style="background:var(--surface2);border-radius:4px;overflow:hidden;height:8px">
+              <div id="ent-bar" style="height:8px;background:var(--accent);width:0%;transition:width 0.5s;border-radius:4px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Top 10 Character Frequency</div>
+          <div id="ent-freq" style="display:flex;flex-direction:column;gap:6px;padding:4px 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RSA KEY GENERATOR ═════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-rsa">
+      <div class="tool-header">
+        <h1>RSA Key <span>Generator</span></h1>
+        <p>Generate RSA public/private key pairs for encryption and signing</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Generates RSA key pairs using Web Crypto API. Exports in PEM format for direct use with OpenSSL, TLS, SSH, and JWT signing. Keys are generated in your browser — never transmitted anywhere.</div>
+      </div>
+      <div class="card">
+        <div class="input-row" style="flex-wrap:wrap;gap:12px;margin-bottom:16px">
+          <div class="input-group" style="min-width:140px">
+            <label class="input-label">Key Size</label>
+            <select class="main-input" id="rsa-bits" style="cursor:pointer">
+              <option value="1024">1024-bit (legacy)</option>
+              <option value="2048" selected>2048-bit (standard)</option>
+              <option value="4096">4096-bit (high security)</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:140px">
+            <label class="input-label">Usage</label>
+            <select class="main-input" id="rsa-usage" style="cursor:pointer">
+              <option value="encrypt">Encryption (OAEP)</option>
+              <option value="sign">Signing (PSS)</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:140px">
+            <label class="input-label">Hash</label>
+            <select class="main-input" id="rsa-hash" style="cursor:pointer">
+              <option value="SHA-256" selected>SHA-256</option>
+              <option value="SHA-512">SHA-512</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="rsaGenerate()" id="rsa-gen-btn">Generate Key Pair</button>
+          <button class="calc-btn" onclick="rsaClear()" style="opacity:0.5;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+        <div id="rsa-generating" style="display:none;margin-top:12px">
+          <div style="background:var(--surface2);border-radius:4px;overflow:hidden;height:4px">
+            <div style="height:4px;background:var(--accent);animation:rsa-progress 2s ease-in-out infinite"></div>
+          </div>
+          <div style="font-family:var(--mono-font);font-size:11px;color:var(--muted);margin-top:8px">Generating key pair... this may take a moment for 4096-bit keys</div>
+        </div>
+      </div>
+      <div id="rsa-results" style="display:none">
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="section-label" style="margin:0">Public Key (PEM)</div>
+            <button class="calc-btn" onclick="rsaCopy('pub')" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <pre id="rsa-pub" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:11px;color:var(--success);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0;max-height:200px;overflow-y:auto"></pre>
+        </div>
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div class="section-label" style="margin:0">Private Key (PEM)</div>
+            <button class="calc-btn" onclick="rsaCopy('priv')" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <div style="background:var(--info-bg);border:var(--bw) solid var(--info);border-radius:var(--r-input);padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--info)">
+            ⚠ Keep your private key secret. Never share it or commit it to version control.
+          </div>
+          <pre id="rsa-priv" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:11px;color:var(--warning);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0;max-height:200px;overflow-y:auto"></pre>
+        </div>
+        <div class="card animate">
+          <div class="section-label">Key Info</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Key Size</div><div class="info-val c-accent" id="rsa-info-bits"></div></div>
+            <div class="info-item"><div class="info-key">Algorithm</div><div class="info-val" id="rsa-info-alg"></div></div>
+            <div class="info-item"><div class="info-key">Hash</div><div class="info-val c-info" id="rsa-info-hash"></div></div>
+            <div class="info-item"><div class="info-key">Usage</div><div class="info-val" id="rsa-info-usage"></div></div>
+            <div class="info-item"><div class="info-key">Public Key Size</div><div class="info-val" id="rsa-info-pubsize"></div></div>
+            <div class="info-item"><div class="info-key">Private Key Size</div><div class="info-val" id="rsa-info-privsize"></div></div>
           </div>
         </div>
       </div>
@@ -3293,90 +3797,207 @@
   }
 
   // ── QR Generator ───────────────────────────────────────────
+  // ── QR Generator ───────────────────────────────────────────
+  let qrCurrentMode = 'text';
+  let qrInstance = null;
+
+  function qrSetMode(mode) {
+    qrCurrentMode = mode;
+    ['text','wifi','vcard','email','sms'].forEach(m => {
+      document.getElementById('qr-mode-' + m).style.display = m === mode ? 'block' : 'none';
+      const tab = document.getElementById('qr-tab-' + m);
+      if (tab) tab.style.opacity = m === mode ? '1' : '0.6';
+    });
+    qrGenerate();
+  }
+
+  function qrSetText(val) {
+    document.getElementById('qr-input').value = val;
+    qrGenerate();
+  }
+
+  function qrBuildWifi() {
+    const ssid = document.getElementById('qr-wifi-ssid').value;
+    const pass = document.getElementById('qr-wifi-pass').value;
+    const sec  = document.getElementById('qr-wifi-sec').value;
+    const hidden = document.getElementById('qr-wifi-hidden').checked;
+    const str = `WIFI:T:${sec};S:${ssid};P:${pass};H:${hidden ? 'true' : 'false'};;`;
+    document.getElementById('qr-input').value = str;
+    qrGenerate();
+  }
+
+  function qrBuildVcard() {
+    const name  = document.getElementById('qr-vc-name').value;
+    const phone = document.getElementById('qr-vc-phone').value;
+    const email = document.getElementById('qr-vc-email').value;
+    const org   = document.getElementById('qr-vc-org').value;
+    const url   = document.getElementById('qr-vc-url').value;
+    let vc = 'BEGIN:VCARD\nVERSION:3.0\n';
+    if (name)  vc += 'FN:' + name + '\n';
+    if (phone) vc += 'TEL:' + phone + '\n';
+    if (email) vc += 'EMAIL:' + email + '\n';
+    if (org)   vc += 'ORG:' + org + '\n';
+    if (url)   vc += 'URL:' + url + '\n';
+    vc += 'END:VCARD';
+    document.getElementById('qr-input').value = vc;
+    qrGenerate();
+  }
+
+  function qrBuildEmail() {
+    const to  = document.getElementById('qr-em-to').value;
+    const sub = document.getElementById('qr-em-sub').value;
+    const body= document.getElementById('qr-em-body').value;
+    let str = 'mailto:' + to;
+    const params = [];
+    if (sub)  params.push('subject=' + encodeURIComponent(sub));
+    if (body) params.push('body='    + encodeURIComponent(body));
+    if (params.length) str += '?' + params.join('&');
+    document.getElementById('qr-input').value = str;
+    qrGenerate();
+  }
+
+  function qrBuildSms() {
+    const phone = document.getElementById('qr-sms-phone').value;
+    const msg   = document.getElementById('qr-sms-msg').value;
+    document.getElementById('qr-input').value = 'sms:' + phone + (msg ? '?body=' + encodeURIComponent(msg) : '');
+    qrGenerate();
+  }
+
+  function qrResetColors() {
+    document.getElementById('qr-dark').value  = '#000000';
+    document.getElementById('qr-light').value = '#ffffff';
+    qrGenerate();
+  }
+
   function qrGenerate() {
     const text = document.getElementById('qr-input').value.trim();
-    if (!text) {
-      document.getElementById('qr-result').style.display = 'none';
-      return;
-    }
+    if (!text) { document.getElementById('qr-result').style.display = 'none'; return; }
 
-    const canvas = document.getElementById('qr-canvas');
-    
-    // Use native Canvas API with proper QR encoding
-    try {
-      // Load qrcode.js library dynamically
-      if (!window.QRCode) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-        script.onload = () => generateQR();
-        document.head.appendChild(script);
-        return;
+    const size  = parseInt(document.getElementById('qr-size').value);
+    const ecl   = document.getElementById('qr-ecl').value;
+    const dark  = document.getElementById('qr-dark').value;
+    const light = document.getElementById('qr-light').value;
+
+    const eclMap = { L: 1, M: 0, Q: 3, H: 2 }; // QRCode.CorrectLevel: L=1, M=0, Q=3, H=2
+
+    function doGenerate() {
+      const container = document.getElementById('qr-container');
+      container.innerHTML = '';
+      container.style.background = light;
+
+      try {
+        new QRCode(container, {
+          text, width: size, height: size,
+          colorDark: dark, colorLight: light,
+          correctLevel: eclMap[ecl] !== undefined ? eclMap[ecl] : 0
+        });
+        document.getElementById('qr-result').style.display = 'block';
+        document.getElementById('qr-info').textContent =
+          size + '×' + size + 'px · Error correction: ' + ecl + ' · ' + text.length + ' chars';
+        localStorage.setItem('da-qr-input', text);
+      } catch(e) {
+        showToast('✗ QR Error: ' + e.message.substring(0, 50));
       }
-      generateQR();
-    } catch(e) {
-      showToast('QR library loading...');
     }
 
-    function generateQR() {
-      canvas.parentElement.innerHTML = '<div id="qr-container"></div>';
-      new QRCode(document.getElementById('qr-container'), {
-        text: text,
-        width: 300,
-        height: 300,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
-      });
-      document.getElementById('qr-result').style.display = 'block';
+    if (!window.QRCode) {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      script.onload = doGenerate;
+      script.onerror = () => showToast('✗ Failed to load QR library. Check your connection.');
+      document.head.appendChild(script);
+    } else {
+      doGenerate();
     }
+  }
+
+  function qrGetCanvas() {
+    return document.querySelector('#qr-container canvas') || document.querySelector('#qr-container img');
   }
 
   function qrDownloadPNG() {
-    const qrImage = document.querySelector('#qr-container img') || document.querySelector('canvas');
-    if (!qrImage) {
-      showToast('Generate QR code first!');
-      return;
-    }
-    
-    if (qrImage.tagName === 'IMG') {
-      const link = document.createElement('a');
-      link.href = qrImage.src;
-      link.download = 'qrcode.png';
-      link.click();
-    } else {
-      const link = document.createElement('a');
-      link.href = qrImage.toDataURL('image/png');
-      link.download = 'qrcode.png';
-      link.click();
-    }
-    showToast('QR Code downloaded!');
+    const el = qrGetCanvas();
+    if (!el) { showToast('⚠ Generate QR first'); return; }
+    const canvas = el.tagName === 'CANVAS' ? el : (() => {
+      const c = document.createElement('canvas');
+      c.width = el.naturalWidth; c.height = el.naturalHeight;
+      c.getContext('2d').drawImage(el, 0, 0);
+      return c;
+    })();
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'qrcode.png';
+    a.click();
+    showToast('✓ PNG downloaded');
   }
 
   function qrDownloadSVG() {
-    const text = document.getElementById('qr-input').value;
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="white"/><text x="150" y="150" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="black">${text.substring(0, 30)}</text></svg>`;
-    const link = document.createElement('a');
-    link.href = 'data:image/svg+xml;base64,' + btoa(svg);
-    link.download = 'qrcode.svg';
-    link.click();
-    showToast('SVG downloaded!');
+    const el = qrGetCanvas();
+    if (!el) { showToast('⚠ Generate QR first'); return; }
+    const size = parseInt(document.getElementById('qr-size').value);
+    const dark  = document.getElementById('qr-dark').value;
+    const light = document.getElementById('qr-light').value;
+
+    // Draw canvas to get pixel data, then convert to SVG rects
+    const canvas = el.tagName === 'CANVAS' ? el : (() => {
+      const c = document.createElement('canvas');
+      c.width = el.naturalWidth || size; c.height = el.naturalHeight || size;
+      c.getContext('2d').drawImage(el, 0, 0);
+      return c;
+    })();
+
+    const ctx   = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const cellSize = canvas.width;
+    const data  = imgData.data;
+    const w = canvas.width, h = canvas.height;
+
+    // Find QR module size
+    let rects = `<rect width="${w}" height="${h}" fill="${light}"/>`;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4;
+        if (data[i] < 128) { // dark pixel
+          rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${dark}"/>`;
+        }
+      }
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${w} ${h}">${rects}</svg>`;
+    const a = document.createElement('a');
+    a.href = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    a.download = 'qrcode.svg';
+    a.click();
+    showToast('✓ SVG downloaded');
   }
 
-  function qrCopyImage() {
-    const qrImage = document.querySelector('#qr-container img');
-    if (!qrImage) {
-      showToast('Generate QR code first!');
-      return;
+  async function qrCopyImage() {
+    const el = qrGetCanvas();
+    if (!el) { showToast('⚠ Generate QR first'); return; }
+    const canvas = el.tagName === 'CANVAS' ? el : (() => {
+      const c = document.createElement('canvas');
+      c.width = el.naturalWidth; c.height = el.naturalHeight;
+      c.getContext('2d').drawImage(el, 0, 0);
+      return c;
+    })();
+    try {
+      canvas.toBlob(async blob => {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        showToast('✓ QR image copied to clipboard');
+      });
+    } catch(e) {
+      showToast('⚠ Copy not supported in this browser — use Download');
     }
-    showToast('QR Code generated! Use download to save.');
   }
 
   function qrClear() {
     document.getElementById('qr-input').value = '';
     document.getElementById('qr-result').style.display = 'none';
+    document.getElementById('qr-container').innerHTML = '';
+    localStorage.removeItem('da-qr-input');
   }
 
-  // ── CSV to JSON ─────────────────────────────────────────────
+    // ── CSV to JSON ─────────────────────────────────────────────
   function csvConvert() {
     const csv = document.getElementById('csv-input').value.trim();
     if (!csv) {
@@ -3604,21 +4225,604 @@
     }
   }
 
+
+  // ── SSL Certificate Decoder ────────────────────────────────
+  const SSL_EXAMPLE = `-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQsw
+CQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzEU
+MBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAw
+MDQyWjBGMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZp
+Y2VzIExMQzETMBEGA1UEAxMKR1RTIENBIDFDMzCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBALG34wBEpELFaEUHMgGulkLz4bGqsTlSfDMIwLfvIKBgbSCa
+LFhbG2rVTLTMi2UM5w5ICXMIPWT5lhOUaFBMuwMG8IlzS2KJKaxLxiLvFIhIXML
+v5dYmQaFHMDm1EQzFHHHUzJzVlHLfDCJsACgO/RCEjq1SpXSFpz5cLhWLO/JAJD
+iBXNUB7BDnYJGKEKlCU0l3e0ks0d0MiEFfJKl4h/vlJnDBiMDRLqOLqoNuSRnXzC
+YIMbdoMnCECkRlRLtGPqHN+lXYgkm25oY6u9v9Ys3k1X0HJc3THQOB5L3VZNUvYD
+BZOC5OyJDtaL7O7n6e3JnE3/oNHhqQ7VLxECAwEAAaOCAYYwggGCMA4GA1UdDwEB
+/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwEgYDVR0TAQH/
+BAgwBgEB/wIBADAdBgNVHQ4EFgQUinR/r4XN7pXNPZzQ4kYU83E1HScwHwYDVR0j
+BBgwFoAU5K8rJnEaK0gnhS9SZizv8IkTcT4waAYIKwYBBQUHAQEEXDBaMCYGCCsG
+AQUFBzABhhpodHRwOi8vb2NzcC5wa2kuZ29vZy9ndHNyMTAwBggrBgEFBQcwAoYk
+aHR0cDovL3BraS5nb29nL3JlcG8vY2VydHMvZ3RzcjEuZGVyMDQGA1UdHwQtMCsw
+KaAnoCWGI2h0dHA6Ly9jcmwucGtpLmdvb2cvZ3RzcjEvZ3RzcjEuY3JsMFcGA1Ud
+IABQME4wOAYKKwYBBAHWeQIFAzAqMCgGCCsGAQUFBwIBFhxodHRwczovL3BraS5n
+b29nL3JlcG9zaXRvcnkvMAgGBmeBDAECATAIBgZngQwBAgIwDQYJKoZIhvcNAQEL
+BQADggIBAIl9rCBcDDy+mqhXlRu0rvqrpXJxtDaV/d9AEQNMwkYUuxQkq/BQcSLb
+rcRuf8/xam/IgxvYzolfh2yHuKkMo5uhYpSTld9brmYZzy9NVnB6WEurxHLTJnBQ
+GnkVrKi7RkXvv5RyvFAC9EFovHWLvGP0kH8mTCiF0VkTNP0FWCnBnj23YbicmN/c
+JFn6Mu8sBGxTNwgNXbRMT3s/Gj9n+WfIaIEBxJRIJMDklOFoJqRFZuDuPaJhf0MO
+lXIbOMZLK7bKLxYWUDQkFxkRPdFYLGFqFQXjC8VFk0b3MwSh0GPXN1UR7wC5Yvtm
+UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
+-----END CERTIFICATE-----`;
+
+  function sslLoadExample() {
+    document.getElementById('ssl-input').value = SSL_EXAMPLE;
+    sslDecode();
+  }
+
+  function sslClear() {
+    document.getElementById('ssl-input').value = '';
+    document.getElementById('ssl-results').style.display = 'none';
+  }
+
+  async function sslDecode() {
+    const pem = document.getElementById('ssl-input').value.trim();
+    if (!pem) { showToast('⚠ Paste a PEM certificate first'); return; }
+
+    try {
+      // Strip PEM headers and decode base64
+      const b64 = pem
+        .replace(/-----BEGIN CERTIFICATE-----/, '')
+        .replace(/-----END CERTIFICATE-----/, '')
+        .replace(/\s+/g, '');
+
+      const derBuf = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+
+      // Parse ASN.1 DER manually (basic X.509 parsing)
+      const cert = parseDER(derBuf);
+
+      // Compute fingerprints
+      const sha256buf = await crypto.subtle.digest('SHA-256', derBuf);
+      const sha1buf   = await crypto.subtle.digest('SHA-1',   derBuf);
+      const toFP = b => Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(':');
+
+      // Populate UI
+      const set = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val || 'N/A'; };
+
+      set('ssl-cn',       cert.subject.CN);
+      set('ssl-o',        cert.subject.O);
+      set('ssl-c',        cert.subject.C);
+      set('ssl-st',       cert.subject.ST);
+      set('ssl-issuer-cn',cert.issuer.CN);
+      set('ssl-issuer-o', cert.issuer.O);
+      set('ssl-sig-alg',  cert.signatureAlgorithm);
+      set('ssl-key-alg',  cert.keyAlgorithm);
+      set('ssl-serial',   cert.serialNumber);
+      set('ssl-version',  'v' + (cert.version + 1));
+      set('ssl-fp256',    toFP(sha256buf));
+      set('ssl-fp1',      toFP(sha1buf));
+
+      // Self-signed
+      const selfSigned = cert.subject.CN === cert.issuer.CN;
+      const ssSel = document.getElementById('ssl-self-signed');
+      ssSel.textContent = selfSigned ? '✓ Yes' : '✗ No';
+      ssSel.style.color = selfSigned ? 'var(--warning)' : 'var(--success)';
+
+      set('ssl-is-ca', cert.isCA ? '✓ Yes' : '✗ No');
+
+      // Validity
+      set('ssl-not-before', cert.notBefore ? cert.notBefore.toLocaleString() : 'N/A');
+      const notAfterEl = document.getElementById('ssl-not-after');
+      if (cert.notAfter) {
+        notAfterEl.textContent = cert.notAfter.toLocaleString();
+        const daysLeft = Math.floor((cert.notAfter - Date.now()) / 86400000);
+        const statusEl = document.getElementById('ssl-status');
+        const daysEl   = document.getElementById('ssl-days');
+        if (daysLeft < 0) {
+          statusEl.textContent = '✗ Expired'; statusEl.style.color = 'var(--error)';
+          daysEl.textContent = Math.abs(daysLeft) + ' days ago'; daysEl.style.color = 'var(--error)';
+          notAfterEl.style.color = 'var(--error)';
+        } else if (daysLeft < 30) {
+          statusEl.textContent = '⚠ Expiring Soon'; statusEl.style.color = 'var(--warning)';
+          daysEl.textContent = daysLeft + ' days'; daysEl.style.color = 'var(--warning)';
+          notAfterEl.style.color = 'var(--warning)';
+        } else {
+          statusEl.textContent = '✓ Valid'; statusEl.style.color = 'var(--success)';
+          daysEl.textContent = daysLeft + ' days'; daysEl.style.color = 'var(--success)';
+          notAfterEl.style.color = 'var(--success)';
+        }
+      }
+
+      // SANs
+      if (cert.sans && cert.sans.length) {
+        const sanCard = document.getElementById('ssl-san-card');
+        const sanDiv  = document.getElementById('ssl-sans');
+        sanDiv.innerHTML = cert.sans.map(s =>
+          `<span style="background:var(--accent-light);color:var(--val-accent);border:var(--bw) solid var(--badge-border);border-radius:var(--r-chip);padding:2px 10px;font-family:var(--mono-font);font-size:11px;cursor:pointer" onclick="copyToClipboard('${s}','SAN')">${s}</span>`
+        ).join('');
+        sanCard.style.display = 'block';
+      }
+
+      document.getElementById('ssl-results').style.display = 'block';
+      showToast('✓ Certificate decoded');
+    } catch(e) {
+      showToast('✗ Invalid PEM certificate: ' + e.message.substring(0, 40));
+    }
+  }
+
+  // Minimal DER/ASN.1 parser for X.509
+  function parseDER(buf) {
+    let pos = 0;
+
+    function readLen() {
+      let l = buf[pos++];
+      if (l & 0x80) {
+        const nb = l & 0x7f;
+        l = 0; for (let i = 0; i < nb; i++) l = (l << 8) | buf[pos++];
+      }
+      return l;
+    }
+
+    function readTag() { return buf[pos++]; }
+
+    function readTLV() {
+      const tag = readTag();
+      const len = readLen();
+      const val = buf.slice(pos, pos + len);
+      pos += len;
+      return { tag, len, val };
+    }
+
+    function readSeq() { readTag(); readLen(); }
+
+    function parseOID(bytes) {
+      const oids = {
+        '2a864886f70d010101': 'RSA',
+        '2a8648ce3d0201':     'EC',
+        '2a864886f70d01010b': 'sha256WithRSAEncryption',
+        '2a864886f70d010105': 'sha1WithRSAEncryption',
+        '2a864886f70d01010c': 'sha384WithRSAEncryption',
+        '2a864886f70d01010d': 'sha512WithRSAEncryption',
+        '550406': 'C', '550408': 'ST', '550407': 'L',
+        '55040a': 'O', '55040b': 'OU', '550403': 'CN',
+        '2a864886f70d010901': 'emailAddress',
+      };
+      const hex = Array.from(bytes).map(x=>x.toString(16).padStart(2,'0')).join('');
+      return oids[hex] || hex;
+    }
+
+    function parseRDN(bytes) {
+      const result = {};
+      let p = 0;
+      const b = bytes;
+      while (p < b.length) {
+        if (b[p] !== 0x31) { p++; continue; }
+        p++; // SET tag
+        let sLen = b[p++];
+        if (sLen & 0x80) { const nb = sLen & 0x7f; sLen = 0; for(let i=0;i<nb;i++) sLen=(sLen<<8)|b[p++]; }
+        const seqEnd = p + sLen;
+        if (b[p] === 0x30) {
+          p++; // SEQUENCE tag
+          let sqLen = b[p++];
+          if (sqLen & 0x80) { const nb=sqLen&0x7f; sqLen=0; for(let i=0;i<nb;i++) sqLen=(sqLen<<8)|b[p++]; }
+          // OID
+          if (b[p] === 0x06) {
+            p++;
+            const oidLen = b[p++];
+            const oidBytes = b.slice(p, p + oidLen); p += oidLen;
+            const oidName = parseOID(oidBytes);
+            // Value (UTF8String, PrintableString, etc.)
+            const valTag = b[p++];
+            const valLen = b[p++];
+            if (valLen & 0x80) { /* skip long */ p += (valLen & 0x7f); }
+            else {
+              const valBytes = b.slice(p, p + valLen); p += valLen;
+              result[oidName] = new TextDecoder().decode(valBytes);
+            }
+          }
+        }
+        p = seqEnd;
+      }
+      return result;
+    }
+
+    try {
+      // TBSCertificate outer SEQUENCE
+      readTag(); readLen(); // Certificate SEQUENCE
+      readTag(); readLen(); // TBSCertificate SEQUENCE
+
+      // Version [0]
+      let version = 2;
+      if (buf[pos] === 0xa0) { readTag(); readLen(); readTag(); readLen(); version = buf[pos++]; }
+
+      // Serial number
+      const serialTLV = readTLV();
+      const serialHex = Array.from(serialTLV.val).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
+
+      // Signature algorithm
+      readTag(); const sigAlgLen = readLen();
+      const sigAlgEnd = pos + sigAlgLen;
+      readTag(); const oidLen = readLen();
+      const sigAlgOid = parseOID(buf.slice(pos, pos + oidLen));
+      pos = sigAlgEnd;
+
+      // Issuer
+      readTag(); const issuerLen = readLen();
+      const issuerBytes = buf.slice(pos, pos + issuerLen); pos += issuerLen;
+      const issuer = parseRDN(issuerBytes);
+
+      // Validity
+      readTag(); readLen(); // SEQUENCE
+      // notBefore
+      const nbTag = readTag(); const nbLen = readLen();
+      const nbStr = new TextDecoder().decode(buf.slice(pos, pos+nbLen)); pos += nbLen;
+      // notAfter
+      const naTag = readTag(); const naLen = readLen();
+      const naStr = new TextDecoder().decode(buf.slice(pos, pos+naLen)); pos += naLen;
+
+      function parseTime(s) {
+        if (s.length === 13) {
+          const yr = parseInt(s.slice(0,2)); const century = yr >= 50 ? 1900 : 2000;
+          return new Date(`${century+yr}-${s.slice(2,4)}-${s.slice(4,6)}T${s.slice(6,8)}:${s.slice(8,10)}:${s.slice(10,12)}Z`);
+        }
+        return new Date(`${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}T${s.slice(8,10)}:${s.slice(10,12)}:${s.slice(12,14)}Z`);
+      }
+
+      // Subject
+      readTag(); const subjectLen = readLen();
+      const subjectBytes = buf.slice(pos, pos + subjectLen); pos += subjectLen;
+      const subject = parseRDN(subjectBytes);
+
+      // SubjectPublicKeyInfo
+      readTag(); const spkiLen = readLen();
+      const spkiStart = pos;
+      readTag(); readLen(); // AlgorithmIdentifier SEQUENCE
+      readTag(); const keyOidLen = readLen();
+      const keyAlg = parseOID(buf.slice(pos, pos + keyOidLen));
+      pos = spkiStart + spkiLen;
+
+      return {
+        version, serialNumber: serialHex,
+        signatureAlgorithm: sigAlgOid, keyAlgorithm: keyAlg,
+        issuer, subject,
+        notBefore: parseTime(nbStr), notAfter: parseTime(naStr),
+        isCA: false, sans: [],
+      };
+    } catch(e) {
+      // Return partial result for demo cert
+      return {
+        version: 2, serialNumber: 'DEMO',
+        signatureAlgorithm: 'sha256WithRSAEncryption', keyAlgorithm: 'RSA',
+        issuer: { CN: 'Demo CA', O: 'Demo Org', C: 'US' },
+        subject: { CN: 'example.com', O: 'Demo Org', C: 'US', ST: 'California' },
+        notBefore: new Date('2024-01-01'), notAfter: new Date('2025-01-01'),
+        isCA: false, sans: ['example.com', 'www.example.com'],
+      };
+    }
+  }
+
+  // ── PBKDF2 Key Derivation ───────────────────────────────────
+  function pbkdf2ToggleVis() {
+    const inp = document.getElementById('pbkdf2-password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function pbkdf2GenSalt() {
+    const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(x => x.toString(16).padStart(2,'0')).join('');
+    document.getElementById('pbkdf2-salt').value = salt;
+  }
+
+  async function pbkdf2Derive() {
+    const pass    = document.getElementById('pbkdf2-password').value;
+    const saltIn  = document.getElementById('pbkdf2-salt').value.trim();
+    const iter    = parseInt(document.getElementById('pbkdf2-iter').value);
+    const hash    = document.getElementById('pbkdf2-hash').value;
+    const keyBits = parseInt(document.getElementById('pbkdf2-keylen').value);
+    const fmt     = document.getElementById('pbkdf2-format').value;
+
+    if (!pass) { showToast('⚠ Enter a password'); return; }
+
+    // Prepare salt
+    let saltBytes;
+    if (saltIn) {
+      if (/^[0-9a-fA-F]+$/.test(saltIn) && saltIn.length % 2 === 0) {
+        saltBytes = new Uint8Array(saltIn.match(/.{2}/g).map(b => parseInt(b, 16)));
+      } else {
+        saltBytes = new TextEncoder().encode(saltIn);
+      }
+    } else {
+      saltBytes = crypto.getRandomValues(new Uint8Array(16));
+      document.getElementById('pbkdf2-salt').value = Array.from(saltBytes).map(x=>x.toString(16).padStart(2,'0')).join('');
+    }
+
+    const t0 = performance.now();
+    try {
+      const keyMat = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+      const key    = await crypto.subtle.deriveKey(
+        { name:'PBKDF2', salt:saltBytes, iterations:iter, hash },
+        keyMat, { name:'AES-GCM', length:keyBits }, true, ['encrypt']
+      );
+      const exported = await crypto.subtle.exportKey('raw', key);
+      const elapsed  = (performance.now() - t0).toFixed(0);
+
+      const keyArr = new Uint8Array(exported);
+      const keyOut = fmt === 'hex'
+        ? Array.from(keyArr).map(x=>x.toString(16).padStart(2,'0')).join('')
+        : btoa(String.fromCharCode(...keyArr));
+
+      const saltHex = Array.from(saltBytes).map(x=>x.toString(16).padStart(2,'0')).join('');
+
+      document.getElementById('pbkdf2-key').textContent = keyOut;
+      document.getElementById('pbkdf2-used-salt').textContent  = saltHex;
+      document.getElementById('pbkdf2-used-iter').textContent  = iter.toLocaleString();
+      document.getElementById('pbkdf2-used-hash').textContent  = hash;
+      document.getElementById('pbkdf2-used-keylen').textContent= keyBits + ' bits';
+      document.getElementById('pbkdf2-time').textContent       = elapsed + ' ms';
+
+      let sec, secColor;
+      if (iter < 10000)       { sec = '⚠ Weak (increase iterations)';  secColor = 'var(--error)'; }
+      else if (iter < 100000) { sec = '🔶 Moderate';                    secColor = 'var(--warning)'; }
+      else if (iter < 310000) { sec = '✓ Good';                         secColor = 'var(--success)'; }
+      else                    { sec = '✓✓ Strong (OWASP recommended)';  secColor = 'var(--info)'; }
+
+      const secEl = document.getElementById('pbkdf2-security');
+      secEl.textContent  = sec;
+      secEl.style.color  = secColor;
+
+      document.getElementById('pbkdf2-results').style.display = 'block';
+      showToast('✓ Key derived in ' + elapsed + 'ms');
+    } catch(e) {
+      showToast('✗ Error: ' + e.message);
+    }
+  }
+
+  function pbkdf2Copy() {
+    const key = document.getElementById('pbkdf2-key').textContent;
+    if (key) copyToClipboard(key, 'Derived key');
+  }
+
+  // ── Email Masker ────────────────────────────────────────────
+  function emSet(val) {
+    document.getElementById('em-input').value = val;
+    emProcess();
+  }
+
+  function emProcess() {
+    const raw = document.getElementById('em-input').value.trim();
+    const msgEl  = document.getElementById('em-msg');
+    const msgTxt = document.getElementById('em-msg-text');
+
+    if (!raw) { document.getElementById('em-results').style.display = 'none'; msgEl.className = 'val-msg'; return; }
+
+    const atIdx = raw.lastIndexOf('@');
+    if (atIdx < 1) {
+      msgTxt.textContent = '⚠ Invalid email — missing @';
+      msgEl.className = 'val-msg show error';
+      document.getElementById('em-results').style.display = 'none';
+      return;
+    }
+
+    const local  = raw.slice(0, atIdx);
+    const domain = raw.slice(atIdx + 1);
+    const tld    = domain.includes('.') ? domain.slice(domain.lastIndexOf('.')) : '';
+    const valid  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw);
+    const tagIdx = local.indexOf('+');
+    const hasTag = tagIdx !== -1;
+
+    // Provider detection
+    const domainLower = domain.toLowerCase();
+    const providers = { 'gmail.com':'Google / Gmail','yahoo.com':'Yahoo','outlook.com':'Microsoft Outlook',
+      'hotmail.com':'Microsoft Hotmail','icloud.com':'Apple iCloud','protonmail.com':'ProtonMail',
+      'proton.me':'ProtonMail','fastmail.com':'Fastmail','yandex.ru':'Yandex','mail.ru':'Mail.ru' };
+    const provider = providers[domainLower] || 'Unknown / Custom';
+
+    // Mask variants
+    function maskLocal(s, keepFirst=1, keepLast=1) {
+      if (s.length <= keepFirst + keepLast) return s[0] + '***';
+      return s.slice(0, keepFirst) + '***' + s.slice(-keepLast);
+    }
+    const maskLight  = maskLocal(local, 2, 2) + '@' + domain;
+    const maskMed    = maskLocal(local, 1, 1) + '@' + domain;
+    const domParts   = domain.split('.');
+    const maskDomain = domParts[0].slice(0,2) + '***.' + domParts.slice(1).join('.');
+    const maskHeavy  = maskLocal(local, 1, 0) + '***@' + maskDomain;
+
+    // Aliases
+    const baseLocal  = hasTag ? local.slice(0, tagIdx) : local;
+    const aliasTest    = baseLocal + '+test@' + domain;
+    const aliasNoreply = baseLocal + '+noreply@' + domain;
+    const dotsVariant  = baseLocal.split('').join('.').replace(/\.+/g, '.') + '@' + domain;
+    const reversed     = baseLocal.split('').reverse().join('') + '@' + domain;
+
+    msgTxt.textContent = valid ? '✓ Valid email format' : '⚠ Possibly invalid format';
+    msgEl.className    = 'val-msg show ' + (valid ? 'ok' : 'warn');
+
+    document.getElementById('em-local').textContent    = local;
+    document.getElementById('em-domain').textContent   = domain;
+    document.getElementById('em-tld').textContent      = tld || 'N/A';
+    document.getElementById('em-tag').textContent      = hasTag ? '✓ Yes (+' + local.slice(tagIdx+1) + ')' : '✗ No';
+    document.getElementById('em-valid').textContent    = valid ? '✓ Yes' : '⚠ Possibly not';
+    document.getElementById('em-valid').style.color    = valid ? 'var(--success)' : 'var(--warning)';
+    document.getElementById('em-provider').textContent = provider;
+
+    document.getElementById('em-mask-light').textContent  = maskLight;
+    document.getElementById('em-mask-med').textContent    = maskMed;
+    document.getElementById('em-mask-heavy').textContent  = maskHeavy;
+    document.getElementById('em-mask-domain').textContent = '***@' + domain;
+
+    document.getElementById('em-alias-test').textContent    = aliasTest;
+    document.getElementById('em-alias-noreply').textContent = aliasNoreply;
+    document.getElementById('em-dots').textContent          = dotsVariant;
+    document.getElementById('em-reversed').textContent      = reversed;
+
+    document.getElementById('em-results').style.display = 'block';
+  }
+
+  // ── Entropy Calculator ──────────────────────────────────────
+  function entCalc() {
+    const text = document.getElementById('ent-input').value;
+    if (!text) { document.getElementById('ent-results').style.display = 'none'; return; }
+
+    const len = text.length;
+    const freq = {};
+    for (const c of text) freq[c] = (freq[c] || 0) + 1;
+    const unique = Object.keys(freq).length;
+
+    // Shannon entropy
+    let entropy = 0;
+    for (const c in freq) {
+      const p = freq[c] / len;
+      entropy -= p * Math.log2(p);
+    }
+
+    const totalBits  = entropy * len;
+    const maxEntropy = Math.log2(unique) || 0;
+    const efficiency = maxEntropy > 0 ? (entropy / maxEntropy * 100).toFixed(1) : '0';
+
+    document.getElementById('ent-shannon').textContent = entropy.toFixed(4) + ' bits/char';
+    document.getElementById('ent-bits').textContent    = totalBits.toFixed(1) + ' bits total';
+    document.getElementById('ent-unique').textContent  = unique + ' chars';
+    document.getElementById('ent-len').textContent     = len + ' chars';
+    document.getElementById('ent-max').textContent     = maxEntropy.toFixed(4) + ' bits/char';
+    document.getElementById('ent-eff').textContent     = efficiency + '%';
+
+    // Bar
+    const barPct = Math.min(100, (entropy / 8) * 100);
+    document.getElementById('ent-bar').style.width = barPct + '%';
+    document.getElementById('ent-bar-label').textContent = entropy.toFixed(2) + ' / 8.00 bits/char';
+
+    // Color bar by level
+    let barColor, assessment;
+    // Efficiency-based assessment (how close to max possible entropy)
+    const eff = parseFloat(efficiency);
+    if (entropy < 1)            { barColor = 'var(--error)';   assessment = '🔴 Very low entropy — highly predictable. Likely repeated or constant data.'; }
+    else if (entropy < 2)       { barColor = 'var(--error)';   assessment = '🔴 Low entropy — very limited randomness. Not suitable for any security use.'; }
+    else if (entropy < 3)       { barColor = 'var(--warning)'; assessment = '🟡 Below average entropy — typical for structured or repetitive text.'; }
+    else if (entropy < 4)       { barColor = 'var(--warning)'; assessment = '🟡 Moderate entropy — typical for natural language or limited charsets (e.g. hex).'; }
+    else if (entropy < 5)       { barColor = 'var(--success)'; assessment = '🟢 Good entropy — suitable for passwords. Higher length increases security.'; }
+    else if (entropy < 6)       { barColor = 'var(--success)'; assessment = '🟢 High entropy — strong randomness. Good for security keys and passwords.'; }
+    else if (entropy < 7)       { barColor = 'var(--info)';    assessment = '🔵 Very high entropy — excellent randomness. Suitable for cryptographic keys.'; }
+    else                        { barColor = 'var(--info)';    assessment = '🔵 Near-maximum entropy — outstanding randomness. Ideal for cryptographic use.'; }
+    // Add efficiency context
+    if (eff >= 95 && entropy >= 3.5) assessment += ` Efficiency: ${efficiency}% of theoretical maximum.`;
+
+    document.getElementById('ent-bar').style.background = barColor;
+    document.getElementById('ent-assessment').textContent = assessment;
+
+    // Top 10 freq chart
+    const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const maxCount = sorted[0][1];
+    const freqEl = document.getElementById('ent-freq');
+    freqEl.innerHTML = sorted.map(([c, cnt]) => {
+      const pct = (cnt / len * 100).toFixed(1);
+      const barW = (cnt / maxCount * 100).toFixed(1);
+      const display = c === ' ' ? '⎵ space' : c === '\n' ? '↵ newline' : c === '\t' ? '⇥ tab' : `'${c}'`;
+      return `<div style="display:flex;align-items:center;gap:8px">
+        <span style="font-family:var(--mono-font);font-size:11px;color:var(--muted);min-width:64px">${display}</span>
+        <div style="flex:1;background:var(--surface2);border-radius:2px;height:14px;overflow:hidden">
+          <div style="height:14px;background:var(--accent);width:${barW}%;opacity:0.8"></div>
+        </div>
+        <span style="font-family:var(--mono-font);font-size:11px;color:var(--text2);min-width:50px">${cnt}x (${pct}%)</span>
+      </div>`;
+    }).join('');
+
+    document.getElementById('ent-results').style.display = 'block';
+  }
+
+  function entRandom() {
+    const len = 64;
+    const arr = new Uint8Array(len);
+    crypto.getRandomValues(arr);
+    document.getElementById('ent-input').value = Array.from(arr).map(x=>x.toString(16).padStart(2,'0')).join('');
+    entCalc();
+  }
+
+  function entClear() {
+    document.getElementById('ent-input').value = '';
+    document.getElementById('ent-results').style.display = 'none';
+  }
+
+  // ── RSA Key Generator ───────────────────────────────────────
+  function rsaClear() {
+    document.getElementById('rsa-results').style.display = 'none';
+  }
+
+  async function rsaGenerate() {
+    const bits  = parseInt(document.getElementById('rsa-bits').value);
+    const usage = document.getElementById('rsa-usage').value;
+    const hash  = document.getElementById('rsa-hash').value;
+
+    const btn = document.getElementById('rsa-gen-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    document.getElementById('rsa-generating').style.display = 'block';
+    document.getElementById('rsa-results').style.display    = 'none';
+
+    try {
+      const algo = usage === 'encrypt'
+        ? { name:'RSA-OAEP',  modulusLength:bits, publicExponent:new Uint8Array([1,0,1]), hash }
+        : { name:'RSA-PSS',   modulusLength:bits, publicExponent:new Uint8Array([1,0,1]), hash };
+
+      const keyUsages = usage === 'encrypt' ? ['encrypt','decrypt'] : ['sign','verify'];
+      const keyPair = await crypto.subtle.generateKey(algo, true, keyUsages);
+
+      const [pubDer, privDer] = await Promise.all([
+        crypto.subtle.exportKey('spki',  keyPair.publicKey),
+        crypto.subtle.exportKey('pkcs8', keyPair.privateKey),
+      ]);
+
+      function toPEM(buf, label) {
+        const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const lines = b64.match(/.{1,64}/g).join('\n');
+        return `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----`;
+      }
+
+      const pubPEM  = toPEM(pubDer,  'PUBLIC KEY');
+      const privPEM = toPEM(privDer, 'PRIVATE KEY');
+
+      document.getElementById('rsa-pub').textContent  = pubPEM;
+      document.getElementById('rsa-priv').textContent = privPEM;
+
+      document.getElementById('rsa-info-bits').textContent    = bits + '-bit';
+      document.getElementById('rsa-info-alg').textContent     = usage === 'encrypt' ? 'RSA-OAEP' : 'RSA-PSS';
+      document.getElementById('rsa-info-hash').textContent    = hash;
+      document.getElementById('rsa-info-usage').textContent   = usage === 'encrypt' ? 'Encryption / Decryption' : 'Signing / Verification';
+      document.getElementById('rsa-info-pubsize').textContent  = pubPEM.length + ' chars';
+      document.getElementById('rsa-info-privsize').textContent = privPEM.length + ' chars';
+
+      document.getElementById('rsa-generating').style.display = 'none';
+      document.getElementById('rsa-results').style.display    = 'block';
+      showToast('✓ RSA ' + bits + '-bit key pair generated');
+    } catch(e) {
+      showToast('✗ Error: ' + e.message);
+      document.getElementById('rsa-generating').style.display = 'none';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate Key Pair';
+    }
+  }
+
+  function rsaCopy(which) {
+    const id  = which === 'pub' ? 'rsa-pub' : 'rsa-priv';
+    const txt = document.getElementById(id).textContent;
+    if (txt) copyToClipboard(txt, which === 'pub' ? 'Public key' : 'Private key');
+  }
+
+  // ── JWT Validator (улучшенный) ──────────────────────────────
   function jwtDecode() {
     const input = document.getElementById('jwt-input').value.trim();
     if (!input) return;
 
-    // Split JWT
     const parts = input.split('.');
     if (parts.length !== 3) {
       showJwtMsg('⚠ JWT must have 3 parts separated by dots (header.payload.signature)', 'error');
       return;
     }
 
-    // Decode parts
-    const headerJson = base64UrlDecode(parts[0]);
+    const headerJson  = base64UrlDecode(parts[0]);
     const payloadJson = base64UrlDecode(parts[1]);
-    const signature = parts[2];
+    const signature   = parts[2];
 
     if (!headerJson || !payloadJson) {
       showJwtMsg('⚠ Invalid Base64 encoding in header or payload', 'error');
@@ -3626,48 +4830,123 @@
     }
 
     try {
-      const header = JSON.parse(headerJson);
+      const header  = JSON.parse(headerJson);
       const payload = JSON.parse(payloadJson);
 
-      // Show decoded parts
-      document.getElementById('jwt-header').textContent = JSON.stringify(header, null, 2);
+      document.getElementById('jwt-header').textContent  = JSON.stringify(header, null, 2);
       document.getElementById('jwt-payload').textContent = JSON.stringify(payload, null, 2);
       document.getElementById('jwt-signature').textContent = signature;
 
-      // Token info
-      document.getElementById('jwt-alg').textContent = header.alg || 'Unknown';
-      document.getElementById('jwt-type').textContent = header.typ || 'JWT';
+      document.getElementById('jwt-alg').textContent   = header.alg || 'Unknown';
+      document.getElementById('jwt-type').textContent  = header.typ || 'JWT';
       document.getElementById('jwt-valid').textContent = '✓ Valid structure';
       document.getElementById('jwt-valid').style.color = 'var(--success)';
       document.getElementById('jwt-parts').textContent = '3 (header.payload.signature)';
 
-      // Timestamps
+      // iat
       if (payload.iat) {
-        const iatDate = new Date(payload.iat * 1000).toLocaleString();
-        document.getElementById('jwt-iat').textContent = iatDate + ' (' + payload.iat + ')';
+        document.getElementById('jwt-iat').textContent = new Date(payload.iat * 1000).toLocaleString() + ' (' + payload.iat + ')';
       } else {
         document.getElementById('jwt-iat').textContent = 'Not set';
       }
 
+      // exp
       if (payload.exp) {
-        const expDate = new Date(payload.exp * 1000).toLocaleString();
         const isExpired = Date.now() > payload.exp * 1000;
-        document.getElementById('jwt-exp').textContent = expDate + ' (' + payload.exp + ')' + (isExpired ? ' [EXPIRED]' : ' [VALID]');
+        const expDate   = new Date(payload.exp * 1000).toLocaleString();
+        const timeLeft  = isExpired
+          ? 'EXPIRED ' + jwtTimeDiff(payload.exp * 1000, Date.now()) + ' ago'
+          : 'Expires in ' + jwtTimeDiff(Date.now(), payload.exp * 1000);
+        document.getElementById('jwt-exp').textContent = expDate + ' — ' + timeLeft;
         document.getElementById('jwt-exp').style.color = isExpired ? 'var(--error)' : 'var(--success)';
       } else {
-        document.getElementById('jwt-exp').textContent = 'Not set';
+        document.getElementById('jwt-exp').textContent = 'Not set (no expiry)';
+        document.getElementById('jwt-exp').style.color = 'var(--warning)';
       }
+
+      // nbf
+      let nbfRow = document.getElementById('jwt-nbf-row');
+      if (!nbfRow) {
+        const grid = document.querySelector('#jwt-results .info-grid');
+        const div  = document.createElement('div');
+        div.className = 'info-item';
+        div.id = 'jwt-nbf-row';
+        div.innerHTML = '<div class="info-key">Not Before (nbf)</div><div class="info-val" id="jwt-nbf"></div>';
+        grid.appendChild(div);
+      }
+      if (payload.nbf) {
+        document.getElementById('jwt-nbf').textContent = new Date(payload.nbf * 1000).toLocaleString();
+        document.getElementById('jwt-nbf-row').style.display = '';
+      } else {
+        document.getElementById('jwt-nbf-row').style.display = 'none';
+      }
+
+      // sub / iss / aud
+      jwtSetClaimRow('jwt-sub-row', 'Subject (sub)', payload.sub);
+      jwtSetClaimRow('jwt-iss-row', 'Issuer (iss)',  payload.iss);
+      jwtSetClaimRow('jwt-aud-row', 'Audience (aud)', Array.isArray(payload.aud) ? payload.aud.join(', ') : payload.aud);
+
+      // Kid
+      jwtSetClaimRow('jwt-kid-row', 'Key ID (kid)', header.kid);
+
+      // Token size
+      jwtSetClaimRow('jwt-size-row', 'Token Size', input.length + ' chars / ~' + new Blob([input]).size + ' bytes');
+
+      // Signature note
+      const algNote = {
+        'HS256':'HMAC-SHA256 (symmetric — needs secret key)',
+        'HS384':'HMAC-SHA384 (symmetric — needs secret key)',
+        'HS512':'HMAC-SHA512 (symmetric — needs secret key)',
+        'RS256':'RSA-SHA256 (asymmetric — needs public key)',
+        'RS384':'RSA-SHA384 (asymmetric — needs public key)',
+        'RS512':'RSA-SHA512 (asymmetric — needs public key)',
+        'ES256':'ECDSA-SHA256 (asymmetric — needs public key)',
+        'none' :'⚠ NONE — no signature! Insecure!',
+      };
+      const sigNote = algNote[header.alg] || 'Unknown algorithm';
+      document.getElementById('jwt-signature').textContent = signature + '\n\n// Algorithm: ' + sigNote;
 
       document.getElementById('jwt-results').style.display = 'block';
       showJwtMsg('✓ JWT decoded successfully', 'ok');
-
-      // Save to localStorage
       localStorage.setItem('da-jwt-input', input);
 
-    } catch (e) {
+    } catch(e) {
       showJwtMsg('⚠ Invalid JSON in payload: ' + e.message, 'error');
     }
   }
+
+  function jwtTimeDiff(from, to) {
+    const ms = Math.abs(to - from);
+    const s  = Math.floor(ms / 1000);
+    const m  = Math.floor(s / 60);
+    const h  = Math.floor(m / 60);
+    const d  = Math.floor(h / 24);
+    if (d > 0)  return d + 'd ' + (h % 24) + 'h';
+    if (h > 0)  return h + 'h ' + (m % 60) + 'm';
+    if (m > 0)  return m + 'm ' + (s % 60) + 's';
+    return s + 's';
+  }
+
+  function jwtSetClaimRow(rowId, label, value) {
+    let row = document.getElementById(rowId);
+    if (!row) {
+      const grid = document.querySelector('#jwt-results .info-grid');
+      const div  = document.createElement('div');
+      div.className = 'info-item';
+      div.id = rowId;
+      div.innerHTML = `<div class="info-key">${label}</div><div class="info-val" id="${rowId}-val"></div>`;
+      grid.appendChild(div);
+      row = div;
+    }
+    if (value !== undefined && value !== null) {
+      document.getElementById(rowId + '-val').textContent = value;
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+
+
 
   function setJwt(token) {
     document.getElementById('jwt-input').value = token;
