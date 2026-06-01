@@ -1,6 +1,6 @@
 # DarkenAmber IT Tools
 
-**17+ free, open-source IT tools in a single HTML file. No backend. No registration. Works offline.**
+**26 free, open-source IT & security tools in a single HTML file. No backend. No registration. Works offline.**
 
 🌐 **Live Demo:** https://darkenamber.github.io/DarkenAmber-it-tools
 
@@ -10,15 +10,14 @@
 
 ✅ **Single HTML file** — no dependencies, no build tools  
 ✅ **3 themes** — Dark, Light, Retro 8-bit  
-✅ **Dark/Light mode** switcher in header  
 ✅ **localStorage** — saves all your inputs automatically  
-✅ **AI-assisted tools** — uses YOUR Claude API key (stored locally only)  
+✅ **Zero data collection** — nothing ever leaves your browser  
 ✅ **Copy buttons** — click to copy any result  
-✅ **Responsive** — works on mobile, tablet, desktop  
+✅ **Works offline** — no internet required after first load  
 
 ---
 
-## 🧰 Tools (17)
+## 🧰 Tools (26)
 
 ### 🌐 **Networking**
 - **IP Calculator** — CIDR, subnet mask, binary, network details
@@ -30,11 +29,12 @@
 - **Base64 Encoder/Decoder** — Text & file encoding
 - **Hash Generator** — MD5, SHA1, SHA256, SHA512
 - **Regex Tester** — Live matching with flags & patterns
-- **JWT Decoder** — Parse header, payload, check expiry
+- **JWT Validator** — Parse header, payload, check expiry, sub/iss/aud/kid claims
 - **Timestamp Converter** — Unix ↔ readable dates, timezone-aware
 - **UUID Generator** — v4 IDs, bulk up to 1000
 
 ### 📁 **File & Format**
+- **QR Generator** — Text, URL, WiFi, vCard, Email, SMS · PNG & SVG export · custom colors
 - **CSV to JSON** — Delimiter options, header detection
 - **HEX Viewer** — Text ↔ hexadecimal conversion
 - **Text Diff** — Side-by-side comparison, color highlights
@@ -46,59 +46,70 @@
 ### 🎨 **Design**
 - **Color Converter** — HEX ↔ RGB ↔ HSL with palettes
 
-### ⚖️ **Convert**
+### ⚖️ **Converters**
 - **Unit Converter** — Storage, temperature, length, weight, time, speed
 
-### 🤖 **AI-Assisted** (requires your Claude API key)
-- **Log Analyzer** — Analyze logs for errors, warnings, insights
-- **README Generator** — Generate professional README.md
-- **Git Commit AI** — Generate conventional commit messages
-- **Script Generator** — Generate code in Python, Bash, JS, Go, Rust, SQL
+### 🛡️ **Security**
+- **Password Generator** — Cryptographically secure · entropy meter · bulk generation
+- **AES Encrypt/Decrypt** — AES-GCM 256-bit · PBKDF2 key derivation · browser-native
+- **File Hash Calculator** — SHA-256, SHA-512, SHA-1 · drag & drop · hash verification
+- **URL Encoder/Decoder** — encodeURIComponent & encodeURI modes · live stats
+- **SSL Certificate Decoder** — PEM/X.509 parsing · validity · SANs · fingerprints
+- **PBKDF2 Key Derivation** — Configurable iterations, hash, key length · OWASP presets
+- **Email Masker** — 4 mask levels · alias generation · provider detection
+- **Entropy Calculator** — Shannon entropy · frequency chart · randomness assessment
+- **RSA Key Generator** — 1024/2048/4096-bit · OAEP & PSS · PEM export
+- **Security & Privacy** — Zero data collection guarantee
 
 ---
 
 ## 🚀 Quick Start
 
 **Option 1: Use Online**
-Just visit: https://darkenamber.github.io/DarkenAmber-it-tools
+```
+https://darkenamber.github.io/DarkenAmber-it-tools
+```
 
 **Option 2: Download & Run Locally**
 ```bash
-# Clone repo
 git clone https://github.com/DarkenAmber/DarkenAmber-it-tools.git
 cd DarkenAmber-it-tools
-
-# Open in browser
 open index.html
-# or
-firefox index.html
 ```
 
 ---
 
-## 🔑 Using AI Tools
+## 🔒 Security & Privacy
 
-1. Click **🔑** button in top-right corner
-2. Enter your **Claude API key** (from https://console.anthropic.com)
-3. Start using AI tools
-4. Your key is **stored locally only** — DarkenAmber never sees it
-5. You control billing & usage
+All cryptographic operations use the **Web Crypto API** — the browser's native, audited implementation:
+
+| What | How |
+|------|-----|
+| AES Encryption | AES-GCM 256-bit |
+| Key Derivation | PBKDF2 / SHA-256 / 100k+ iterations |
+| RSA Keys | Generated locally, never transmitted |
+| File Hashing | SHA-256/512/1 via SubtleCrypto |
+| Password Generation | `crypto.getRandomValues()` |
+
+**Verify yourself:** Open DevTools → Network tab → use any tool → you'll see **zero external requests** (except QR library on first use).
 
 ---
 
 ## 🎨 Themes
 
-**Dark** (default) — `#0F0A05` background, amber accents  
-**Light** — `#B8B4AC` background, warm brown accents  
-**Retro** — purple/orange gradient, scanlines, Press Start 2P font  
+| Theme | Background | Accent |
+|-------|-----------|--------|
+| **Dark** (default) | `#0F0A05` | Amber |
+| **Light** | `#B8B4AC` | Warm brown |
+| **Retro** | Purple gradient + scanlines | Orange · Press Start 2P font |
 
 ---
 
 ## 💾 Data Storage
 
 - All inputs saved to **localStorage** automatically
-- No server requests except Claude API calls
-- No cookies, no tracking
+- **No server requests** — zero telemetry, zero tracking
+- No cookies, no analytics, no ads
 - **Clear All** button removes everything (theme choice kept)
 
 ---
@@ -106,24 +117,21 @@ firefox index.html
 ## 🛠️ Tech Stack
 
 - **HTML5 + CSS3 + Vanilla JavaScript**
-- **Zero dependencies**
-- **No build tools needed**
-- **~4500 lines total**
-- **194 KB** (single file)
+- **Zero npm dependencies**, no build tools
+- **~6000 lines**, **~277 KB** (single file)
+- External: `qrcodejs` loaded on demand (QR Generator only)
 
 ---
 
 ## 📜 License
 
-MIT License — Feel free to fork, modify, redistribute.
+MIT License — free to fork, modify, redistribute.
 
 ---
 
 ## 🌟 Support
 
-**Like the tools?** Consider supporting:
 - ⭐ Star on GitHub
-- 💬 Share with friends
 - 🐛 Report bugs via GitHub Issues
 - 💡 Suggest features
 
@@ -131,10 +139,9 @@ MIT License — Feel free to fork, modify, redistribute.
 
 ## 🚀 Roadmap
 
-- [ ] QR Code Generator (proper library)
-- [ ] More languages (RU, AZ, ES, etc)
-- [ ] Export tools (PDF, CSV, etc)
+- [ ] More languages (RU, AZ, ES...)
 - [ ] Keyboard shortcuts
+- [ ] Export results (PDF, CSV)
 - [ ] Dark mode scheduling
 
 ---
