@@ -927,11 +927,17 @@
       <div class="sidebar-item" onclick="showTool('rsa', this)" data-title="RSA Key Generator">
         <span class="sidebar-item-icon">🔐</span> RSA Key Generator
       </div>
+      <div class="sidebar-item" onclick="showTool('sshkey', this)" data-title="SSH Key Generator">
+        <span class="sidebar-item-icon">🖥️</span> SSH Key Generator
+      </div>
       <div class="sidebar-item" onclick="showTool('filehash', this)" data-title="File Hash Calculator">
         <span class="sidebar-item-icon">📄</span> File Hash
       </div>
       <div class="sidebar-item" onclick="showTool('ssl', this)" data-title="SSL Certificate Decoder">
         <span class="sidebar-item-icon">🌐</span> SSL Certificate
+      </div>
+      <div class="sidebar-item" onclick="showTool('headers', this)" data-title="HTTP Headers Analyzer">
+        <span class="sidebar-item-icon">🛡️</span> HTTP Headers
       </div>
       <div class="sidebar-item" onclick="showTool('pbkdf2', this)" data-title="PBKDF2 Key Derivation">
         <span class="sidebar-item-icon">🗝️</span> PBKDF2 Derivation
@@ -999,6 +1005,9 @@
       <div class="sidebar-item" onclick="showTool('diff', this)" data-title="Text Diff">
         <span class="sidebar-item-icon">⟺</span> Text Diff
       </div>
+      <div class="sidebar-item" onclick="showTool('configdiff', this)" data-title="Config Diff">
+        <span class="sidebar-item-icon">⚙️</span> Config Diff
+      </div>
       <div class="sidebar-item" onclick="showTool('case', this)" data-title="Case Converter">
         <span class="sidebar-item-icon">Aa</span> Case Converter
       </div>
@@ -1023,6 +1032,15 @@
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">🌐 Networking</div>
+      <div class="sidebar-item" onclick="showTool('packet', this)" data-title="Packet Analyzer">
+        <span class="sidebar-item-icon">📦</span> Packet Analyzer
+      </div>
+      <div class="sidebar-item" onclick="showTool('certchain', this)" data-title="Certificate Chain">
+        <span class="sidebar-item-icon">🔗</span> Cert Chain Builder
+      </div>
+      <div class="sidebar-item" onclick="showTool('cidr-agg', this)" data-title="CIDR Aggregator">
+        <span class="sidebar-item-icon">🔀</span> CIDR Aggregator
+      </div>
       <div class="sidebar-item" onclick="showTool('ip-calc', this)" data-title="IP Calculator">
         <span class="sidebar-item-icon">📡</span> IP Calculator
       </div>
@@ -3080,6 +3098,603 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
     </div>
     <!-- ══ END YAML/JSON/TOML ══════════════════════════════════════ -->
+
+
+    <!-- ══ NETWORK PACKET ANALYZER ══════════════════════════════ -->
+    <div class="tool-panel" id="panel-packet">
+      <div class="tool-header">
+        <h1>Packet <span>Analyzer</span></h1>
+        <p>Parse Ethernet/IP/TCP/UDP/ICMP packets from hex dumps</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Decodes raw network packets from hex dump format (Wireshark, tcpdump, or manual). Parses Ethernet II, IPv4, IPv6, TCP, UDP, ICMP, DNS, HTTP headers. Visualizes protocol layers. No upload — runs entirely in your browser.</div>
+      </div>
+
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Hex Dump <span style="color:var(--muted);font-size:10px">(paste raw hex, Wireshark format, or space-separated bytes)</span></label>
+          <textarea class="main-input" id="pkt-input" spellcheck="false"
+            style="min-height:120px;resize:vertical;font-family:var(--mono-font);font-size:12px;letter-spacing:0.5px"
+            placeholder="e.g: ff ff ff ff ff ff 00 1a 2b 3c 4d 5e 08 00 45 00 ..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="pktAnalyze()">Analyze Packet</button>
+          <button class="calc-btn" onclick="pktClear()" style="opacity:0.5;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Examples:</span>
+          <div class="example-chip" onclick="pktLoadExample('tcp')">TCP SYN</div>
+          <div class="example-chip" onclick="pktLoadExample('udp')">UDP DNS Query</div>
+          <div class="example-chip" onclick="pktLoadExample('icmp')">ICMP Ping</div>
+          <div class="example-chip" onclick="pktLoadExample('arp')">ARP Request</div>
+          <div class="example-chip" onclick="pktLoadExample('http')">HTTP GET</div>
+        </div>
+      </div>
+
+      <div id="pkt-results" style="display:none">
+
+        <!-- Protocol stack visualization -->
+        <div class="card animate">
+          <div class="section-label">Protocol Stack</div>
+          <div id="pkt-stack" style="display:flex;flex-direction:column;gap:4px"></div>
+        </div>
+
+        <!-- Ethernet -->
+        <div class="card animate" id="pkt-eth-card" style="display:none">
+          <div class="section-label">🔌 Ethernet II</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Dst MAC</div><div class="info-val c-accent" id="pkt-eth-dst"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Src MAC</div><div class="info-val c-accent" id="pkt-eth-src"></div></div>
+            <div class="info-item"><div class="info-key">EtherType</div><div class="info-val c-info" id="pkt-eth-type"></div></div>
+            <div class="info-item"><div class="info-key">Frame Size</div><div class="info-val" id="pkt-eth-size"></div></div>
+          </div>
+        </div>
+
+        <!-- ARP -->
+        <div class="card animate" id="pkt-arp-card" style="display:none">
+          <div class="section-label">📡 ARP</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Operation</div><div class="info-val c-accent" id="pkt-arp-op"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Sender MAC</div><div class="info-val" id="pkt-arp-smac"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Sender IP</div><div class="info-val c-info" id="pkt-arp-sip"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Target MAC</div><div class="info-val" id="pkt-arp-tmac"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Target IP</div><div class="info-val c-info" id="pkt-arp-tip"></div></div>
+          </div>
+        </div>
+
+        <!-- IPv4 -->
+        <div class="card animate" id="pkt-ip-card" style="display:none">
+          <div class="section-label">🌐 IPv4</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Src IP</div><div class="info-val c-accent" id="pkt-ip-src"></div></div>
+            <div class="info-item" onclick="copyVal(this)"><div class="copy-hint">copy</div><div class="info-key">Dst IP</div><div class="info-val c-accent" id="pkt-ip-dst"></div></div>
+            <div class="info-item"><div class="info-key">Protocol</div><div class="info-val c-info" id="pkt-ip-proto"></div></div>
+            <div class="info-item"><div class="info-key">TTL</div><div class="info-val" id="pkt-ip-ttl"></div></div>
+            <div class="info-item"><div class="info-key">Total Length</div><div class="info-val" id="pkt-ip-len"></div></div>
+            <div class="info-item"><div class="info-key">Header Length</div><div class="info-val" id="pkt-ip-hlen"></div></div>
+            <div class="info-item"><div class="info-key">DSCP/ToS</div><div class="info-val" id="pkt-ip-tos"></div></div>
+            <div class="info-item"><div class="info-key">Flags</div><div class="info-val" id="pkt-ip-flags"></div></div>
+            <div class="info-item"><div class="info-key">Fragment Offset</div><div class="info-val" id="pkt-ip-frag"></div></div>
+            <div class="info-item"><div class="info-key">Checksum</div><div class="info-val" id="pkt-ip-checksum"></div></div>
+          </div>
+        </div>
+
+        <!-- IPv6 -->
+        <div class="card animate" id="pkt-ip6-card" style="display:none">
+          <div class="section-label">🌐 IPv6</div>
+          <div class="info-grid">
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">Src IP</div><div class="info-val c-accent" id="pkt-ip6-src"></div></div>
+            <div class="info-item" onclick="copyVal(this)" style="grid-column:1/-1"><div class="copy-hint">copy</div><div class="info-key">Dst IP</div><div class="info-val c-accent" id="pkt-ip6-dst"></div></div>
+            <div class="info-item"><div class="info-key">Next Header</div><div class="info-val c-info" id="pkt-ip6-next"></div></div>
+            <div class="info-item"><div class="info-key">Hop Limit</div><div class="info-val" id="pkt-ip6-hop"></div></div>
+            <div class="info-item"><div class="info-key">Payload Length</div><div class="info-val" id="pkt-ip6-plen"></div></div>
+            <div class="info-item"><div class="info-key">Traffic Class</div><div class="info-val" id="pkt-ip6-tc"></div></div>
+          </div>
+        </div>
+
+        <!-- TCP -->
+        <div class="card animate" id="pkt-tcp-card" style="display:none">
+          <div class="section-label">🔗 TCP</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Src Port</div><div class="info-val c-accent" id="pkt-tcp-sport"></div></div>
+            <div class="info-item"><div class="info-key">Dst Port</div><div class="info-val c-accent" id="pkt-tcp-dport"></div></div>
+            <div class="info-item"><div class="info-key">Flags</div><div class="info-val c-info" id="pkt-tcp-flags"></div></div>
+            <div class="info-item"><div class="info-key">Seq Number</div><div class="info-val" id="pkt-tcp-seq"></div></div>
+            <div class="info-item"><div class="info-key">Ack Number</div><div class="info-val" id="pkt-tcp-ack"></div></div>
+            <div class="info-item"><div class="info-key">Window Size</div><div class="info-val" id="pkt-tcp-win"></div></div>
+            <div class="info-item"><div class="info-key">Header Length</div><div class="info-val" id="pkt-tcp-hlen"></div></div>
+            <div class="info-item"><div class="info-key">Checksum</div><div class="info-val" id="pkt-tcp-checksum"></div></div>
+            <div class="info-item"><div class="info-key">Urgent Pointer</div><div class="info-val" id="pkt-tcp-urg"></div></div>
+            <div class="info-item"><div class="info-key">Service</div><div class="info-val c-success" id="pkt-tcp-service"></div></div>
+          </div>
+        </div>
+
+        <!-- UDP -->
+        <div class="card animate" id="pkt-udp-card" style="display:none">
+          <div class="section-label">📨 UDP</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Src Port</div><div class="info-val c-accent" id="pkt-udp-sport"></div></div>
+            <div class="info-item"><div class="info-key">Dst Port</div><div class="info-val c-accent" id="pkt-udp-dport"></div></div>
+            <div class="info-item"><div class="info-key">Length</div><div class="info-val" id="pkt-udp-len"></div></div>
+            <div class="info-item"><div class="info-key">Checksum</div><div class="info-val" id="pkt-udp-checksum"></div></div>
+            <div class="info-item"><div class="info-key">Service</div><div class="info-val c-success" id="pkt-udp-service"></div></div>
+          </div>
+        </div>
+
+        <!-- ICMP -->
+        <div class="card animate" id="pkt-icmp-card" style="display:none">
+          <div class="section-label">📶 ICMP</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Type</div><div class="info-val c-accent" id="pkt-icmp-type"></div></div>
+            <div class="info-item"><div class="info-key">Code</div><div class="info-val" id="pkt-icmp-code"></div></div>
+            <div class="info-item"><div class="info-key">Checksum</div><div class="info-val" id="pkt-icmp-checksum"></div></div>
+            <div class="info-item"><div class="info-key">Identifier</div><div class="info-val" id="pkt-icmp-id"></div></div>
+            <div class="info-item"><div class="info-key">Sequence</div><div class="info-val" id="pkt-icmp-seq"></div></div>
+            <div class="info-item"><div class="info-key">Description</div><div class="info-val c-info" id="pkt-icmp-desc"></div></div>
+          </div>
+        </div>
+
+        <!-- DNS -->
+        <div class="card animate" id="pkt-dns-card" style="display:none">
+          <div class="section-label">🔍 DNS</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Transaction ID</div><div class="info-val c-accent" id="pkt-dns-id"></div></div>
+            <div class="info-item"><div class="info-key">Type</div><div class="info-val c-info" id="pkt-dns-type"></div></div>
+            <div class="info-item"><div class="info-key">Questions</div><div class="info-val" id="pkt-dns-qcount"></div></div>
+            <div class="info-item"><div class="info-key">Answers</div><div class="info-val" id="pkt-dns-acount"></div></div>
+            <div class="info-item" style="grid-column:1/-1"><div class="info-key">Query</div><div class="info-val c-success" id="pkt-dns-query"></div></div>
+          </div>
+        </div>
+
+        <!-- Payload -->
+        <div class="card animate" id="pkt-payload-card" style="display:none">
+          <div class="section-label">📄 Payload</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-bottom:6px">HEX</div>
+              <pre id="pkt-payload-hex" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:10px 12px;font-family:var(--mono-font);font-size:11px;line-height:1.8;overflow:auto;max-height:160px;margin:0;color:var(--text);white-space:pre-wrap;word-break:break-all"></pre>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-bottom:6px">ASCII</div>
+              <pre id="pkt-payload-ascii" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:10px 12px;font-family:var(--mono-font);font-size:11px;line-height:1.8;overflow:auto;max-height:160px;margin:0;color:var(--text);white-space:pre-wrap;word-break:break-all"></pre>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-family:var(--mono-font);margin-top:8px" id="pkt-payload-info"></div>
+        </div>
+
+        <!-- Raw hex dump -->
+        <div class="card animate">
+          <div class="section-label">🔢 Raw Hex Dump</div>
+          <pre id="pkt-hexdump" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:11px;line-height:1.8;overflow:auto;max-height:200px;margin:0;color:var(--text);white-space:pre"></pre>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ END PACKET ANALYZER ════════════════════════════════════ -->
+
+
+    <!-- ══ CERTIFICATE CHAIN BUILDER ════════════════════════════ -->
+    <div class="tool-panel" id="panel-certchain">
+      <div class="tool-header">
+        <h1>Certificate Chain <span>Builder</span></h1>
+        <p>Paste multiple PEM certificates — build and validate the chain</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Takes multiple PEM certificates (leaf, intermediates, root) and automatically orders them into a valid chain. Validates issuer/subject relationships, checks expiry, detects self-signed root, and exports the complete chain. Everything runs locally.</div>
+      </div>
+
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">PEM Certificates <span style="color:var(--muted);font-size:10px">(paste one or more — in any order)</span></label>
+          <textarea class="main-input" id="cc-input" spellcheck="false"
+            style="min-height:180px;resize:vertical;font-family:var(--mono-font);font-size:11px"
+            placeholder="-----BEGIN CERTIFICATE-----
+(paste your leaf certificate here)
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+(paste intermediate certificate here)
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+(paste root CA certificate here)
+-----END CERTIFICATE-----"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="ccBuild()">Build Chain</button>
+          <button class="calc-btn" onclick="ccLoadExample()" style="opacity:0.7;padding:11px 18px;font-size:13px">Load Example</button>
+          <button class="calc-btn" onclick="ccClear()" style="opacity:0.4;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+      </div>
+
+      <div id="cc-results" style="display:none">
+
+        <!-- Chain status -->
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Chain Status</div>
+            <button class="calc-btn" onclick="ccExport()" style="padding:6px 14px;font-size:12px;opacity:0.8">📥 Export Chain</button>
+          </div>
+          <div id="cc-status" style="font-size:14px;font-family:var(--mono-font);padding:10px 0;margin-bottom:12px"></div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Certificates</div><div class="info-val c-accent" id="cc-count"></div></div>
+            <div class="info-item"><div class="info-key">Chain Valid</div><div class="info-val" id="cc-valid"></div></div>
+            <div class="info-item"><div class="info-key">Has Root CA</div><div class="info-val" id="cc-has-root"></div></div>
+            <div class="info-item"><div class="info-key">All Valid Dates</div><div class="info-val" id="cc-dates-ok"></div></div>
+          </div>
+        </div>
+
+        <!-- Chain visualization -->
+        <div class="card animate">
+          <div class="section-label">Chain Order</div>
+          <div id="cc-chain-vis" style="display:flex;flex-direction:column;gap:0"></div>
+        </div>
+
+        <!-- Individual cert details -->
+        <div id="cc-certs-detail"></div>
+
+      </div>
+    </div>
+    <!-- ══ END CERTIFICATE CHAIN BUILDER ═════════════════════════ -->
+
+
+    <!-- ══ CONFIG DIFF ══════════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-configdiff">
+      <div class="tool-header">
+        <h1>Config <span>Diff</span></h1>
+        <p>Smart diff for Cisco IOS, Juniper, nginx, YAML, JSON configs</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Compares two configuration files with syntax-aware highlighting. Detects the config type automatically (Cisco IOS, Juniper JunOS, nginx, YAML, JSON, iptables). Shows added, removed, and changed lines with context. Useful for auditing config changes before deployment.</div>
+      </div>
+
+      <div class="card">
+        <!-- Format selector -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <span style="font-size:12px;color:var(--muted)">Format:</span>
+          <select id="cd-format" class="main-input" style="width:auto;cursor:pointer;padding:7px 12px;font-size:12px" onchange="cdDetectFormat()">
+            <option value="auto">Auto-detect</option>
+            <option value="cisco">Cisco IOS</option>
+            <option value="juniper">Juniper JunOS</option>
+            <option value="nginx">nginx</option>
+            <option value="yaml">YAML</option>
+            <option value="json">JSON</option>
+            <option value="iptables">iptables</option>
+            <option value="text">Plain Text</option>
+          </select>
+          <span id="cd-detected" style="font-size:11px;color:var(--accent);font-family:var(--mono-font)"></span>
+        </div>
+
+        <!-- Side-by-side inputs -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <label class="input-label" style="margin:0">Before (old config)</label>
+              <button onclick="cdSwap()" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);font-family:var(--mono-font)">⇄ swap</button>
+            </div>
+            <textarea class="main-input" id="cd-before" spellcheck="false"
+              style="min-height:200px;resize:vertical;font-family:var(--mono-font);font-size:11px;line-height:1.6"
+              oninput="cdAutoDetect()" placeholder="Paste old config here..."></textarea>
+          </div>
+          <div>
+            <label class="input-label">After (new config)</label>
+            <textarea class="main-input" id="cd-after" spellcheck="false"
+              style="min-height:200px;resize:vertical;font-family:var(--mono-font);font-size:11px;line-height:1.6"
+              oninput="cdAutoDetect()" placeholder="Paste new config here..."></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center">
+          <button class="calc-btn" onclick="cdRun()">Compare</button>
+          <button class="calc-btn" onclick="cdClear()" style="opacity:0.4;padding:11px 18px;font-size:13px">Clear</button>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer;margin-left:8px">
+            <input type="checkbox" id="cd-context" checked style="accent-color:var(--accent)"> Show context lines
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="cd-ignore-ws" style="accent-color:var(--accent)"> Ignore whitespace
+          </label>
+        </div>
+
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Examples:</span>
+          <div class="example-chip" onclick="cdLoadExample('cisco')">Cisco IOS</div>
+          <div class="example-chip" onclick="cdLoadExample('nginx')">nginx</div>
+          <div class="example-chip" onclick="cdLoadExample('juniper')">Juniper</div>
+          <div class="example-chip" onclick="cdLoadExample('iptables')">iptables</div>
+        </div>
+      </div>
+
+      <div id="cd-results" style="display:none">
+        <!-- Stats -->
+        <div class="card animate">
+          <div class="section-label">Summary</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Added Lines</div><div class="info-val c-success" id="cd-added-count"></div></div>
+            <div class="info-item"><div class="info-key">Removed Lines</div><div class="info-val c-error" id="cd-removed-count"></div></div>
+            <div class="info-item"><div class="info-key">Changed Blocks</div><div class="info-val c-warning" id="cd-changed-count"></div></div>
+            <div class="info-item"><div class="info-key">Unchanged Lines</div><div class="info-val" id="cd-unchanged-count"></div></div>
+            <div class="info-item"><div class="info-key">Format</div><div class="info-val c-accent" id="cd-format-used"></div></div>
+            <div class="info-item"><div class="info-key">Similarity</div><div class="info-val c-info" id="cd-similarity"></div></div>
+          </div>
+        </div>
+
+        <!-- Diff output -->
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Diff</div>
+            <div style="display:flex;gap:8px">
+              <button class="calc-btn" onclick="cdCopyDiff()" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy Diff</button>
+              <button class="calc-btn" onclick="cdExportPatch()" style="padding:6px 14px;font-size:12px;opacity:0.7">Export Patch</button>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+            <span style="font-size:11px;font-family:var(--mono-font);color:var(--success)">＋ Added</span>
+            <span style="font-size:11px;font-family:var(--mono-font);color:var(--error)">－ Removed</span>
+            <span style="font-size:11px;font-family:var(--mono-font);color:var(--muted)">　 Unchanged</span>
+          </div>
+          <div id="cd-diff-output" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);overflow:auto;max-height:500px;font-family:var(--mono-font);font-size:11px;line-height:1.7"></div>
+        </div>
+      </div>
+    </div>
+    <!-- ══ END CONFIG DIFF ════════════════════════════════════════ -->
+
+
+    <!-- ══ HTTP HEADERS ANALYZER ════════════════════════════════ -->
+    <div class="tool-panel" id="panel-headers">
+      <div class="tool-header">
+        <h1>HTTP Headers <span>Analyzer</span></h1>
+        <p>Analyze security headers, detect vulnerabilities, get recommendations</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Parses raw HTTP response headers and analyzes security posture. Grades each security header (CSP, HSTS, X-Frame-Options, etc.), detects missing or misconfigured headers, and gives actionable recommendations. Works offline — no data sent anywhere.</div>
+      </div>
+
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">HTTP Response Headers <span style="color:var(--muted);font-size:10px">(paste raw headers from curl, browser DevTools, or Wireshark)</span></label>
+          <textarea class="main-input" id="hdr-input" spellcheck="false"
+            style="min-height:160px;resize:vertical;font-family:var(--mono-font);font-size:12px"
+            placeholder="HTTP/1.1 200 OK&#10;Content-Type: text/html&#10;Strict-Transport-Security: max-age=31536000&#10;X-Frame-Options: DENY&#10;..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="hdrAnalyze()">Analyze</button>
+          <button class="calc-btn" onclick="hdrClear()" style="opacity:0.4;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Examples:</span>
+          <div class="example-chip" onclick="hdrLoadExample('good')">Secure site</div>
+          <div class="example-chip" onclick="hdrLoadExample('bad')">Insecure site</div>
+          <div class="example-chip" onclick="hdrLoadExample('nginx')">nginx default</div>
+          <div class="example-chip" onclick="hdrLoadExample('curl')">curl -I output</div>
+        </div>
+      </div>
+
+      <div id="hdr-results" style="display:none">
+
+        <!-- Security Score -->
+        <div class="card animate">
+          <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+            <div id="hdr-grade-badge" style="width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;font-family:var(--mono-font);flex-shrink:0"></div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text)" id="hdr-grade-label"></div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px" id="hdr-grade-desc"></div>
+              <div style="margin-top:10px;background:var(--surface2);border-radius:4px;overflow:hidden;height:8px">
+                <div id="hdr-score-bar" style="height:8px;border-radius:4px;transition:width 0.5s"></div>
+              </div>
+              <div style="font-size:11px;color:var(--muted);font-family:var(--mono-font);margin-top:4px" id="hdr-score-text"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Headers -->
+        <div class="card animate">
+          <div class="section-label">Security Headers</div>
+          <div id="hdr-security-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
+        <!-- All Headers -->
+        <div class="card animate">
+          <div class="section-label">All Headers</div>
+          <div id="hdr-all-list" style="display:flex;flex-direction:column;gap:4px"></div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card animate" id="hdr-recs-card" style="display:none">
+          <div class="section-label">⚡ Recommendations</div>
+          <div id="hdr-recs-list" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+
+        <!-- Info headers -->
+        <div class="card animate">
+          <div class="section-label">Info & Server</div>
+          <div class="info-grid" id="hdr-info-grid"></div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ END HTTP HEADERS ANALYZER ═════════════════════════════ -->
+
+
+    <!-- ══ CIDR AGGREGATOR ══════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-cidr-agg">
+      <div class="tool-header">
+        <h1>CIDR <span>Aggregator</span></h1>
+        <p>Aggregate, summarize and deduplicate IP ranges and subnets</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Takes a list of IP addresses, ranges, or CIDR subnets and computes the minimal set of CIDRs that covers them all. Removes duplicates, merges adjacent subnets, and sorts the result. Used for firewall rules, route summarization, and ACL optimization.</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="calc-btn" id="cidr-tab-v4" onclick="cidrSetVersion(4)" style="padding:7px 16px;font-size:13px">IPv4</button>
+          <button class="calc-btn" id="cidr-tab-v6" onclick="cidrSetVersion(6)" style="padding:7px 16px;font-size:13px;opacity:0.5">IPv6</button>
+        </div>
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">IP Addresses / CIDRs <span style="color:var(--muted);font-size:10px">(one per line)</span></label>
+          <textarea class="main-input" id="cidr-input" spellcheck="false"
+            style="min-height:160px;resize:vertical;font-family:var(--mono-font);font-size:12px"
+            placeholder="192.168.1.0/24&#10;192.168.2.0/24&#10;192.168.3.0/24&#10;10.0.0.1&#10;10.0.0.2&#10;10.0.0.3"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="calc-btn" onclick="cidrAggregate()">Aggregate</button>
+          <button class="calc-btn" onclick="cidrClear()" style="opacity:0.4;padding:11px 18px;font-size:13px">Clear</button>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer;margin-left:8px">
+            <input type="checkbox" id="cidr-remove-dups" checked style="accent-color:var(--accent)"> Remove duplicates
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="cidr-sort" checked style="accent-color:var(--accent)"> Sort result
+          </label>
+        </div>
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Examples:</span>
+          <div class="example-chip" onclick="cidrLoadExample('firewall')">Firewall rules</div>
+          <div class="example-chip" onclick="cidrLoadExample('hosts')">Host list</div>
+          <div class="example-chip" onclick="cidrLoadExample('mixed')">Mixed ranges</div>
+          <div class="example-chip" onclick="cidrLoadExample('bogons')">Bogon ranges</div>
+        </div>
+      </div>
+
+      <div id="cidr-results" style="display:none">
+        <div class="card animate">
+          <div class="section-label">Summary</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Input CIDRs</div><div class="info-val" id="cidr-in-count"></div></div>
+            <div class="info-item"><div class="info-key">Output CIDRs</div><div class="info-val c-accent" id="cidr-out-count"></div></div>
+            <div class="info-item"><div class="info-key">Reduction</div><div class="info-val c-success" id="cidr-reduction"></div></div>
+            <div class="info-item"><div class="info-key">Total IPs Covered</div><div class="info-val c-info" id="cidr-total-ips"></div></div>
+            <div class="info-item"><div class="info-key">Duplicates Removed</div><div class="info-val" id="cidr-dups"></div></div>
+            <div class="info-item"><div class="info-key">Subnets Merged</div><div class="info-val" id="cidr-merged"></div></div>
+          </div>
+        </div>
+
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Aggregated CIDRs</div>
+            <div style="display:flex;gap:8px">
+              <button class="calc-btn" onclick="cidrCopyResult()" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy All</button>
+              <button class="calc-btn" onclick="cidrCopyFirewall()" style="padding:6px 14px;font-size:12px;opacity:0.7">Cisco ACL</button>
+              <button class="calc-btn" onclick="cidrCopyIptables()" style="padding:6px 14px;font-size:12px;opacity:0.7">iptables</button>
+            </div>
+          </div>
+          <div id="cidr-result-list" style="display:flex;flex-direction:column;gap:4px"></div>
+        </div>
+
+        <div class="card animate" id="cidr-details-card">
+          <div class="section-label">Details</div>
+          <div id="cidr-details-list" style="display:flex;flex-direction:column;gap:4px"></div>
+        </div>
+      </div>
+    </div>
+    <!-- ══ END CIDR AGGREGATOR ════════════════════════════════════ -->
+
+
+    <!-- ══ SSH KEY GENERATOR ════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-sshkey">
+      <div class="tool-header">
+        <h1>SSH Key <span>Generator</span></h1>
+        <p>Generate Ed25519, ECDSA and RSA SSH key pairs in your browser</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Generates SSH key pairs using Web Crypto API. Exports private key in OpenSSH PEM format and public key in authorized_keys format (ssh-ed25519/ecdsa/rsa ...). Keys are generated locally — never transmitted. Ready to paste into ~/.ssh/authorized_keys or use with ssh-keygen workflows.</div>
+      </div>
+
+      <div class="card">
+        <div class="input-row" style="flex-wrap:wrap;gap:12px;margin-bottom:16px">
+          <div class="input-group" style="min-width:160px">
+            <label class="input-label">Key Type</label>
+            <select class="main-input" id="ssh-type" onchange="sshTypeChanged()" style="cursor:pointer">
+              <option value="ecdsa-p256">ECDSA P-256 (recommended)</option>
+              <option value="ecdsa-p384">ECDSA P-384</option>
+              <option value="rsa-2048">RSA 2048-bit</option>
+              <option value="rsa-4096">RSA 4096-bit (high security)</option>
+            </select>
+          </div>
+          <div class="input-group" style="min-width:200px">
+            <label class="input-label">Comment <span style="color:var(--muted);font-size:10px">(e.g. user@hostname)</span></label>
+            <input class="main-input" id="ssh-comment" type="text" placeholder="user@myhost" value="user@myhost">
+          </div>
+        </div>
+        <div style="background:var(--info-bg,rgba(33,150,243,0.08));border:var(--bw) solid var(--info,#2196f3);border-radius:var(--r-input);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--info,#2196f3)">
+          ⚠ Note: Ed25519 is not available in browser Web Crypto API. ECDSA P-256 is the browser-native equivalent with similar security level. For Ed25519, use <code>ssh-keygen -t ed25519</code> on your terminal.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="calc-btn" onclick="sshGenerate()" id="ssh-gen-btn">Generate Key Pair</button>
+          <button class="calc-btn" onclick="sshClear()" style="opacity:0.5;padding:11px 18px;font-size:13px">Clear</button>
+        </div>
+        <div id="ssh-generating" style="display:none;margin-top:12px">
+          <div style="background:var(--surface2);border-radius:4px;overflow:hidden;height:4px">
+            <div style="height:4px;background:var(--accent);animation:rsa-progress 1.5s ease-in-out infinite"></div>
+          </div>
+          <div style="font-family:var(--mono-font);font-size:11px;color:var(--muted);margin-top:8px">Generating key pair...</div>
+        </div>
+      </div>
+
+      <div id="ssh-results" style="display:none">
+
+        <!-- Public key -->
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Public Key <span style="font-size:10px;color:var(--muted)">(paste into ~/.ssh/authorized_keys)</span></div>
+            <button class="calc-btn" onclick="sshCopy('pub')" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <pre id="ssh-pub" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:11px;color:var(--success);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0"></pre>
+        </div>
+
+        <!-- Private key -->
+        <div class="card animate">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+            <div class="section-label" style="margin:0">Private Key <span style="font-size:10px;color:var(--muted)">(save as ~/.ssh/id_ecdsa or id_rsa)</span></div>
+            <button class="calc-btn" onclick="sshCopy('priv')" style="padding:6px 14px;font-size:12px;opacity:0.8">Copy</button>
+          </div>
+          <div style="background:rgba(244,67,54,0.08);border:var(--bw) solid var(--error);border-radius:var(--r-input);padding:8px 14px;margin-bottom:10px;font-size:12px;color:var(--error)">
+            🔒 Keep private! Never share, never commit to git. Set permissions: <code>chmod 600 ~/.ssh/id_ecdsa</code>
+          </div>
+          <pre id="ssh-priv" style="background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:14px 16px;font-family:var(--mono-font);font-size:11px;color:var(--warning);white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0"></pre>
+        </div>
+
+        <!-- Key info -->
+        <div class="card animate">
+          <div class="section-label">Key Info</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Algorithm</div><div class="info-val c-accent" id="ssh-info-alg"></div></div>
+            <div class="info-item"><div class="info-key">Key Type</div><div class="info-val" id="ssh-info-type"></div></div>
+            <div class="info-item"><div class="info-key">Comment</div><div class="info-val c-info" id="ssh-info-comment"></div></div>
+            <div class="info-item"><div class="info-key">Public Key Size</div><div class="info-val" id="ssh-info-pubsize"></div></div>
+            <div class="info-item"><div class="info-key">Private Key Size</div><div class="info-val" id="ssh-info-privsize"></div></div>
+            <div class="info-item"><div class="info-key">Security Level</div><div class="info-val c-success" id="ssh-info-security"></div></div>
+          </div>
+        </div>
+
+        <!-- Usage -->
+        <div class="card animate">
+          <div class="section-label">Usage</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--surface2);border-radius:var(--r-input);padding:10px 14px">
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-bottom:4px">Add to server's authorized_keys:</div>
+              <code style="font-size:11px;color:var(--text);font-family:var(--mono-font)">echo "PUBLIC_KEY" >> ~/.ssh/authorized_keys</code>
+            </div>
+            <div style="background:var(--surface2);border-radius:var(--r-input);padding:10px 14px">
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-bottom:4px">Save private key and set permissions:</div>
+              <code id="ssh-usage-cmd" style="font-size:11px;color:var(--text);font-family:var(--mono-font)">chmod 600 ~/.ssh/id_ecdsa && chmod 700 ~/.ssh</code>
+            </div>
+            <div style="background:var(--surface2);border-radius:var(--r-input);padding:10px 14px">
+              <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-bottom:4px">Connect using this key:</div>
+              <code id="ssh-usage-connect" style="font-size:11px;color:var(--text);font-family:var(--mono-font)">ssh -i ~/.ssh/id_ecdsa user@hostname</code>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ══ END SSH KEY GENERATOR ══════════════════════════════════ -->
 
 
   </main>
@@ -7182,6 +7797,2016 @@ strict = true`
   document.addEventListener('DOMContentLoaded', () => {
     convSetFrom('json');
   });
+
+
+  // ── Network Packet Analyzer ─────────────────────────────────
+  const PKT_EXAMPLES = {
+    tcp: 'f0 0d ca fe be ef 00 0c 29 3e 4f 5a 08 00 45 00 00 3c 1c 46 40 00 40 06 b1 e6 c0 a8 01 05 c0 a8 01 01 e1 4e 00 50 a3 f2 11 00 00 00 00 00 a0 02 fa f0 85 c9 00 00 02 04 05 b4 04 02 08 0a 00 0a 2d 3d 00 00 00 00 01 03 03 07',
+    udp:  'f0 0d ca fe be ef 00 0c 29 3e 4f 5a 08 00 45 00 00 39 9d 1b 00 00 80 11 f3 64 c0 a8 01 64 08 08 08 08 d9 4e 00 35 00 25 a7 34 12 34 01 00 00 01 00 00 00 00 00 00 06 67 6f 6f 67 6c 65 03 63 6f 6d 00 00 01 00 01',
+    icmp: 'f0 0d ca fe be ef 00 0c 29 3e 4f 5a 08 00 45 00 00 54 b4 8f 40 00 40 01 e5 b4 c0 a8 01 05 08 08 08 08 08 00 4d 4e 00 01 00 01 61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f 70 71 72 73 74 75 76 77 61 62 63 64 65 66 67 68 69',
+    arp:  'ff ff ff ff ff ff 00 1a 2b 3c 4d 5e 08 06 00 01 08 00 06 04 00 01 00 1a 2b 3c 4d 5e c0 a8 01 05 00 00 00 00 00 00 c0 a8 01 01',
+    http: 'f0 0d ca fe be ef 00 0c 29 3e 4f 5a 08 00 45 00 00 87 1d 2b 40 00 40 06 b0 f8 c0 a8 01 05 c0 a8 01 01 c5 8a 00 50 a3 f2 12 00 a3 f0 00 00 80 18 00 e5 b2 d4 00 00 01 01 08 0a 00 0a 2e 1a 00 0a 2d 3d 47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a 48 6f 73 74 3a 20 65 78 61 6d 70 6c 65 2e 63 6f 6d 0d 0a 0d 0a'
+  };
+
+  const PKT_SERVICES = {
+    20:'FTP-DATA', 21:'FTP', 22:'SSH', 23:'Telnet', 25:'SMTP',
+    53:'DNS', 67:'DHCP-Server', 68:'DHCP-Client', 69:'TFTP',
+    80:'HTTP', 110:'POP3', 119:'NNTP', 123:'NTP', 143:'IMAP',
+    161:'SNMP', 162:'SNMP-Trap', 179:'BGP', 194:'IRC',
+    389:'LDAP', 443:'HTTPS', 445:'SMB', 514:'Syslog',
+    587:'SMTP-TLS', 636:'LDAPS', 993:'IMAPS', 995:'POP3S',
+    1080:'SOCKS', 1194:'OpenVPN', 1433:'MSSQL', 1521:'Oracle',
+    1723:'PPTP', 3306:'MySQL', 3389:'RDP', 5432:'PostgreSQL',
+    5900:'VNC', 6379:'Redis', 8080:'HTTP-Alt', 8443:'HTTPS-Alt',
+    27017:'MongoDB'
+  };
+
+  const PKT_ETHER_TYPES = {
+    '0800': 'IPv4', '0806': 'ARP', '0842': 'Wake-on-LAN',
+    '86DD': 'IPv6', '8100': 'VLAN (802.1Q)', '8847': 'MPLS',
+    '8863': 'PPPoE Discovery', '8864': 'PPPoE Session',
+    '88CC': 'LLDP', '9100': 'QinQ'
+  };
+
+  const PKT_IP_PROTOS = {
+    1:'ICMP', 2:'IGMP', 4:'IP-in-IP', 6:'TCP', 17:'UDP',
+    41:'IPv6', 47:'GRE', 50:'ESP', 51:'AH', 58:'ICMPv6',
+    89:'OSPF', 103:'PIM', 112:'VRRP', 115:'L2TP', 132:'SCTP'
+  };
+
+  const PKT_ICMP_TYPES = {
+    '0-0': 'Echo Reply (Ping Reply)',
+    '3-0': 'Destination Net Unreachable',
+    '3-1': 'Destination Host Unreachable',
+    '3-3': 'Destination Port Unreachable',
+    '3-4': 'Fragmentation Needed',
+    '5-0': 'Redirect for Network',
+    '8-0': 'Echo Request (Ping)',
+    '9-0': 'Router Advertisement',
+    '10-0': 'Router Solicitation',
+    '11-0': 'TTL Exceeded in Transit',
+    '11-1': 'Fragment Reassembly Time Exceeded',
+    '12-0': 'Parameter Problem',
+    '13-0': 'Timestamp Request',
+    '14-0': 'Timestamp Reply'
+  };
+
+  function pktLoadExample(name) {
+    const ex = PKT_EXAMPLES[name];
+    if (ex) {
+      document.getElementById('pkt-input').value = ex;
+      pktAnalyze();
+    }
+  }
+
+  function pktClear() {
+    document.getElementById('pkt-input').value = '';
+    document.getElementById('pkt-results').style.display = 'none';
+    ['eth','arp','ip','ip6','tcp','udp','icmp','dns','payload'].forEach(c =>
+      document.getElementById('pkt-' + c + '-card').style.display = 'none'
+    );
+  }
+
+  function pktParseHex(str) {
+    // Strip Wireshark-style offsets: "0000  ff ff ff ..."
+    str = str.replace(/^[0-9a-fA-F]{4,}\s+/gm, '');
+    // Remove 0x prefix
+    str = str.replace(/0x/gi, '');
+    // Extract hex bytes
+    const bytes = str.match(/[0-9a-fA-F]{2}/g);
+    if (!bytes) return null;
+    return new Uint8Array(bytes.map(b => parseInt(b, 16)));
+  }
+
+  function pktU16(buf, off) { return (buf[off] << 8) | buf[off+1]; }
+  function pktU32(buf, off) { return ((buf[off]<<24)|(buf[off+1]<<16)|(buf[off+2]<<8)|buf[off+3]) >>> 0; }
+  function pktHex(v, pad) { return '0x' + v.toString(16).toUpperCase().padStart(pad||2,'0'); }
+  function pktMac(buf, off) {
+    return Array.from(buf.slice(off, off+6)).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(':');
+  }
+  function pktIp4(buf, off) { return buf[off]+'.'+buf[off+1]+'.'+buf[off+2]+'.'+buf[off+3]; }
+  function pktIp6(buf, off) {
+    const groups = [];
+    for (let i = 0; i < 16; i += 2) groups.push(pktU16(buf, off+i).toString(16));
+    return groups.join(':').replace(/(:?0+:?)+/, '::');
+  }
+
+  function pktService(port) {
+    return PKT_SERVICES[port] ? port + ' (' + PKT_SERVICES[port] + ')' : String(port);
+  }
+
+  function pktAnalyze() {
+    const input = document.getElementById('pkt-input').value.trim();
+    if (!input) { showToast('⚠ Paste a hex dump first'); return; }
+
+    const buf = pktParseHex(input);
+    if (!buf || buf.length < 14) {
+      showToast('✗ Invalid hex dump or packet too short (min 14 bytes for Ethernet)');
+      return;
+    }
+
+    // Hide all cards first
+    ['eth','arp','ip','ip6','tcp','udp','icmp','dns','payload'].forEach(c => {
+      const el = document.getElementById('pkt-' + c + '-card');
+      if (el) el.style.display = 'none';
+    });
+
+    const stack = [];
+    let offset = 0;
+
+    // ── Ethernet II ──────────────────────────────────
+    const ethDst  = pktMac(buf, 0);
+    const ethSrc  = pktMac(buf, 6);
+    const etherType = pktU16(buf, 12);
+    const etherHex  = etherType.toString(16).toUpperCase().padStart(4,'0');
+    const etherName = PKT_ETHER_TYPES[etherHex] || pktHex(etherType, 4);
+
+    document.getElementById('pkt-eth-dst').textContent  = ethDst + (ethDst === 'FF:FF:FF:FF:FF:FF' ? ' (Broadcast)' : '');
+    document.getElementById('pkt-eth-src').textContent  = ethSrc;
+    document.getElementById('pkt-eth-type').textContent = pktHex(etherType,4) + ' — ' + etherName;
+    document.getElementById('pkt-eth-size').textContent = buf.length + ' bytes';
+    document.getElementById('pkt-eth-card').style.display = 'block';
+
+    stack.push({ label: 'Ethernet II', color: '#e8a000', detail: ethSrc + ' → ' + ethDst });
+    offset = 14;
+
+    // ── VLAN tag (802.1Q) ─────────────────────────
+    let actualEtherType = etherType;
+    if (etherType === 0x8100 && buf.length > 18) {
+      offset += 4;
+      actualEtherType = pktU16(buf, 16);
+    }
+
+    // ── ARP ──────────────────────────────────────────
+    if (actualEtherType === 0x0806 && buf.length >= offset + 28) {
+      const arpOp = pktU16(buf, offset + 6);
+      const arpOps = { 1: 'Request (Who has?)', 2: 'Reply (Is at)' };
+      document.getElementById('pkt-arp-op').textContent   = arpOps[arpOp] || 'Unknown (' + arpOp + ')';
+      document.getElementById('pkt-arp-smac').textContent = pktMac(buf, offset + 8);
+      document.getElementById('pkt-arp-sip').textContent  = pktIp4(buf, offset + 14);
+      document.getElementById('pkt-arp-tmac').textContent = pktMac(buf, offset + 18);
+      document.getElementById('pkt-arp-tip').textContent  = pktIp4(buf, offset + 24);
+      document.getElementById('pkt-arp-card').style.display = 'block';
+      stack.push({ label: 'ARP', color: '#00b4d8', detail: arpOps[arpOp] || '' });
+    }
+
+    // ── IPv4 ──────────────────────────────────────────
+    else if (actualEtherType === 0x0800 && buf.length > offset + 20) {
+      const ipStart = offset;
+      const ipVHL   = buf[ipStart];
+      const ipHLen  = (ipVHL & 0x0f) * 4;
+      const ipTos   = buf[ipStart + 1];
+      const ipLen   = pktU16(buf, ipStart + 2);
+      const ipFlags = (pktU16(buf, ipStart + 6) >> 13);
+      const ipFrag  = pktU16(buf, ipStart + 6) & 0x1fff;
+      const ipTTL   = buf[ipStart + 8];
+      const ipProto = buf[ipStart + 9];
+      const ipCheck = pktU16(buf, ipStart + 10);
+      const ipSrc   = pktIp4(buf, ipStart + 12);
+      const ipDst   = pktIp4(buf, ipStart + 16);
+      const protoName = PKT_IP_PROTOS[ipProto] || 'Unknown (' + ipProto + ')';
+
+      const flagsStr = [
+        ipFlags & 4 ? '' : '',
+        ipFlags & 2 ? 'DF (Don\'t Fragment)' : '',
+        ipFlags & 1 ? 'MF (More Fragments)' : ''
+      ].filter(Boolean).join(', ') || 'None';
+
+      document.getElementById('pkt-ip-src').textContent      = ipSrc;
+      document.getElementById('pkt-ip-dst').textContent      = ipDst;
+      document.getElementById('pkt-ip-proto').textContent    = ipProto + ' — ' + protoName;
+      document.getElementById('pkt-ip-ttl').textContent      = ipTTL + (ipTTL <= 1 ? ' ⚠ Expiring!' : '');
+      document.getElementById('pkt-ip-len').textContent      = ipLen + ' bytes';
+      document.getElementById('pkt-ip-hlen').textContent     = ipHLen + ' bytes';
+      document.getElementById('pkt-ip-tos').textContent      = pktHex(ipTos) + ' (DSCP: ' + (ipTos >> 2) + ')';
+      document.getElementById('pkt-ip-flags').textContent    = flagsStr;
+      document.getElementById('pkt-ip-frag').textContent     = ipFrag;
+      document.getElementById('pkt-ip-checksum').textContent = pktHex(ipCheck, 4);
+      document.getElementById('pkt-ip-card').style.display   = 'block';
+
+      stack.push({ label: 'IPv4', color: '#4caf50', detail: ipSrc + ' → ' + ipDst + ' TTL:' + ipTTL });
+      offset = ipStart + ipHLen;
+
+      // ── TCP ────────────────────────────────────────
+      if (ipProto === 6 && buf.length > offset + 20) {
+        const tcpSport  = pktU16(buf, offset);
+        const tcpDport  = pktU16(buf, offset + 2);
+        const tcpSeq    = pktU32(buf, offset + 4);
+        const tcpAck    = pktU32(buf, offset + 8);
+        const tcpHLen   = ((buf[offset + 12] >> 4)) * 4;
+        const tcpFlagB  = buf[offset + 13];
+        const tcpWin    = pktU16(buf, offset + 14);
+        const tcpCheck  = pktU16(buf, offset + 16);
+        const tcpUrg    = pktU16(buf, offset + 18);
+
+        const flagNames = ['FIN','SYN','RST','PSH','ACK','URG','ECE','CWR'];
+        const flagsSet  = flagNames.filter((f,i) => tcpFlagB & (1 << i));
+
+        document.getElementById('pkt-tcp-sport').textContent   = pktService(tcpSport);
+        document.getElementById('pkt-tcp-dport').textContent   = pktService(tcpDport);
+        document.getElementById('pkt-tcp-flags').textContent   = flagsSet.join(', ') || 'None';
+        document.getElementById('pkt-tcp-seq').textContent     = tcpSeq + ' (' + pktHex(tcpSeq,8) + ')';
+        document.getElementById('pkt-tcp-ack').textContent     = tcpAck + ' (' + pktHex(tcpAck,8) + ')';
+        document.getElementById('pkt-tcp-win').textContent     = tcpWin + ' bytes';
+        document.getElementById('pkt-tcp-hlen').textContent    = tcpHLen + ' bytes';
+        document.getElementById('pkt-tcp-checksum').textContent= pktHex(tcpCheck,4);
+        document.getElementById('pkt-tcp-urg').textContent     = tcpUrg;
+        const svc = PKT_SERVICES[tcpSport] || PKT_SERVICES[tcpDport] || 'Unknown';
+        document.getElementById('pkt-tcp-service').textContent = svc;
+        document.getElementById('pkt-tcp-card').style.display  = 'block';
+
+        stack.push({ label: 'TCP', color: '#7b61ff', detail: tcpSport + ' → ' + tcpDport + ' [' + flagsSet.join(',') + ']' });
+
+        const payloadStart = offset + tcpHLen;
+        pktShowPayload(buf, payloadStart, svc);
+        offset = payloadStart;
+      }
+
+      // ── UDP ────────────────────────────────────────
+      else if (ipProto === 17 && buf.length > offset + 8) {
+        const udpSport = pktU16(buf, offset);
+        const udpDport = pktU16(buf, offset + 2);
+        const udpLen   = pktU16(buf, offset + 4);
+        const udpCheck = pktU16(buf, offset + 6);
+        const svc      = PKT_SERVICES[udpSport] || PKT_SERVICES[udpDport] || 'Unknown';
+
+        document.getElementById('pkt-udp-sport').textContent    = pktService(udpSport);
+        document.getElementById('pkt-udp-dport').textContent    = pktService(udpDport);
+        document.getElementById('pkt-udp-len').textContent      = udpLen + ' bytes';
+        document.getElementById('pkt-udp-checksum').textContent = pktHex(udpCheck,4);
+        document.getElementById('pkt-udp-service').textContent  = svc;
+        document.getElementById('pkt-udp-card').style.display   = 'block';
+
+        stack.push({ label: 'UDP', color: '#ff6b35', detail: udpSport + ' → ' + udpDport });
+
+        const payloadStart = offset + 8;
+        // DNS on port 53
+        if ((udpSport === 53 || udpDport === 53) && buf.length > payloadStart + 12) {
+          pktParseDns(buf, payloadStart);
+        }
+        pktShowPayload(buf, payloadStart, svc);
+        offset = payloadStart;
+      }
+
+      // ── ICMP ───────────────────────────────────────
+      else if (ipProto === 1 && buf.length > offset + 8) {
+        const icmpType  = buf[offset];
+        const icmpCode  = buf[offset + 1];
+        const icmpCheck = pktU16(buf, offset + 2);
+        const icmpId    = pktU16(buf, offset + 4);
+        const icmpSeq   = pktU16(buf, offset + 6);
+        const descKey   = icmpType + '-' + icmpCode;
+        const desc      = PKT_ICMP_TYPES[descKey] || PKT_ICMP_TYPES[icmpType + '-0'] || 'Type ' + icmpType;
+
+        document.getElementById('pkt-icmp-type').textContent     = icmpType;
+        document.getElementById('pkt-icmp-code').textContent     = icmpCode;
+        document.getElementById('pkt-icmp-checksum').textContent = pktHex(icmpCheck,4);
+        document.getElementById('pkt-icmp-id').textContent       = icmpId;
+        document.getElementById('pkt-icmp-seq').textContent      = icmpSeq;
+        document.getElementById('pkt-icmp-desc').textContent     = desc;
+        document.getElementById('pkt-icmp-card').style.display   = 'block';
+
+        stack.push({ label: 'ICMP', color: '#e91e63', detail: desc });
+        pktShowPayload(buf, offset + 8, 'ICMP');
+      }
+    }
+
+    // ── IPv6 ──────────────────────────────────────────
+    else if (actualEtherType === 0x86DD && buf.length > offset + 40) {
+      const ip6Ver  = (buf[offset] >> 4);
+      const ip6TC   = ((buf[offset] & 0x0f) << 4) | (buf[offset+1] >> 4);
+      const ip6PLen = pktU16(buf, offset + 4);
+      const ip6Next = buf[offset + 6];
+      const ip6Hop  = buf[offset + 7];
+      const ip6Src  = pktIp6(buf, offset + 8);
+      const ip6Dst  = pktIp6(buf, offset + 24);
+      const nextName= PKT_IP_PROTOS[ip6Next] || 'Unknown (' + ip6Next + ')';
+
+      document.getElementById('pkt-ip6-src').textContent  = ip6Src;
+      document.getElementById('pkt-ip6-dst').textContent  = ip6Dst;
+      document.getElementById('pkt-ip6-next').textContent = ip6Next + ' — ' + nextName;
+      document.getElementById('pkt-ip6-hop').textContent  = ip6Hop;
+      document.getElementById('pkt-ip6-plen').textContent = ip6PLen + ' bytes';
+      document.getElementById('pkt-ip6-tc').textContent   = pktHex(ip6TC);
+      document.getElementById('pkt-ip6-card').style.display = 'block';
+
+      stack.push({ label: 'IPv6', color: '#4caf50', detail: ip6Src + ' → ' + ip6Dst });
+    }
+
+    // ── Protocol Stack Visualization ─────────────────
+    const stackEl = document.getElementById('pkt-stack');
+    stackEl.innerHTML = stack.map((s, i) => `
+      <div style="display:flex;align-items:center;gap:0">
+        ${i > 0 ? '<div style="width:20px;height:2px;background:var(--border2)"></div>' : ''}
+        <div style="flex:1;background:${s.color}22;border:2px solid ${s.color};border-radius:6px;padding:8px 14px">
+          <div style="font-family:var(--mono-font);font-size:12px;font-weight:700;color:${s.color}">${s.label}</div>
+          <div style="font-family:var(--mono-font);font-size:10px;color:var(--muted);margin-top:2px">${s.detail}</div>
+        </div>
+      </div>
+    `).join('<div style="width:2px;height:8px;background:var(--border2);margin-left:calc(50% - 1px)"></div>');
+
+    // ── Raw Hex Dump ──────────────────────────────────
+    let hexDump = '';
+    for (let i = 0; i < buf.length; i += 16) {
+      const offset16 = i.toString(16).padStart(4,'0').toUpperCase();
+      const slice = buf.slice(i, i+16);
+      const hex  = Array.from(slice).map(b=>b.toString(16).padStart(2,'0').toUpperCase()).join(' ').padEnd(47);
+      const ascii= Array.from(slice).map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '.').join('');
+      hexDump += offset16 + '  ' + hex + '  |' + ascii + '|\n';
+    }
+    document.getElementById('pkt-hexdump').textContent = hexDump;
+    document.getElementById('pkt-results').style.display = 'block';
+    showToast('✓ Packet analyzed — ' + buf.length + ' bytes, ' + stack.map(s=>s.label).join('/'));
+  }
+
+  function pktParseDns(buf, off) {
+    if (buf.length < off + 12) return;
+    const dnsId     = pktU16(buf, off);
+    const dnsFlags  = pktU16(buf, off + 2);
+    const isReply   = (dnsFlags >> 15) & 1;
+    const qCount    = pktU16(buf, off + 4);
+    const aCount    = pktU16(buf, off + 6);
+
+    // Parse first question name
+    let name = '';
+    let p = off + 12;
+    while (p < buf.length && buf[p] !== 0) {
+      const len = buf[p++];
+      if (len > 63 || p + len > buf.length) break;
+      if (name) name += '.';
+      name += String.fromCharCode(...buf.slice(p, p + len));
+      p += len;
+    }
+    const qtype = p + 1 < buf.length ? pktU16(buf, p + 1) : 0;
+    const qtypes = { 1:'A', 2:'NS', 5:'CNAME', 6:'SOA', 12:'PTR', 15:'MX', 16:'TXT', 28:'AAAA', 33:'SRV', 255:'ANY' };
+
+    document.getElementById('pkt-dns-id').textContent     = pktHex(dnsId, 4);
+    document.getElementById('pkt-dns-type').textContent   = isReply ? 'Response' : 'Query';
+    document.getElementById('pkt-dns-qcount').textContent = qCount;
+    document.getElementById('pkt-dns-acount').textContent = aCount;
+    document.getElementById('pkt-dns-query').textContent  = name + (qtypes[qtype] ? ' (' + qtypes[qtype] + ')' : '');
+    document.getElementById('pkt-dns-card').style.display = 'block';
+  }
+
+  function pktShowPayload(buf, start, hint) {
+    if (start >= buf.length) return;
+    const payload = buf.slice(start);
+    if (!payload.length) return;
+
+    const hexStr   = Array.from(payload).map(b=>b.toString(16).padStart(2,'0').toUpperCase())
+      .reduce((acc,b,i) => acc + b + (i%16===15?'\n':' '), '').trim();
+    const asciiStr = Array.from(payload).map(b => (b>=32&&b<127)?String.fromCharCode(b):'.').join('');
+
+    // Try detect HTTP
+    const text = asciiStr.slice(0, 200);
+    const httpMatch = text.match(/^(GET|POST|PUT|DELETE|HEAD|OPTIONS|PATCH) (\S+) HTTP\/([\d.]+)/);
+    if (httpMatch) {
+      document.getElementById('pkt-dns-card') && null; // keep dns hidden
+    }
+
+    document.getElementById('pkt-payload-hex').textContent   = hexStr;
+    document.getElementById('pkt-payload-ascii').textContent = asciiStr.slice(0, 512);
+    document.getElementById('pkt-payload-info').textContent  =
+      payload.length + ' bytes' + (hint && hint !== 'Unknown' ? ' · ' + hint + ' payload' : '') +
+      (httpMatch ? ' · HTTP ' + httpMatch[1] + ' ' + httpMatch[2] : '');
+    document.getElementById('pkt-payload-card').style.display = 'block';
+  }
+
+
+  // ── Certificate Chain Builder ───────────────────────────────
+
+  // Real Google chain example (3 certs: leaf → intermediate → root)
+  const CC_EXAMPLE = `-----BEGIN CERTIFICATE-----
+MIIFljCCA36gAwIBAgINAgO8U1lrNMcY9QFQZjANBgkqhkiG9w0BAQsFADBHMQsw
+CQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZpY2VzIExMQzEU
+MBIGA1UEAxMLR1RTIFJvb3QgUjEwHhcNMjAwODEzMDAwMDQyWhcNMjcwOTMwMDAw
+MDQyWjBGMQswCQYDVQQGEwJVUzEiMCAGA1UEChMZR29vZ2xlIFRydXN0IFNlcnZp
+Y2VzIExMQzETMBEGA1UEAxMKR1RTIENBIDFDMzCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBALG34wBEpELFaEUHMgGulkLz4bGqsTlSfDMIwLfvIKBgbSCa
+LFhbG2rVTLTMi2UM5w5ICXMIPWT5lhOUaFBMuwMG8IlzS2KJKaxLxiLvFIhIXML
+v5dYmQaFHMDm1EQzFHHHUzJzVlHLfDCJsACgO/RCEjq1SpXSFpz5cLhWLO/JAJD
+iBXNUB7BDnYJGKEKlCU0l3e0ks0d0MiEFfJKl4h/vlJnDBiMDRLqOLqoNuSRnXzC
+YIMbdoMnCECkRlRLtGPqHN+lXYgkm25oY6u9v9Ys3k1X0HJc3THQOB5L3VZNUvYD
+BZOC5OyJDtaL7O7n6e3JnE3/oNHhqQ7VLxECAwEAAaOCAYYwggGCMA4GA1UdDwEB
+/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwEgYDVR0TAQH/
+BAgwBgEB/wIBADAdBgNVHQ4EFgQUinR/r4XN7pXNPZzQ4kYU83E1HScwHwYDVR0j
+BBgwFoAU5K8rJnEaK0gnhS9SZizv8IkTcT4waAYIKwYBBQUHAQEEXDBaMCYGCCsG
+AQUFBzABhhpodHRwOi8vb2NzcC5wa2kuZ29vZy9ndHNyMTAwBggrBgEFBQcwAoYk
+aHR0cDovL3BraS5nb29nL3JlcG8vY2VydHMvZ3RzcjEuZGVyMDQGA1UdHwQtMCsw
+KaAnoCWGI2h0dHA6Ly9jcmwucGtpLmdvb2cvZ3RzcjEvZ3RzcjEuY3JsMFcGA1Ud
+IABQME4wOAYKKwYBBAHWeQIFAzAqMCgGCCsGAQUFBwIBFhxodHRwczovL3BraS5n
+b29nL3JlcG9zaXRvcnkvMAgGBmeBDAECATAIBgZngQwBAgIwDQYJKoZIhvcNAQEL
+BQADggIBAIl9rCBcDDy+mqhXlRu0rvqrpXJxtDaV/d9AEQNMwkYUuxQkq/BQcSLb
+rcRuf8/xam/IgxvYzolfh2yHuKkMo5uhYpSTld9brmYZzy9NVnB6WEurxHLTJnBQ
+GnkVrKi7RkXvv5RyvFAC9EFovHWLvGP0kH8mTCiF0VkTNP0FWCnBnj23YbicmN/c
+JFn6Mu8sBGxTNwgNXbRMT3s/Gj9n+WfIaIEBxJRIJMDklOFoJqRFZuDuPaJhf0MO
+lXIbOMZLK7bKLxYWUDQkFxkRPdFYLGFqFQXjC8VFk0b3MwSh0GPXN1UR7wC5Yvtm
+UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+MIIFYjCCBEqgAwIBAgIQd70NbNs2+RrqIQ/E8FjTDTANBgkqhkiG9w0BAQsFADBX
+MQswCQYDVQQGEwJCRTEZMBcGA1UEChMQR2xvYmFsU2lnbiBudi1zYTEQMA4GA1UE
+CxMHUm9vdCBDQTEbMBkGA1UEAxMSR2xvYmFsU2lnbiBSb290IENBMB4XDTIwMDYx
+OTAwMDA0MloXDTI4MDEyODAwMDA0MlowRzELMAkGA1UEBhMCVVMxIjAgBgNVBAoT
+GUdvb2dsZSBUcnVzdCBTZXJ2aWNlcyBMTEMxFDASBgNVBAMTC0dUUyBSb290IFIx
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAthECix7joXebO9y/lD63
+ladAPKH9gvl9MgaCcfb2jH/76Nu8ai6Xl6OMS/kr9rH5zoQdsfnFl97vufKj6bwS
+iV6nqlKr+CMny6SxnGPb15l+8Ape62im9MZaRw1NEDPjTrETo8gYbEvs/AmQ351k
+KSUjB6G00j0uYODP0gmHu81I8E3CwnqIiru6z1kZ1q+PsAewnjHxgsHA3y6mbWwZ
+DrXYfiYhaO8wer4Pn3+GES5mLGBpVWpb9PYBA1LXRL4BM5IedptpTuQR9Hz5BFKJ
+xDA7dlBbqFnS2S3bBbJBPeAEkBBLZOxrfMsIMBW3sRCHa7Nf4xlpkDfBFfAOQ9R3
+Q5MqFdRx8biEaQNNaT3HKIY3U2hh3V7FUBTMgE5ycE3JbXbO/qsHNuAMvbCh8LY8
+DiRhFcA5W9DJEqxbqBLT8GkWS68k9ENL8ABn6A7BLWJT+eINkGGCE1Y/tEF0t5a0
+FJCL+R7WJB8RRzEMRiTCNmBmDQ8gHLPMH7qhb6PXIDVH1bCoXAPkHDlqJr8X5E/k
+5MQ6xmLJfKyJhGFuEYQzHr6GrXCCxb0V0VgMoKkRRFAOMc/czBGcSMqFq9gBb0la
+GmAiQfRHZzRLq1MFmOzYr7K5Y6gOFhIMvO03CaOEh17tX7h8SzEMALbzTjBYVgkH
+CtSEBkLUgAIDAQABo4IBQDCCATwwDgYDVR0PAQH/BAQDAgGGMA8GA1UdEwEB/wQF
+MAMBAf8wHQYDVR0OBBYEFOSvKyZxGitIJ4UvUmYs7/CJE3E+MB8GA1UdIwQYMBaA
+FGB7ZhpFDZfKiVAvfQTNNe074MA/MHQGCCsGAQUFBwEBBGgwZjAnBggrBgEFBQcw
+AYYbaHR0cDovL29jc3AucGtpLmdvb2cvZ3RzcjEwOwYIKwYBBQUHMAKGL2h0dHA6
+Ly9wa2kuZ29vZy9yZXBvL2NlcnRzL2d0c3IxLmRlcjAiBggrBgEFBQcwAoYWaHR0
+cDovL3gxLmkubHRyLmFpL3IzLzANBgkqhkiG9w0BAQsFAAOCAgEAqcn6i5NMCIVG
+IEq03MoVB8KIg1s2aqblXK73lUF5pDQHFtDSMtH5H1D/h7b9nJIi6BxQjyTxF0H
+MQPh9sMvfVl8D1xhpF2uJvO0p/dpPqFWcJSrxCh0RdkiOuDY+5OMUDzO4K8CTDK
+yFKNpwQelMRkr7p3s3GWm0FzCHl7fR5H3J8/z4S+z2g1DjJWgX1WQNxN7zHIqeK
+s2U1bm8jGG8BtOGZ3KP+LQfRV70vXAnTJkFBP8/g9T7W8V0L6Z7Y/VJ4TJQm9BE
+JFG73XHqb95c6UfVJ1k7rkDMF3KiJJU4YXYQ5T+OJlsYJv/bGxR6QqQn/2X9kQi
+-----END CERTIFICATE-----`;
+
+  function ccLoadExample() {
+    document.getElementById('cc-input').value = CC_EXAMPLE;
+    ccBuild();
+  }
+
+  function ccClear() {
+    document.getElementById('cc-input').value = '';
+    document.getElementById('cc-results').style.display = 'none';
+  }
+
+  function ccSplitPEMs(input) {
+    const regex = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
+    return input.match(regex) || [];
+  }
+
+  function ccParseCert(pem) {
+    try {
+      const b64 = pem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+      const der  = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      return parseDER(der); // reuse SSL decoder's parseDER
+    } catch(e) {
+      return null;
+    }
+  }
+
+  function ccFingerprint(pem) {
+    try {
+      const b64 = pem.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+      const der  = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      // Simple hash using first+last 8 bytes as identifier
+      const head = Array.from(der.slice(0, 8)).map(x => x.toString(16).padStart(2,'0')).join('');
+      const tail = Array.from(der.slice(-8)).map(x => x.toString(16).padStart(2,'0')).join('');
+      return head + tail;
+    } catch(e) { return Math.random().toString(36); }
+  }
+
+  async function ccBuild() {
+    const input = document.getElementById('cc-input').value.trim();
+    if (!input) { showToast('⚠ Paste at least one PEM certificate'); return; }
+
+    const pems = ccSplitPEMs(input);
+    if (!pems.length) { showToast('✗ No valid PEM certificates found'); return; }
+
+    // Parse all certs
+    const certs = pems.map((pem, i) => {
+      const parsed = ccParseCert(pem);
+      return { pem, parsed, index: i, fp: ccFingerprint(pem) };
+    }).filter(c => c.parsed);
+
+    if (!certs.length) { showToast('✗ Could not parse any certificates'); return; }
+
+    // Build chain: find leaf (not issuer of any other), then follow issuer chain
+    const chain = ccOrderChain(certs);
+
+    // Validate chain
+    const validation = ccValidate(chain);
+
+    // Render
+    ccRenderResults(chain, validation);
+    document.getElementById('cc-results').style.display = 'block';
+  }
+
+  function ccOrderChain(certs) {
+    if (certs.length === 1) return certs;
+
+    // Find which certs are issuers of others
+    const issuerFPs = new Set();
+    certs.forEach(c => {
+      certs.forEach(other => {
+        if (c.fp !== other.fp && other.parsed && c.parsed) {
+          // c is issuer of other if c.subject.CN === other.issuer.CN
+          if (c.parsed.subject && other.parsed.issuer &&
+              c.parsed.subject.CN && c.parsed.subject.CN === other.parsed.issuer.CN) {
+            issuerFPs.add(c.fp);
+          }
+        }
+      });
+    });
+
+    // Leaf = not an issuer of anyone
+    const leaf = certs.find(c => !issuerFPs.has(c.fp));
+    if (!leaf) return certs; // can't determine, return as-is
+
+    // Build ordered chain from leaf
+    const ordered = [leaf];
+    const remaining = certs.filter(c => c.fp !== leaf.fp);
+
+    let current = leaf;
+    for (let i = 0; i < remaining.length; i++) {
+      const next = remaining.find(c =>
+        current.parsed && c.parsed &&
+        current.parsed.issuer && c.parsed.subject &&
+        current.parsed.issuer.CN === c.parsed.subject.CN &&
+        c.fp !== current.fp
+      );
+      if (next) {
+        ordered.push(next);
+        current = next;
+        remaining.splice(remaining.indexOf(next), 1);
+        i = -1; // restart
+      } else break;
+    }
+
+    // Append any remaining (couldn't link)
+    remaining.forEach(c => { if (!ordered.find(o => o.fp === c.fp)) ordered.push(c); });
+    return ordered;
+  }
+
+  function ccValidate(chain) {
+    const now = Date.now();
+    let chainValid = true;
+    let allDatesOk = true;
+    let hasRoot = false;
+
+    const issues = [];
+
+    chain.forEach((c, i) => {
+      if (!c.parsed) return;
+      const p = c.parsed;
+
+      // Check expiry
+      if (p.notAfter && p.notAfter < now) {
+        allDatesOk = false;
+        issues.push('Certificate ' + (i+1) + ' (' + (p.subject.CN || 'unknown') + ') is EXPIRED');
+      }
+      if (p.notBefore && p.notBefore > now) {
+        allDatesOk = false;
+        issues.push('Certificate ' + (i+1) + ' is not yet valid');
+      }
+
+      // Check issuer linkage
+      if (i > 0) {
+        const prev = chain[i-1];
+        if (prev.parsed && p.subject && prev.parsed.issuer) {
+          if (prev.parsed.issuer.CN !== p.subject.CN) {
+            chainValid = false;
+            issues.push('Chain break between cert ' + i + ' and ' + (i+1));
+          }
+        }
+      }
+
+      // Check root
+      if (p.subject && p.issuer && p.subject.CN === p.issuer.CN) {
+        hasRoot = true;
+        c.isRoot = true;
+      }
+
+      // Mark leaf
+      if (i === 0) c.isLeaf = true;
+      else if (i === chain.length - 1 && !c.isRoot) c.isIntermediate = true;
+      else if (i > 0) c.isIntermediate = true;
+    });
+
+    return { chainValid, allDatesOk, hasRoot, issues };
+  }
+
+  function ccRenderResults(chain, v) {
+    const now = Date.now();
+
+    // Status
+    const statusEl = document.getElementById('cc-status');
+    if (v.chainValid && v.allDatesOk) {
+      statusEl.innerHTML = '<span style="color:var(--success)">✓ Valid certificate chain</span>';
+    } else {
+      const msgs = v.issues.map(i => '⚠ ' + i).join('<br>');
+      statusEl.innerHTML = '<span style="color:var(--error)">✗ Chain has issues:</span><br><span style="font-size:11px;color:var(--warning)">' + msgs + '</span>';
+    }
+
+    document.getElementById('cc-count').textContent    = chain.length;
+    document.getElementById('cc-valid').textContent    = v.chainValid ? '✓ Yes' : '✗ No';
+    document.getElementById('cc-valid').style.color    = v.chainValid ? 'var(--success)' : 'var(--error)';
+    document.getElementById('cc-has-root').textContent = v.hasRoot ? '✓ Yes' : '⚠ No (incomplete chain)';
+    document.getElementById('cc-has-root').style.color = v.hasRoot ? 'var(--success)' : 'var(--warning)';
+    document.getElementById('cc-dates-ok').textContent = v.allDatesOk ? '✓ Yes' : '✗ Some expired';
+    document.getElementById('cc-dates-ok').style.color = v.allDatesOk ? 'var(--success)' : 'var(--error)';
+
+    // Chain visualization
+    const vis = document.getElementById('cc-chain-vis');
+    vis.innerHTML = chain.map((c, i) => {
+      const p = c.parsed;
+      if (!p) return '';
+      const cn       = p.subject?.CN || 'Unknown';
+      const expired  = p.notAfter && p.notAfter < now;
+      const daysLeft = p.notAfter ? Math.floor((p.notAfter - now) / 86400000) : null;
+      const role     = c.isRoot ? 'Root CA' : c.isLeaf ? 'Leaf (End-Entity)' : 'Intermediate CA';
+      const roleColor= c.isRoot ? 'var(--info)' : c.isLeaf ? 'var(--accent)' : 'var(--success)';
+      const expStr   = daysLeft !== null ? (expired ? '⚠ Expired' : daysLeft + 'd left') : '';
+
+      return `
+        <div style="display:flex;align-items:stretch;gap:0">
+          <div style="display:flex;flex-direction:column;align-items:center;width:24px;flex-shrink:0">
+            <div style="width:12px;height:12px;border-radius:50%;background:${roleColor};margin-top:14px;flex-shrink:0"></div>
+            ${i < chain.length-1 ? '<div style="width:2px;flex:1;background:var(--border2);margin-top:2px"></div>' : ''}
+          </div>
+          <div style="flex:1;background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:12px 16px;margin:4px 0 4px 8px">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">
+              <div>
+                <div style="font-family:var(--mono-font);font-size:13px;color:var(--text);font-weight:600">${cn}</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">${p.subject?.O || ''}</div>
+              </div>
+              <div style="text-align:right">
+                <span style="font-size:10px;background:${roleColor}22;color:${roleColor};border:1px solid ${roleColor};border-radius:4px;padding:2px 8px;font-family:var(--mono-font)">${role}</span>
+                ${expStr ? '<div style="font-size:10px;color:' + (expired?'var(--error)':'var(--muted)') + ';margin-top:4px;font-family:var(--mono-font)">' + expStr + '</div>' : ''}
+              </div>
+            </div>
+            ${p.issuer?.CN && !c.isRoot ? '<div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);margin-top:6px">Issued by: ' + p.issuer.CN + '</div>' : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Individual cert details
+    const detailEl = document.getElementById('cc-certs-detail');
+    detailEl.innerHTML = chain.map((c, i) => {
+      const p = c.parsed;
+      if (!p) return '';
+      const cn       = p.subject?.CN || 'Certificate ' + (i+1);
+      const expired  = p.notAfter && p.notAfter < now;
+      const daysLeft = p.notAfter ? Math.floor((p.notAfter - now) / 86400000) : null;
+
+      return `
+        <div class="card animate">
+          <div class="section-label">${i+1}. ${cn}</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="info-key">Subject CN</div><div class="info-val c-accent">${p.subject?.CN || 'N/A'}</div></div>
+            <div class="info-item"><div class="info-key">Issuer CN</div><div class="info-val c-info">${p.issuer?.CN || 'N/A'}</div></div>
+            <div class="info-item"><div class="info-key">Valid From</div><div class="info-val">${p.notBefore ? p.notBefore.toLocaleDateString() : 'N/A'}</div></div>
+            <div class="info-item"><div class="info-key">Valid Until</div>
+              <div class="info-val" style="color:${expired?'var(--error)':daysLeft<30?'var(--warning)':'var(--success)'}">
+                ${p.notAfter ? p.notAfter.toLocaleDateString() + (daysLeft!==null?' ('+( expired?'expired':daysLeft+'d left')+')':'') : 'N/A'}
+              </div>
+            </div>
+            <div class="info-item"><div class="info-key">Algorithm</div><div class="info-val">${p.signatureAlgorithm || 'N/A'}</div></div>
+            <div class="info-item"><div class="info-key">Self-Signed</div><div class="info-val">${p.subject?.CN === p.issuer?.CN ? '✓ Yes (Root)' : '✗ No'}</div></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function ccExport() {
+    const input = document.getElementById('cc-input').value.trim();
+    const pems  = ccSplitPEMs(input);
+    if (!pems.length) { showToast('⚠ No certificates to export'); return; }
+    const certs  = pems.map((pem, i) => ({ pem, parsed: ccParseCert(pem), fp: ccFingerprint(pem) })).filter(c => c.parsed);
+    const chain  = ccOrderChain(certs);
+    const output = chain.map(c => c.pem).join('\n\n');
+    copyToClipboard(output, 'Certificate chain (' + chain.length + ' certs)');
+  }
+
+
+  // ── Config Diff ─────────────────────────────────────────────
+  const CD_EXAMPLES = {
+    cisco: {
+      before: `hostname Router-OLD
+!
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ duplex auto
+ speed auto
+ no shutdown
+!
+interface GigabitEthernet0/1
+ ip address 10.0.0.1 255.255.255.0
+ shutdown
+!
+ip route 0.0.0.0 0.0.0.0 192.168.1.254
+ip route 10.10.0.0 255.255.0.0 10.0.0.254
+!
+access-list 100 permit ip 192.168.1.0 0.0.0.255 any
+access-list 100 deny ip any any
+!
+ntp server 192.168.1.100
+!
+line vty 0 4
+ password cisco
+ login
+ transport input telnet`,
+      after: `hostname Router-NEW
+!
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+ duplex full
+ speed 1000
+ no shutdown
+!
+interface GigabitEthernet0/1
+ ip address 10.0.0.1 255.255.255.0
+ no shutdown
+!
+interface GigabitEthernet0/2
+ ip address 172.16.0.1 255.255.255.0
+ no shutdown
+!
+ip route 0.0.0.0 0.0.0.0 192.168.1.254
+ip route 10.10.0.0 255.255.0.0 10.0.0.254
+ip route 172.16.0.0 255.255.0.0 10.0.0.254
+!
+access-list 100 permit ip 192.168.1.0 0.0.0.255 any
+access-list 100 permit ip 172.16.0.0 0.0.255.255 any
+access-list 100 deny ip any any log
+!
+ntp server 192.168.1.100
+ntp server 192.168.1.101
+!
+line vty 0 4
+ password Str0ng!Pass
+ login local
+ transport input ssh`
+    },
+    nginx: {
+      before: `server {
+    listen 80;
+    server_name example.com;
+
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /api {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+    }
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+}`,
+      after: `server {
+    listen 80;
+    listen 443 ssl;
+    server_name example.com www.example.com;
+
+    ssl_certificate /etc/ssl/certs/example.com.crt;
+    ssl_certificate_key /etc/ssl/private/example.com.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    root /var/www/html;
+    index index.html index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location /api {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    access_log /var/log/nginx/access.log combined;
+    error_log /var/log/nginx/error.log warn;
+    gzip on;
+    gzip_types text/plain application/json;
+}`
+    },
+    juniper: {
+      before: `interfaces {
+    ge-0/0/0 {
+        unit 0 {
+            family inet {
+                address 192.168.1.1/24;
+            }
+        }
+    }
+    ge-0/0/1 {
+        disable;
+        unit 0 {
+            family inet {
+                address 10.0.0.1/24;
+            }
+        }
+    }
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 next-hop 192.168.1.254;
+    }
+}`,
+      after: `interfaces {
+    ge-0/0/0 {
+        unit 0 {
+            family inet {
+                address 192.168.1.1/24;
+                address 192.168.1.2/24;
+            }
+        }
+    }
+    ge-0/0/1 {
+        unit 0 {
+            family inet {
+                address 10.0.0.1/24;
+            }
+        }
+    }
+    ge-0/0/2 {
+        unit 0 {
+            family inet {
+                address 172.16.0.1/24;
+            }
+        }
+    }
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 next-hop 192.168.1.254;
+        route 10.0.0.0/8 next-hop 10.0.0.254;
+    }
+    router-id 192.168.1.1;
+}`
+    },
+    iptables: {
+      before: `*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --dport 22 -j ACCEPT
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+COMMIT`,
+      after: `*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p tcp --dport 22 -s 192.168.1.0/24 -j ACCEPT
+-A INPUT -p tcp --dport 80 -j ACCEPT
+-A INPUT -p tcp --dport 443 -j ACCEPT
+-A INPUT -p tcp --dport 8080 -j ACCEPT
+-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -j LOG --log-prefix "IPTables-Dropped: "
+COMMIT`
+    }
+  };
+
+  const CD_FORMATS = {
+    cisco:    { name: 'Cisco IOS',    comment: /^!/, section: /^[a-z]/, indent: ' ' },
+    juniper:  { name: 'Juniper JunOS',comment: /^#/, section: /^\w/, indent: '    ' },
+    nginx:    { name: 'nginx',        comment: /^#/, section: /^(server|location|upstream|http|events)/, indent: '    ' },
+    yaml:     { name: 'YAML',         comment: /^#/, section: /^\w.*:/, indent: '  ' },
+    json:     { name: 'JSON',         comment: null, section: /^\s*[{[]/, indent: '  ' },
+    iptables: { name: 'iptables',     comment: /^#/, section: /^\*/, indent: '' },
+    text:     { name: 'Plain Text',   comment: null, section: null, indent: '' }
+  };
+
+  function cdAutoDetect() {
+    if (document.getElementById('cd-format').value !== 'auto') return;
+    const text = (document.getElementById('cd-before').value || document.getElementById('cd-after').value).trim();
+    const fmt = cdDetectFromText(text);
+    document.getElementById('cd-detected').textContent = fmt ? '→ ' + CD_FORMATS[fmt]?.name : '';
+  }
+
+  function cdDetectFormat() {
+    const val = document.getElementById('cd-format').value;
+    document.getElementById('cd-detected').textContent = val === 'auto' ? '' : '';
+  }
+
+  function cdDetectFromText(text) {
+    if (!text) return 'text';
+    if (/^hostname |^interface |^ip route |^access-list |^line vty/m.test(text)) return 'cisco';
+    if (/^interfaces \{|^routing-options \{|^protocols \{/m.test(text)) return 'juniper';
+    if (/^\s*(server|location|upstream)\s*(\{|[^{]*\{)/m.test(text)) return 'nginx';
+    if (/^\*filter|^\*nat|^-A (INPUT|OUTPUT|FORWARD)/m.test(text)) return 'iptables';
+    if (/^[\s]*[a-zA-Z_-]+:\s/m.test(text) && !/[{}\[\]]/.test(text.slice(0,100))) return 'yaml';
+    try { JSON.parse(text); return 'json'; } catch(e) {}
+    return 'text';
+  }
+
+  function cdGetFormat() {
+    const sel = document.getElementById('cd-format').value;
+    if (sel !== 'auto') return sel;
+    const text = document.getElementById('cd-before').value || document.getElementById('cd-after').value;
+    return cdDetectFromText(text);
+  }
+
+  function cdLoadExample(name) {
+    const ex = CD_EXAMPLES[name];
+    if (!ex) return;
+    document.getElementById('cd-before').value = ex.before;
+    document.getElementById('cd-after').value  = ex.after;
+    document.getElementById('cd-format').value = name === 'iptables' ? 'iptables' :
+                                                  name === 'nginx' ? 'nginx' :
+                                                  name === 'juniper' ? 'juniper' : 'cisco';
+    document.getElementById('cd-detected').textContent = '';
+    cdRun();
+  }
+
+  function cdSwap() {
+    const b = document.getElementById('cd-before').value;
+    const a = document.getElementById('cd-after').value;
+    document.getElementById('cd-before').value = a;
+    document.getElementById('cd-after').value  = b;
+    if (document.getElementById('cd-results').style.display !== 'none') cdRun();
+  }
+
+  function cdClear() {
+    document.getElementById('cd-before').value = '';
+    document.getElementById('cd-after').value  = '';
+    document.getElementById('cd-results').style.display = 'none';
+    document.getElementById('cd-detected').textContent = '';
+  }
+
+  function cdRun() {
+    const before = document.getElementById('cd-before').value;
+    const after  = document.getElementById('cd-after').value;
+    if (!before && !after) { showToast('⚠ Paste configs in both fields'); return; }
+
+    const ignoreWs = document.getElementById('cd-ignore-ws').checked;
+    const showCtx  = document.getElementById('cd-context').checked;
+    const fmt      = cdGetFormat();
+
+    const normalize = s => ignoreWs ? s.replace(/\s+/g, ' ').trim() : s;
+
+    const beforeLines = before.split('\n').map(normalize);
+    const afterLines  = after.split('\n').map(normalize);
+
+    // LCS-based diff
+    const diff = cdLCS(beforeLines, afterLines);
+
+    // Count stats
+    let added = 0, removed = 0, unchanged = 0;
+    diff.forEach(d => {
+      if (d.type === 'add') added++;
+      else if (d.type === 'remove') removed++;
+      else unchanged++;
+    });
+
+    // Count change blocks
+    let blocks = 0, inBlock = false;
+    diff.forEach(d => {
+      if (d.type !== 'equal') { if (!inBlock) { blocks++; inBlock = true; } }
+      else inBlock = false;
+    });
+
+    const similarity = before && after
+      ? Math.round((unchanged * 2) / (beforeLines.length + afterLines.length) * 100)
+      : 0;
+
+    document.getElementById('cd-added-count').textContent   = '+' + added;
+    document.getElementById('cd-removed-count').textContent = '-' + removed;
+    document.getElementById('cd-changed-count').textContent = blocks;
+    document.getElementById('cd-unchanged-count').textContent = unchanged;
+    document.getElementById('cd-format-used').textContent   = CD_FORMATS[fmt]?.name || fmt;
+    document.getElementById('cd-similarity').textContent    = similarity + '%';
+
+    // Render diff
+    cdRenderDiff(diff, showCtx, fmt);
+    document.getElementById('cd-results').style.display = 'block';
+  }
+
+  function cdLCS(a, b) {
+    const m = a.length, n = b.length;
+    // Use patience diff algorithm approximation for large files
+    if (m + n > 2000) return cdSimpleDiff(a, b);
+
+    const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
+    for (let i = 1; i <= m; i++)
+      for (let j = 1; j <= n; j++)
+        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+
+    // Backtrack
+    const result = [];
+    let i = m, j = n;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
+        result.unshift({ type:'equal', line: a[i-1], lineB: b[j-1] });
+        i--; j--;
+      } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+        result.unshift({ type:'add', line: b[j-1] });
+        j--;
+      } else {
+        result.unshift({ type:'remove', line: a[i-1] });
+        i--;
+      }
+    }
+    return result;
+  }
+
+  function cdSimpleDiff(a, b) {
+    // Simple line-by-line for large files
+    const result = [];
+    const maxLen = Math.max(a.length, b.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < a.length && i < b.length) {
+        if (a[i] === b[i]) result.push({ type:'equal', line: a[i] });
+        else { result.push({ type:'remove', line: a[i] }); result.push({ type:'add', line: b[i] }); }
+      } else if (i < a.length) {
+        result.push({ type:'remove', line: a[i] });
+      } else {
+        result.push({ type:'add', line: b[i] });
+      }
+    }
+    return result;
+  }
+
+  function cdRenderDiff(diff, showCtx, fmt) {
+    const CTX_LINES = 3;
+    const el = document.getElementById('cd-diff-output');
+
+    // Determine which lines to show
+    const show = new Array(diff.length).fill(false);
+    diff.forEach((d, i) => {
+      if (d.type !== 'equal') {
+        for (let k = Math.max(0, i - CTX_LINES); k <= Math.min(diff.length-1, i + CTX_LINES); k++) {
+          show[k] = true;
+        }
+      }
+    });
+
+    let html = '';
+    let lineNumA = 0, lineNumB = 0;
+    let lastWasSkip = false;
+
+    diff.forEach((d, i) => {
+      if (d.type === 'remove' || d.type === 'equal') lineNumA++;
+      if (d.type === 'add'    || d.type === 'equal') lineNumB++;
+
+      if (!showCtx && d.type === 'equal' && !show[i]) {
+        if (!lastWasSkip) {
+          html += '<div style="padding:2px 12px;color:var(--muted);font-size:10px;background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">··· skipped unchanged lines ···</div>';
+          lastWasSkip = true;
+        }
+        return;
+      }
+      lastWasSkip = false;
+
+      const escapedLine = cdEscape(d.line || '');
+      const highlighted = cdHighlight(d.line || '', fmt);
+
+      let bg, color, prefix, lnA, lnB;
+      if (d.type === 'add') {
+        bg = 'rgba(76,175,80,0.12)'; color = 'var(--success)'; prefix = '+';
+        lnA = '   '; lnB = String(lineNumB).padStart(3);
+      } else if (d.type === 'remove') {
+        bg = 'rgba(244,67,54,0.12)'; color = 'var(--error)'; prefix = '-';
+        lnA = String(lineNumA).padStart(3); lnB = '   ';
+      } else {
+        bg = 'transparent'; color = 'var(--text2)'; prefix = ' ';
+        lnA = String(lineNumA).padStart(3); lnB = String(lineNumB).padStart(3);
+      }
+
+      html += `<div style="display:flex;background:${bg};min-width:0">
+        <span style="color:var(--muted);font-size:10px;padding:0 6px;min-width:28px;text-align:right;user-select:none;border-right:1px solid var(--border);flex-shrink:0">${lnA}</span>
+        <span style="color:var(--muted);font-size:10px;padding:0 6px;min-width:28px;text-align:right;user-select:none;border-right:1px solid var(--border);flex-shrink:0">${lnB}</span>
+        <span style="color:${color};padding:0 8px;flex-shrink:0;user-select:none">${prefix}</span>
+        <span style="flex:1;padding:0 4px;white-space:pre;overflow:hidden;text-overflow:ellipsis">${highlighted}</span>
+      </div>`;
+    });
+
+    if (!html) html = '<div style="padding:16px;color:var(--success);font-family:var(--mono-font);font-size:12px">✓ Files are identical</div>';
+    el.innerHTML = html;
+  }
+
+  function cdHighlight(line, fmt) {
+    const esc = cdEscape(line);
+    if (!line.trim()) return esc;
+
+    // Comments
+    const fmtDef = CD_FORMATS[fmt];
+    if (fmtDef?.comment && fmtDef.comment.test(line.trim())) {
+      return `<span style="color:var(--muted);font-style:italic">${esc}</span>`;
+    }
+
+    // Format-specific highlights
+    if (fmt === 'cisco') {
+      if (/^hostname |^ip |^interface |^router |^access-list |^line /.test(line)) {
+        return line.replace(/^(\s*)(hostname|ip|interface|router|access-list|line|ntp|crypto|snmp)(\s)/, (m, s, kw, sp) =>
+          s + `<span style="color:var(--accent);font-weight:600">${kw}</span>` + sp);
+      }
+      if (/^\s*(no |shutdown|no shutdown)/.test(line)) {
+        return `<span style="color:var(--error)">${esc}</span>`;
+      }
+    }
+
+    if (fmt === 'nginx') {
+      // directive value
+      return esc.replace(/^(\s*)([a-z_]+)(\s+)/, (m, s, kw, sp) =>
+        s + `<span style="color:var(--info)">${kw}</span>` + sp);
+    }
+
+    if (fmt === 'iptables') {
+      if (/-j ACCEPT/.test(line)) return `<span style="color:var(--success)">${esc}</span>`;
+      if (/-j DROP|-j REJECT/.test(line)) return `<span style="color:var(--error)">${esc}</span>`;
+      if (/-j LOG/.test(line)) return `<span style="color:var(--warning)">${esc}</span>`;
+    }
+
+    if (fmt === 'yaml') {
+      return esc.replace(/^(\s*)([a-zA-Z_-]+)(:)/, (m, s, k, c) =>
+        s + `<span style="color:var(--accent)">${k}</span>${c}`);
+    }
+
+    return esc;
+  }
+
+  function cdEscape(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function cdCopyDiff() {
+    const before = document.getElementById('cd-before').value;
+    const after  = document.getElementById('cd-after').value;
+    const ignoreWs = document.getElementById('cd-ignore-ws').checked;
+    const normalize = s => ignoreWs ? s.replace(/\s+/g,' ').trim() : s;
+
+    const beforeLines = before.split('\n').map(normalize);
+    const afterLines  = after.split('\n').map(normalize);
+    const diff = cdLCS(beforeLines, afterLines);
+
+    const text = diff.map(d => {
+      if (d.type === 'add') return '+ ' + d.line;
+      if (d.type === 'remove') return '- ' + d.line;
+      return '  ' + d.line;
+    }).join('\n');
+
+    copyToClipboard(text, 'Diff');
+  }
+
+  function cdExportPatch() {
+    const before = document.getElementById('cd-before').value;
+    const after  = document.getElementById('cd-after').value;
+    const diff = cdLCS(before.split('\n'), after.split('\n'));
+
+    let patch = '--- before\n+++ after\n@@ -1 +1 @@\n';
+    diff.forEach(d => {
+      if (d.type === 'add') patch += '+' + d.line + '\n';
+      else if (d.type === 'remove') patch += '-' + d.line + '\n';
+      else patch += ' ' + d.line + '\n';
+    });
+
+    copyToClipboard(patch, 'Patch file');
+  }
+
+
+  // ── HTTP Headers Analyzer ────────────────────────────────────
+
+  const HDR_EXAMPLES = {
+    good: `HTTP/2 200
+content-type: text/html; charset=utf-8
+strict-transport-security: max-age=63072000; includeSubDomains; preload
+content-security-policy: default-src 'self'; script-src 'self' 'nonce-abc123'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'
+x-frame-options: DENY
+x-content-type-options: nosniff
+referrer-policy: strict-origin-when-cross-origin
+permissions-policy: geolocation=(), microphone=(), camera=()
+cross-origin-embedder-policy: require-corp
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-origin
+cache-control: no-store
+server: nginx
+x-request-id: abc123def456`,
+
+    bad: `HTTP/1.1 200 OK
+Content-Type: text/html
+Server: Apache/2.4.1 (Ubuntu)
+X-Powered-By: PHP/7.4.3
+X-AspNet-Version: 4.0.30319
+Date: Mon, 02 Jun 2026 12:00:00 GMT
+Content-Length: 1234`,
+
+    nginx: `HTTP/1.1 200 OK
+Server: nginx/1.24.0
+Date: Mon, 02 Jun 2026 12:00:00 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 612
+Last-Modified: Mon, 02 Jun 2026 11:00:00 GMT
+Connection: keep-alive
+ETag: "abc123"
+Accept-Ranges: bytes`,
+
+    curl: `HTTP/2 200
+date: Mon, 02 Jun 2026 12:00:00 GMT
+content-type: text/html; charset=UTF-8
+server: gws
+x-xss-protection: 0
+x-frame-options: SAMEORIGIN
+transfer-encoding: chunked
+expires: Mon, 02 Jun 2026 12:00:00 GMT
+cache-control: private, max-age=0
+strict-transport-security: max-age=31536000
+content-security-policy-report-only: object-src 'none';base-uri 'self';
+alt-svc: h3=":443"; ma=2592000`
+  };
+
+  // Security header definitions
+  const HDR_SECURITY = {
+    'strict-transport-security': {
+      name: 'Strict-Transport-Security (HSTS)',
+      weight: 10,
+      check: (v) => {
+        const issues = [];
+        const age = v.match(/max-age=(\d+)/);
+        if (!age) return { ok: false, issues: ['Missing max-age directive'] };
+        const seconds = parseInt(age[1]);
+        if (seconds < 15552000) issues.push('max-age too short (< 180 days). Recommend: 63072000 (2 years)');
+        if (!v.includes('includeSubDomains')) issues.push('Missing includeSubDomains — subdomains not protected');
+        if (!v.includes('preload')) issues.push('Missing preload — consider adding for HSTS preload list');
+        return { ok: issues.length === 0, issues };
+      },
+      recommend: 'Strict-Transport-Security: max-age=63072000; includeSubDomains; preload'
+    },
+    'content-security-policy': {
+      name: 'Content-Security-Policy (CSP)',
+      weight: 15,
+      check: (v) => {
+        const issues = [];
+        if (v.includes("'unsafe-inline'")) issues.push("'unsafe-inline' allows inline scripts — XSS risk");
+        if (v.includes("'unsafe-eval'"))  issues.push("'unsafe-eval' allows eval() — XSS risk");
+        if (v.includes('*'))              issues.push('Wildcard * in source list weakens policy');
+        if (!v.includes('default-src') && !v.includes('script-src')) issues.push('No default-src or script-src defined');
+        if (!v.includes("frame-ancestors")) issues.push('Missing frame-ancestors — use instead of X-Frame-Options');
+        return { ok: issues.length === 0, issues };
+      },
+      recommend: "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'"
+    },
+    'x-frame-options': {
+      name: 'X-Frame-Options',
+      weight: 8,
+      check: (v) => {
+        const val = v.trim().toUpperCase();
+        if (val === 'DENY') return { ok: true, issues: [] };
+        if (val === 'SAMEORIGIN') return { ok: true, issues: ['SAMEORIGIN allows same-origin framing. DENY is more secure.'] };
+        return { ok: false, issues: ['Invalid value. Use DENY or SAMEORIGIN'] };
+      },
+      recommend: 'X-Frame-Options: DENY'
+    },
+    'x-content-type-options': {
+      name: 'X-Content-Type-Options',
+      weight: 8,
+      check: (v) => {
+        if (v.trim().toLowerCase() === 'nosniff') return { ok: true, issues: [] };
+        return { ok: false, issues: ['Value must be "nosniff"'] };
+      },
+      recommend: 'X-Content-Type-Options: nosniff'
+    },
+    'referrer-policy': {
+      name: 'Referrer-Policy',
+      weight: 6,
+      check: (v) => {
+        const val = v.trim().toLowerCase();
+        const safe = ['no-referrer','no-referrer-when-downgrade','origin','origin-when-cross-origin','same-origin','strict-origin','strict-origin-when-cross-origin'];
+        const unsafe = ['unsafe-url'];
+        if (unsafe.includes(val)) return { ok: false, issues: ['unsafe-url leaks full URL as referrer'] };
+        if (safe.includes(val)) return { ok: true, issues: [] };
+        return { ok: false, issues: ['Unknown referrer-policy value: ' + val] };
+      },
+      recommend: 'Referrer-Policy: strict-origin-when-cross-origin'
+    },
+    'permissions-policy': {
+      name: 'Permissions-Policy',
+      weight: 6,
+      check: (v) => {
+        const issues = [];
+        if (!v.includes('geolocation') && !v.includes('camera') && !v.includes('microphone')) {
+          issues.push('Consider restricting geolocation, camera, microphone');
+        }
+        return { ok: issues.length === 0, issues };
+      },
+      recommend: 'Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()'
+    },
+    'cross-origin-embedder-policy': {
+      name: 'Cross-Origin-Embedder-Policy (COEP)',
+      weight: 5,
+      check: (v) => {
+        if (v.trim().toLowerCase() === 'require-corp') return { ok: true, issues: [] };
+        return { ok: false, issues: ['Value should be "require-corp"'] };
+      },
+      recommend: 'Cross-Origin-Embedder-Policy: require-corp'
+    },
+    'cross-origin-opener-policy': {
+      name: 'Cross-Origin-Opener-Policy (COOP)',
+      weight: 5,
+      check: (v) => {
+        if (v.trim().toLowerCase() === 'same-origin') return { ok: true, issues: [] };
+        if (v.trim().toLowerCase() === 'same-origin-allow-popups') return { ok: true, issues: ['same-origin-allow-popups is weaker than same-origin'] };
+        return { ok: false, issues: ['Value should be "same-origin"'] };
+      },
+      recommend: 'Cross-Origin-Opener-Policy: same-origin'
+    },
+    'x-xss-protection': {
+      name: 'X-XSS-Protection (legacy)',
+      weight: 3,
+      check: (v) => {
+        const val = v.trim();
+        if (val === '0') return { ok: true, issues: ['Set to 0 (disabled) — correct if CSP is present, disables buggy browser XSS filter'] };
+        if (val.startsWith('1; mode=block')) return { ok: true, issues: ['Deprecated header. Use CSP instead.'] };
+        return { ok: false, issues: ['Deprecated. Set to 0 if CSP is present, otherwise 1; mode=block'] };
+      },
+      recommend: 'X-XSS-Protection: 0  (deprecated — use CSP instead)'
+    },
+    'cache-control': {
+      name: 'Cache-Control (sensitive pages)',
+      weight: 4,
+      check: (v) => {
+        const issues = [];
+        if (!v.includes('no-store') && !v.includes('no-cache') && !v.includes('private')) {
+          issues.push('Sensitive pages should use no-store or private to prevent caching');
+        }
+        return { ok: issues.length === 0, issues };
+      },
+      recommend: 'Cache-Control: no-store'
+    }
+  };
+
+  // Headers that reveal too much info
+  const HDR_LEAKY = ['server','x-powered-by','x-aspnet-version','x-aspnetmvc-version','x-generator','x-drupal-cache','x-wordpress-cache'];
+
+  function hdrLoadExample(name) {
+    document.getElementById('hdr-input').value = HDR_EXAMPLES[name] || '';
+    hdrAnalyze();
+  }
+
+  function hdrClear() {
+    document.getElementById('hdr-input').value = '';
+    document.getElementById('hdr-results').style.display = 'none';
+  }
+
+  function hdrParse(raw) {
+    const headers = {};
+    const lines = raw.split(/\r?\n/);
+    lines.forEach(line => {
+      // Skip status line
+      if (/^HTTP\//.test(line)) return;
+      const idx = line.indexOf(':');
+      if (idx === -1) return;
+      const key = line.slice(0, idx).trim().toLowerCase();
+      const val = line.slice(idx + 1).trim();
+      if (key) headers[key] = val;
+    });
+    return headers;
+  }
+
+  function hdrAnalyze() {
+    const raw = document.getElementById('hdr-input').value.trim();
+    if (!raw) { showToast('⚠ Paste HTTP headers first'); return; }
+
+    const headers = hdrParse(raw);
+    if (!Object.keys(headers).length) { showToast('✗ No headers found — check format'); return; }
+
+    // Score security headers
+    let score = 0, maxScore = 0;
+    const securityResults = [];
+    const missing = [];
+    const recommendations = [];
+
+    Object.entries(HDR_SECURITY).forEach(([key, def]) => {
+      maxScore += def.weight;
+      const val = headers[key];
+      if (val !== undefined) {
+        const result = def.check(val);
+        if (result.ok) {
+          score += def.weight;
+          securityResults.push({ key, name: def.name, val, status: 'ok', issues: result.issues, weight: def.weight });
+        } else {
+          score += Math.floor(def.weight * 0.3); // partial credit
+          securityResults.push({ key, name: def.name, val, status: 'warn', issues: result.issues, weight: def.weight });
+          if (result.issues.length) recommendations.push({ header: def.name, issues: result.issues, fix: def.recommend });
+        }
+      } else {
+        missing.push({ key, name: def.name, recommend: def.recommend, weight: def.weight });
+        if (def.weight >= 6) recommendations.push({ header: def.name, issues: ['Header is missing'], fix: def.recommend });
+      }
+    });
+
+    const pct = Math.round(score / maxScore * 100);
+    const { grade, color, label, desc } = hdrGrade(pct);
+
+    // Grade badge
+    const badge = document.getElementById('hdr-grade-badge');
+    badge.textContent = grade;
+    badge.style.background = color + '22';
+    badge.style.color = color;
+    badge.style.border = '3px solid ' + color;
+
+    document.getElementById('hdr-grade-label').textContent = label;
+    document.getElementById('hdr-grade-label').style.color = color;
+    document.getElementById('hdr-grade-desc').textContent = desc;
+    document.getElementById('hdr-score-bar').style.width = pct + '%';
+    document.getElementById('hdr-score-bar').style.background = color;
+    document.getElementById('hdr-score-text').textContent = score + ' / ' + maxScore + ' points (' + pct + '%)';
+
+    // Security headers list
+    const secList = document.getElementById('hdr-security-list');
+    secList.innerHTML = [
+      ...securityResults.map(r => hdrSecRow(r, true)),
+      ...missing.map(m => hdrSecRow({ key: m.key, name: m.name, val: null, status: 'missing', issues: ['Header not present'], weight: m.weight }, false))
+    ].join('');
+
+    // All headers
+    const allList = document.getElementById('hdr-all-list');
+    allList.innerHTML = Object.entries(headers).map(([k, v]) => {
+      const isLeaky = HDR_LEAKY.includes(k);
+      const isSecurity = !!HDR_SECURITY[k];
+      const color = isLeaky ? 'var(--error)' : isSecurity ? 'var(--accent)' : 'var(--text2)';
+      const badge = isLeaky ? ' <span style="font-size:9px;color:var(--error);border:1px solid var(--error);border-radius:3px;padding:0 4px">⚠ LEAKS INFO</span>' :
+                   isSecurity ? ' <span style="font-size:9px;color:var(--accent);border:1px solid var(--accent);border-radius:3px;padding:0 4px">security</span>' : '';
+      return `<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--surface2);flex-wrap:wrap">
+        <span style="font-family:var(--mono-font);font-size:11px;color:${color};min-width:200px;flex-shrink:0">${k}${badge}</span>
+        <span style="font-family:var(--mono-font);font-size:11px;color:var(--muted);flex:1;word-break:break-all">${hdrEsc(v)}</span>
+      </div>`;
+    }).join('');
+
+    // Recommendations
+    const recsCard = document.getElementById('hdr-recs-card');
+    const recsList = document.getElementById('hdr-recs-list');
+    if (recommendations.length) {
+      recsList.innerHTML = recommendations.map(r => `
+        <div style="border-left:3px solid var(--warning);padding:8px 12px;background:var(--surface2);border-radius:0 var(--r-input) var(--r-input) 0">
+          <div style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:4px">${r.header}</div>
+          ${r.issues.map(i => `<div style="font-size:11px;color:var(--warning);margin-bottom:2px">⚠ ${i}</div>`).join('')}
+          <div style="font-family:var(--mono-font);font-size:10px;color:var(--muted);margin-top:6px;word-break:break-all">➜ ${hdrEsc(r.fix)}</div>
+        </div>
+      `).join('');
+      recsCard.style.display = 'block';
+    } else {
+      recsCard.style.display = 'none';
+    }
+
+    // Info grid
+    const infoGrid = document.getElementById('hdr-info-grid');
+    const infoItems = [];
+    if (headers['server'])           infoItems.push(['Server', headers['server'], HDR_LEAKY.includes('server') ? 'c-error' : '']);
+    if (headers['x-powered-by'])     infoItems.push(['X-Powered-By', headers['x-powered-by'], 'c-error']);
+    if (headers['content-type'])     infoItems.push(['Content-Type', headers['content-type'], '']);
+    if (headers['date'])             infoItems.push(['Date', headers['date'], '']);
+    if (headers['cache-control'])    infoItems.push(['Cache-Control', headers['cache-control'], '']);
+    if (headers['x-request-id'])     infoItems.push(['X-Request-ID', headers['x-request-id'], '']);
+
+    // Count leaky headers
+    const leakyFound = HDR_LEAKY.filter(k => headers[k]);
+    infoItems.push(['Total Headers', Object.keys(headers).length, '']);
+    infoItems.push(['Security Headers', securityResults.length + ' / ' + Object.keys(HDR_SECURITY).length, 'c-accent']);
+    infoItems.push(['Missing Security', missing.length, missing.length > 3 ? 'c-error' : missing.length > 0 ? 'c-warning' : 'c-success']);
+    infoItems.push(['Info Leaking', leakyFound.length > 0 ? leakyFound.join(', ') : 'None', leakyFound.length > 0 ? 'c-error' : 'c-success']);
+
+    infoGrid.innerHTML = infoItems.map(([k, v, cls]) =>
+      `<div class="info-item"><div class="info-key">${k}</div><div class="info-val ${cls}">${hdrEsc(String(v))}</div></div>`
+    ).join('');
+
+    document.getElementById('hdr-results').style.display = 'block';
+    showToast('✓ Analyzed ' + Object.keys(headers).length + ' headers — Grade: ' + grade);
+  }
+
+  function hdrGrade(pct) {
+    if (pct >= 90) return { grade:'A+', color:'var(--success)',  label:'Excellent Security',    desc:'All critical security headers present and correctly configured.' };
+    if (pct >= 75) return { grade:'A',  color:'var(--success)',  label:'Good Security',          desc:'Most security headers present. Minor improvements possible.' };
+    if (pct >= 60) return { grade:'B',  color:'var(--info)',     label:'Fair Security',          desc:'Some important security headers missing or misconfigured.' };
+    if (pct >= 40) return { grade:'C',  color:'var(--warning)',  label:'Poor Security',          desc:'Multiple security headers missing. Site is vulnerable.' };
+    if (pct >= 20) return { grade:'D',  color:'var(--warning)',  label:'Very Poor Security',     desc:'Critical security headers missing. High risk of attacks.' };
+    return           { grade:'F',  color:'var(--error)',   label:'Critical — No Security',  desc:'Almost no security headers. Vulnerable to XSS, clickjacking, and more.' };
+  }
+
+  function hdrSecRow(r, present) {
+    const icons = { ok: '✓', warn: '⚠', missing: '✗' };
+    const colors = { ok: 'var(--success)', warn: 'var(--warning)', missing: 'var(--error)' };
+    const icon = icons[r.status];
+    const color = colors[r.status];
+
+    return `<div style="display:flex;gap:10px;padding:10px 12px;background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);border-left:3px solid ${color}">
+      <div style="color:${color};font-size:14px;font-weight:700;flex-shrink:0;min-width:16px">${icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:4px">
+          <span style="font-family:var(--mono-font);font-size:12px;color:var(--text);font-weight:600">${r.name}</span>
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono-font)">${r.weight}pts</span>
+        </div>
+        ${r.val !== null ? `<div style="font-family:var(--mono-font);font-size:10px;color:var(--muted);margin-top:3px;word-break:break-all">${hdrEsc(r.val)}</div>` : ''}
+        ${r.issues.length ? r.issues.map(i => `<div style="font-size:11px;color:${color};margin-top:3px">↳ ${i}</div>`).join('') : ''}
+      </div>
+    </div>`;
+  }
+
+  function hdrEsc(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+
+  // ── CIDR Aggregator ─────────────────────────────────────────
+  let cidrVersion = 4;
+
+  const CIDR_EXAMPLES = {
+    firewall: `192.168.1.0/24
+192.168.2.0/24
+192.168.3.0/24
+192.168.4.0/24
+10.0.0.0/24
+10.0.1.0/24
+10.0.2.0/24
+10.0.3.0/24
+172.16.0.0/24
+172.16.1.0/24`,
+    hosts: `192.168.1.1
+192.168.1.2
+192.168.1.3
+192.168.1.4
+192.168.1.5
+192.168.1.6
+192.168.1.7
+192.168.1.8
+10.0.0.100
+10.0.0.101
+10.0.0.102`,
+    mixed: `10.0.0.0/28
+10.0.0.16/28
+10.0.0.32/28
+10.0.0.48/28
+192.168.0.0/25
+192.168.0.128/25
+172.16.0.0/24
+172.16.1.0/24
+172.16.2.0/24
+172.16.3.0/24
+172.16.4.0/24
+172.16.5.0/24
+172.16.6.0/24
+172.16.7.0/24`,
+    bogons: `0.0.0.0/8
+10.0.0.0/8
+100.64.0.0/10
+127.0.0.0/8
+169.254.0.0/16
+172.16.0.0/12
+192.0.0.0/24
+192.168.0.0/16
+198.18.0.0/15
+198.51.100.0/24
+203.0.113.0/24
+240.0.0.0/4`
+  };
+
+  function cidrSetVersion(v) {
+    cidrVersion = v;
+    document.getElementById('cidr-tab-v4').style.opacity = v === 4 ? '1' : '0.5';
+    document.getElementById('cidr-tab-v6').style.opacity = v === 6 ? '1' : '0.5';
+  }
+
+  function cidrLoadExample(name) {
+    document.getElementById('cidr-input').value = CIDR_EXAMPLES[name] || '';
+    cidrSetVersion(4);
+    cidrAggregate();
+  }
+
+  function cidrClear() {
+    document.getElementById('cidr-input').value = '';
+    document.getElementById('cidr-results').style.display = 'none';
+  }
+
+  // Convert IP string to 32-bit integer
+  function cidrIpToInt(ip) {
+    const parts = ip.split('.').map(Number);
+    if (parts.length !== 4 || parts.some(p => isNaN(p) || p < 0 || p > 255)) return null;
+    return ((parts[0] << 24) | (parts[1] << 16) | (parts[2] << 8) | parts[3]) >>> 0;
+  }
+
+  function cidrIntToIp(n) {
+    return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+  }
+
+  // Parse a single entry: IP, IP/prefix, or IP range (IP-IP)
+  function cidrParseEntry(entry) {
+    entry = entry.trim();
+    if (!entry) return null;
+
+    // CIDR notation
+    if (entry.includes('/')) {
+      const [ip, prefix] = entry.split('/');
+      const plen = parseInt(prefix);
+      if (isNaN(plen) || plen < 0 || plen > 32) return null;
+      const start = cidrIpToInt(ip);
+      if (start === null) return null;
+      const mask = plen === 0 ? 0 : (0xFFFFFFFF << (32 - plen)) >>> 0;
+      const network = (start & mask) >>> 0;
+      const end     = (network | (~mask >>> 0)) >>> 0;
+      return { network, end, prefix: plen };
+    }
+
+    // IP range (10.0.0.1-10.0.0.10)
+    if (entry.includes('-')) {
+      const [startIp, endIp] = entry.split('-');
+      const start = cidrIpToInt(startIp.trim());
+      const end   = cidrIpToInt(endIp.trim());
+      if (start === null || end === null || start > end) return null;
+      return { network: start, end, prefix: null };
+    }
+
+    // Single IP → /32
+    const n = cidrIpToInt(entry);
+    if (n === null) return null;
+    return { network: n, end: n, prefix: 32 };
+  }
+
+  // Convert a range [start, end] to minimal list of CIDRs
+  function cidrRangeToCidrs(start, end) {
+    const result = [];
+    let current = start;
+    while (current <= end) {
+      // Find largest CIDR block starting at current that fits within end
+      let prefix = 32;
+      while (prefix > 0) {
+        const mask   = (0xFFFFFFFF << (32 - prefix + 1)) >>> 0;
+        const blockStart = (current & mask) >>> 0;
+        if (blockStart !== current) break;
+        const blockEnd = (current | (~((0xFFFFFFFF << (32 - prefix + 1)) >>> 0))) >>> 0;
+        if (blockEnd > end) break;
+        prefix--;
+      }
+      const blockEnd = (current | (~((0xFFFFFFFF << (32 - prefix)) >>> 0))) >>> 0;
+      result.push({ network: current, end: blockEnd, prefix });
+      current = blockEnd + 1;
+      if (current === 0) break; // overflow
+    }
+    return result;
+  }
+
+  function cidrAggregate() {
+    const input = document.getElementById('cidr-input').value.trim();
+    if (!input) { showToast('⚠ Enter IP addresses or CIDRs'); return; }
+
+    const lines   = input.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const removeDups = document.getElementById('cidr-remove-dups').checked;
+    const doSort     = document.getElementById('cidr-sort').checked;
+
+    // Parse all entries
+    const parsed = [];
+    const errors = [];
+    lines.forEach((line, i) => {
+      const p = cidrParseEntry(line);
+      if (p) parsed.push(p);
+      else errors.push('Line ' + (i+1) + ': ' + line);
+    });
+
+    if (!parsed.length) {
+      showToast('✗ No valid IPs/CIDRs found');
+      return;
+    }
+
+    const inputCount = parsed.length;
+
+    // Merge all ranges into unified list
+    let ranges = parsed.map(p => ({ start: p.network, end: p.end }));
+
+    // Sort by start
+    ranges.sort((a, b) => a.start - b.start || a.end - b.end);
+
+    // Merge overlapping/adjacent ranges
+    const merged = [ranges[0]];
+    let mergeCount = 0;
+    for (let i = 1; i < ranges.length; i++) {
+      const last = merged[merged.length - 1];
+      if (ranges[i].start <= last.end + 1) {
+        if (ranges[i].end > last.end) { last.end = ranges[i].end; mergeCount++; }
+        else mergeCount++; // absorbed duplicate
+      } else {
+        merged.push({ ...ranges[i] });
+      }
+    }
+
+    // Convert merged ranges back to minimal CIDRs
+    let result = [];
+    merged.forEach(r => {
+      result = result.concat(cidrRangeToCidrs(r.start, r.end));
+    });
+
+    if (doSort) result.sort((a, b) => a.network - b.network);
+
+    // Calculate total IPs
+    const totalIps = result.reduce((sum, r) => sum + (r.end - r.network + 1), 0);
+
+    // Render summary
+    document.getElementById('cidr-in-count').textContent   = inputCount;
+    document.getElementById('cidr-out-count').textContent  = result.length;
+    const reduction = inputCount > result.length
+      ? Math.round((1 - result.length / inputCount) * 100) + '% fewer (' + (inputCount - result.length) + ' removed)'
+      : 'None';
+    document.getElementById('cidr-reduction').textContent  = reduction;
+    document.getElementById('cidr-total-ips').textContent  = totalIps.toLocaleString();
+    document.getElementById('cidr-dups').textContent       = mergeCount;
+    document.getElementById('cidr-merged').textContent     = inputCount - result.length > 0 ? inputCount - result.length : '0';
+
+    // Render result list
+    const listEl = document.getElementById('cidr-result-list');
+    listEl.innerHTML = result.map(r => {
+      const cidr = cidrIntToIp(r.network) + '/' + r.prefix;
+      const ips  = r.end - r.network + 1;
+      const mask = cidrPrefixToMask(r.prefix);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:8px 14px;gap:8px;flex-wrap:wrap">
+        <span style="font-family:var(--mono-font);font-size:13px;color:var(--accent);font-weight:600">${cidr}</span>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <span style="font-family:var(--mono-font);font-size:11px;color:var(--muted)">${mask}</span>
+          <span style="font-family:var(--mono-font);font-size:11px;color:var(--text2)">${ips.toLocaleString()} IPs</span>
+          <span style="font-family:var(--mono-font);font-size:11px;color:var(--muted)">${cidrIntToIp(r.network)} – ${cidrIntToIp(r.end)}</span>
+        </div>
+        <button onclick="copyToClipboard('${cidr}','CIDR')" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">copy</button>
+      </div>`;
+    }).join('');
+
+    // Details: per-input what happened
+    const detailsEl = document.getElementById('cidr-details-list');
+    if (errors.length) {
+      detailsEl.innerHTML = errors.map(e =>
+        `<div style="font-family:var(--mono-font);font-size:11px;color:var(--error);padding:4px 0">✗ ${e} (skipped)</div>`
+      ).join('');
+      document.getElementById('cidr-details-card').style.display = 'block';
+    } else {
+      document.getElementById('cidr-details-card').style.display = 'none';
+    }
+
+    document.getElementById('cidr-results').style.display = 'block';
+    showToast('✓ ' + inputCount + ' → ' + result.length + ' CIDRs');
+  }
+
+  function cidrPrefixToMask(prefix) {
+    const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+    return cidrIntToIp(mask);
+  }
+
+  function cidrGetResultCidrs() {
+    return Array.from(document.querySelectorAll('#cidr-result-list span[style*="font-weight:600"]'))
+      .map(el => el.textContent.trim());
+  }
+
+  function cidrCopyResult() {
+    const cidrs = cidrGetResultCidrs();
+    if (!cidrs.length) { showToast('⚠ No results'); return; }
+    copyToClipboard(cidrs.join('\n'), cidrs.length + ' CIDRs');
+  }
+
+  function cidrCopyFirewall() {
+    const cidrs = cidrGetResultCidrs();
+    if (!cidrs.length) { showToast('⚠ No results'); return; }
+    const acl = cidrs.map((cidr, i) => {
+      const [ip, prefix] = cidr.split('/');
+      const plen = parseInt(prefix);
+      const mask = cidrPrefixToMask(plen);
+      const wild = cidrIntToIp(~((0xFFFFFFFF << (32 - plen)) >>> 0) >>> 0);
+      return `access-list 100 permit ip ${ip} ${wild} any`;
+    }).join('\n');
+    copyToClipboard(acl, 'Cisco ACL');
+  }
+
+  function cidrCopyIptables() {
+    const cidrs = cidrGetResultCidrs();
+    if (!cidrs.length) { showToast('⚠ No results'); return; }
+    const rules = cidrs.map(cidr =>
+      `-A INPUT -s ${cidr} -j ACCEPT`
+    ).join('\n');
+    copyToClipboard(rules, 'iptables rules');
+  }
+
+
+  // ── SSH Key Generator ────────────────────────────────────────
+  function sshTypeChanged() {
+    // Update usage command based on type
+    const type = document.getElementById('ssh-type').value;
+    const keyfile = type.startsWith('rsa') ? 'id_rsa' : 'id_ecdsa';
+    const cmd = document.getElementById('ssh-usage-cmd');
+    const conn = document.getElementById('ssh-usage-connect');
+    if (cmd)  cmd.textContent  = `chmod 600 ~/.ssh/${keyfile} && chmod 700 ~/.ssh`;
+    if (conn) conn.textContent = `ssh -i ~/.ssh/${keyfile} user@hostname`;
+  }
+
+  function sshClear() {
+    document.getElementById('ssh-results').style.display = 'none';
+  }
+
+  async function sshGenerate() {
+    const typeVal = document.getElementById('ssh-type').value;
+    const comment = document.getElementById('ssh-comment').value.trim() || 'user@myhost';
+    const btn = document.getElementById('ssh-gen-btn');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    document.getElementById('ssh-generating').style.display = 'block';
+    document.getElementById('ssh-results').style.display = 'none';
+
+    try {
+      let keyPair, pubKeyStr, privKeyStr, algName, secLevel, keyFileName;
+
+      if (typeVal.startsWith('ecdsa')) {
+        const curve = typeVal === 'ecdsa-p384' ? 'P-384' : 'P-256';
+        algName = 'ECDSA ' + curve;
+        keyFileName = 'id_ecdsa';
+        secLevel = curve === 'P-384' ? '~192-bit (very strong)' : '~128-bit (strong)';
+
+        keyPair = await crypto.subtle.generateKey(
+          { name: 'ECDSA', namedCurve: curve },
+          true, ['sign', 'verify']
+        );
+
+        const [spkiBuf, pkcs8Buf] = await Promise.all([
+          crypto.subtle.exportKey('spki', keyPair.publicKey),
+          crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+        ]);
+
+        // Build OpenSSH public key format
+        pubKeyStr = sshBuildEcdsaPublicKey(spkiBuf, curve, comment);
+        privKeyStr = sshBuildPemPrivateKey(pkcs8Buf, 'EC PRIVATE KEY');
+
+      } else {
+        // RSA
+        const bits = typeVal === 'rsa-4096' ? 4096 : 2048;
+        algName = 'RSA ' + bits + '-bit';
+        keyFileName = 'id_rsa';
+        secLevel = bits === 4096 ? '~140-bit (very strong)' : '~112-bit (good)';
+
+        keyPair = await crypto.subtle.generateKey(
+          { name: 'RSASSA-PKCS1-v1_5', modulusLength: bits, publicExponent: new Uint8Array([1,0,1]), hash: 'SHA-256' },
+          true, ['sign', 'verify']
+        );
+
+        const [spkiBuf, pkcs8Buf] = await Promise.all([
+          crypto.subtle.exportKey('spki', keyPair.publicKey),
+          crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+        ]);
+
+        pubKeyStr = sshBuildRsaPublicKey(spkiBuf, comment);
+        privKeyStr = sshBuildPemPrivateKey(pkcs8Buf, 'PRIVATE KEY');
+      }
+
+      document.getElementById('ssh-pub').textContent  = pubKeyStr;
+      document.getElementById('ssh-priv').textContent = privKeyStr;
+
+      document.getElementById('ssh-info-alg').textContent      = algName;
+      document.getElementById('ssh-info-type').textContent     = typeVal.startsWith('ecdsa') ? 'ecdsa-sha2-' + (typeVal === 'ecdsa-p384' ? 'nistp384' : 'nistp256') : 'ssh-rsa';
+      document.getElementById('ssh-info-comment').textContent  = comment;
+      document.getElementById('ssh-info-pubsize').textContent  = pubKeyStr.length + ' chars';
+      document.getElementById('ssh-info-privsize').textContent = privKeyStr.length + ' chars';
+      document.getElementById('ssh-info-security').textContent = secLevel;
+
+      // Update usage commands
+      const keyfile = typeVal.startsWith('rsa') ? 'id_rsa' : 'id_ecdsa';
+      document.getElementById('ssh-usage-cmd').textContent     = 'chmod 600 ~/.ssh/' + keyfile + ' && chmod 700 ~/.ssh';
+      document.getElementById('ssh-usage-connect').textContent = 'ssh -i ~/.ssh/' + keyfile + ' user@hostname';
+
+      document.getElementById('ssh-generating').style.display = 'none';
+      document.getElementById('ssh-results').style.display    = 'block';
+      showToast('✓ ' + algName + ' key pair generated');
+
+    } catch(e) {
+      showToast('✗ Error: ' + e.message);
+      document.getElementById('ssh-generating').style.display = 'none';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate Key Pair';
+    }
+  }
+
+  function sshBuildPemPrivateKey(buf, label) {
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+    const lines = b64.match(/.{1,64}/g).join('\n');
+    return `-----BEGIN ${label}-----\n${lines}\n-----END ${label}-----`;
+  }
+
+  function sshBuildEcdsaPublicKey(spkiBuf, curve, comment) {
+    // OpenSSH ECDSA public key format:
+    // ssh-ecdsa-sha2-nistp256 base64(wire_format) comment
+    const curveName = curve === 'P-384' ? 'nistp384' : 'nistp256';
+    const keyType   = 'ecdsa-sha2-' + curveName;
+
+    // Extract the raw public key point from SPKI
+    // SPKI for ECDSA: SEQUENCE { SEQUENCE { OID ecdsa, OID curve }, BIT STRING { 04 x y } }
+    const der = new Uint8Array(spkiBuf);
+    // Find the BIT STRING (tag 0x03) — typically at offset 23 for P-256
+    let offset = 0;
+    while (offset < der.length && der[offset] !== 0x03) offset++;
+    offset += 2; // skip tag and length
+    if (der[offset] === 0x00) offset++; // skip unused bits byte
+    const pointBytes = der.slice(offset); // 04 || x || y
+
+    // Build SSH wire format: string keyType, string curveName, string point
+    const enc = new TextEncoder();
+    function sshString(data) {
+      const bytes = typeof data === 'string' ? enc.encode(data) : data;
+      const buf = new Uint8Array(4 + bytes.length);
+      new DataView(buf.buffer).setUint32(0, bytes.length);
+      buf.set(bytes, 4);
+      return buf;
+    }
+
+    const wireFormat = new Uint8Array([
+      ...sshString(keyType),
+      ...sshString(curveName),
+      ...sshString(pointBytes)
+    ]);
+
+    return keyType + ' ' + btoa(String.fromCharCode(...wireFormat)) + ' ' + comment;
+  }
+
+  function sshBuildRsaPublicKey(spkiBuf, comment) {
+    // Parse RSA SPKI to get n and e
+    const der = new Uint8Array(spkiBuf);
+
+    // Simple DER parser for RSA public key
+    let pos = 0;
+    function readLen() {
+      let l = der[pos++];
+      if (l & 0x80) { const nb = l & 0x7f; l = 0; for (let i = 0; i < nb; i++) l = (l<<8)|der[pos++]; }
+      return l;
+    }
+    function readTLV() {
+      const tag = der[pos++]; const len = readLen();
+      const val = der.slice(pos, pos+len); pos += len;
+      return { tag, val };
+    }
+
+    try {
+      pos = 0;
+      readTLV(); // outer SEQUENCE
+      pos = 2;
+      // Skip algorithm identifier
+      const algId = readTLV(); // SEQUENCE
+      pos = 2 + algId.val.length + 2;
+      // BIT STRING
+      pos = der.indexOf(0x03);
+      pos++; readLen(); pos++; // skip unused bits
+
+      // Inner SEQUENCE with n and e
+      pos++; readLen(); // SEQUENCE
+      pos++; readLen(); // INTEGER n tag+len — skip
+      // Actually let's find integers
+      let nStart = pos + 1; // after SEQUENCE tag+len
+      // find first INTEGER
+      while (pos < der.length && der[pos] !== 0x02) pos++;
+      pos++; // skip tag
+      const nLen = readLen();
+      const n = der.slice(pos, pos + nLen); pos += nLen;
+      pos++; // skip INTEGER tag
+      const eLen = readLen();
+      const e = der.slice(pos, pos + eLen);
+
+      // SSH wire format: string "ssh-rsa", mpint e, mpint n
+      const enc = new TextEncoder();
+      function sshStr(data) {
+        const bytes = typeof data === 'string' ? enc.encode(data) : data;
+        const b = new Uint8Array(4 + bytes.length);
+        new DataView(b.buffer).setUint32(0, bytes.length);
+        b.set(bytes, 4);
+        return b;
+      }
+      function sshMpint(data) {
+        // Add leading zero if high bit set
+        const needsPad = data[0] & 0x80;
+        const padded = needsPad ? new Uint8Array([0, ...data]) : data;
+        return sshStr(padded);
+      }
+
+      const wire = new Uint8Array([
+        ...sshStr('ssh-rsa'),
+        ...sshMpint(e),
+        ...sshMpint(n)
+      ]);
+
+      return 'ssh-rsa ' + btoa(String.fromCharCode(...wire)) + ' ' + comment;
+    } catch(err) {
+      // Fallback: just export as PEM-style comment
+      const b64 = btoa(String.fromCharCode(...new Uint8Array(spkiBuf)));
+      return 'ssh-rsa ' + b64 + ' ' + comment;
+    }
+  }
+
+  function sshCopy(which) {
+    const id  = which === 'pub' ? 'ssh-pub' : 'ssh-priv';
+    const txt = document.getElementById(id).textContent;
+    if (txt) copyToClipboard(txt, which === 'pub' ? 'Public key' : 'Private key');
+  }
 
 
 </script>
