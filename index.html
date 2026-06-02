@@ -916,42 +916,68 @@
 
   <!-- Sidebar -->
   <nav class="sidebar" id="sidebar">
-
     <div class="sidebar-section">
-      <div class="sidebar-section-label">🌐 Networking</div>
-      <div class="sidebar-item active" onclick="showTool('ip-calc', this)" data-title="IP Calculator">
-        <span class="sidebar-item-icon">📡</span> IP Calculator
+      <div class="sidebar-section-label">🛡️ Security</div>
+      <div class="sidebar-item" onclick="showTool('passgen', this)" data-title="Password Generator">
+        <span class="sidebar-item-icon">🔑</span> Password Generator
       </div>
-      <div class="sidebar-item" onclick="showTool('subnet', this)" data-title="Subnet Visualizer">
-        <span class="sidebar-item-icon">🗺</span> Subnet Visualizer
+      <div class="sidebar-item" onclick="showTool('aes', this)" data-title="AES Encrypt/Decrypt">
+        <span class="sidebar-item-icon">🔒</span> AES Encrypt/Decrypt
       </div>
-      <div class="sidebar-item" onclick="showTool('mac', this)" data-title="MAC Lookup">
-        <span class="sidebar-item-icon">🔌</span> MAC Lookup
+      <div class="sidebar-item" onclick="showTool('rsa', this)" data-title="RSA Key Generator">
+        <span class="sidebar-item-icon">🔐</span> RSA Key Generator
+      </div>
+      <div class="sidebar-item" onclick="showTool('filehash', this)" data-title="File Hash Calculator">
+        <span class="sidebar-item-icon">📄</span> File Hash
+      </div>
+      <div class="sidebar-item" onclick="showTool('ssl', this)" data-title="SSL Certificate Decoder">
+        <span class="sidebar-item-icon">🌐</span> SSL Certificate
+      </div>
+      <div class="sidebar-item" onclick="showTool('pbkdf2', this)" data-title="PBKDF2 Key Derivation">
+        <span class="sidebar-item-icon">🗝️</span> PBKDF2 Derivation
+      </div>
+      <div class="sidebar-item" onclick="showTool('entropy', this)" data-title="Entropy Calculator">
+        <span class="sidebar-item-icon">📊</span> Entropy Calculator
+      </div>
+      <div class="sidebar-item" onclick="showTool('urlenc', this)" data-title="URL Encoder/Decoder">
+        <span class="sidebar-item-icon">🔗</span> URL Encoder/Decoder
+      </div>
+      <div class="sidebar-item" onclick="showTool('emailmask', this)" data-title="Email Masker">
+        <span class="sidebar-item-icon">✉️</span> Email Masker
+      </div>
+      <div class="sidebar-item" onclick="showTool('privacy', this)" data-title="Security & Privacy">
+        <span class="sidebar-item-icon">🛡️</span> Security & Privacy
       </div>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">💻 Developer</div>
       <div class="sidebar-item" onclick="showTool('json', this)" data-title="JSON Formatter">
-        <span class="sidebar-item-icon">{ }</span> JSON Formatter
+        <span class="sidebar-item-icon">{}</span> JSON Formatter
       </div>
-      <div class="sidebar-item" onclick="showTool('base64', this)" data-title="Base64">
-        <span class="sidebar-item-icon">🔐</span> Base64
+      <div class="sidebar-item" onclick="showTool('jwt', this)" data-title="JWT Validator">
+        <span class="sidebar-item-icon">🎫</span> JWT Validator
       </div>
       <div class="sidebar-item" onclick="showTool('hash', this)" data-title="Hash Generator">
         <span class="sidebar-item-icon">#</span> Hash Generator
       </div>
+      <div class="sidebar-item" onclick="showTool('uuid', this)" data-title="UUID Generator">
+        <span class="sidebar-item-icon">🆔</span> UUID Generator
+      </div>
+      <div class="sidebar-item" onclick="showTool('base64', this)" data-title="Base64">
+        <span class="sidebar-item-icon">64</span> Base64
+      </div>
       <div class="sidebar-item" onclick="showTool('regex', this)" data-title="Regex Tester">
         <span class="sidebar-item-icon">.*</span> Regex Tester
-      </div>
-      <div class="sidebar-item" onclick="showTool('jwt', this)" data-title="JWT Decoder">
-        <span class="sidebar-item-icon">🎫</span> JWT Decoder
       </div>
       <div class="sidebar-item" onclick="showTool('ts', this)" data-title="Timestamp">
         <span class="sidebar-item-icon">🕐</span> Timestamp
       </div>
-      <div class="sidebar-item" onclick="showTool('uuid', this)" data-title="UUID Generator">
-        <span class="sidebar-item-icon">🆔</span> UUID Generator
+      <div class="sidebar-item" onclick="showTool('cron', this)" data-title="Cron Builder">
+        <span class="sidebar-item-icon">⏱️</span> Cron Builder
+      </div>
+      <div class="sidebar-item" onclick="showTool('converter', this)" data-title="YAML/JSON/TOML">
+        <span class="sidebar-item-icon">⇄</span> YAML/JSON/TOML
       </div>
     </div>
 
@@ -959,7 +985,6 @@
       <div class="sidebar-section-label">📁 File & Format</div>
       <div class="sidebar-item" onclick="showTool('qr', this)" data-title="QR Generator">
         <span class="sidebar-item-icon">⬛</span> QR Generator
-        
       </div>
       <div class="sidebar-item" onclick="showTool('csv', this)" data-title="CSV to JSON">
         <span class="sidebar-item-icon">📊</span> CSV to JSON
@@ -997,39 +1022,17 @@
     </div>
 
     <div class="sidebar-section">
-      <div class="sidebar-section-label">🛡️ Security</div>
-      <div class="sidebar-item" onclick="showTool('passgen', this)" data-title="Password Generator">
-        <span class="sidebar-item-icon">🔑</span> Password Generator
+      <div class="sidebar-section-label">🌐 Networking</div>
+      <div class="sidebar-item" onclick="showTool('ip-calc', this)" data-title="IP Calculator">
+        <span class="sidebar-item-icon">📡</span> IP Calculator
       </div>
-      <div class="sidebar-item" onclick="showTool('aes', this)" data-title="AES Encrypt/Decrypt">
-        <span class="sidebar-item-icon">🔒</span> AES Encrypt/Decrypt
+      <div class="sidebar-item" onclick="showTool('subnet', this)" data-title="Subnet Visualizer">
+        <span class="sidebar-item-icon">🗺</span> Subnet Visualizer
       </div>
-      <div class="sidebar-item" onclick="showTool('filehash', this)" data-title="File Hash Calculator">
-        <span class="sidebar-item-icon">📄</span> File Hash
-      </div>
-      <div class="sidebar-item" onclick="showTool('urlenc', this)" data-title="URL Encoder/Decoder">
-        <span class="sidebar-item-icon">🔗</span> URL Encoder/Decoder
-      </div>
-      <div class="sidebar-item" onclick="showTool('ssl', this)" data-title="SSL Certificate Decoder">
-        <span class="sidebar-item-icon">🌐</span> SSL Certificate
-      </div>
-      <div class="sidebar-item" onclick="showTool('pbkdf2', this)" data-title="PBKDF2 Key Derivation">
-        <span class="sidebar-item-icon">🗝️</span> PBKDF2 Derivation
-      </div>
-      <div class="sidebar-item" onclick="showTool('emailmask', this)" data-title="Email Masker">
-        <span class="sidebar-item-icon">✉️</span> Email Masker
-      </div>
-      <div class="sidebar-item" onclick="showTool('entropy', this)" data-title="Entropy Calculator">
-        <span class="sidebar-item-icon">📊</span> Entropy Calculator
-      </div>
-      <div class="sidebar-item" onclick="showTool('rsa', this)" data-title="RSA Key Generator">
-        <span class="sidebar-item-icon">🔐</span> RSA Key Generator
-      </div>
-      <div class="sidebar-item" onclick="showTool('privacy', this)" data-title="Security & Privacy">
-        <span class="sidebar-item-icon">🛡️</span> Security & Privacy
+      <div class="sidebar-item" onclick="showTool('mac', this)" data-title="MAC Lookup">
+        <span class="sidebar-item-icon">🔌</span> MAC Lookup
       </div>
     </div>
-
 
   </nav>
 
@@ -2861,6 +2864,222 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
         </div>
       </div>
     </div>
+
+
+    <!-- ══ CRON BUILDER ══════════════════════════════════════════ -->
+    <div class="tool-panel" id="panel-cron">
+      <div class="tool-header">
+        <h1>Cron <span>Builder</span></h1>
+        <p>Build and understand cron expressions visually</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Converts cron expressions to human-readable descriptions and vice versa. Visual sliders for each field. Shows next 5 execution times. Supports standard 5-field and extended 6-field (with seconds) cron syntax.</div>
+      </div>
+
+      <!-- Expression input -->
+      <div class="card">
+        <div class="input-group" style="margin-bottom:12px">
+          <label class="input-label">Cron Expression</label>
+          <div style="display:flex;gap:8px">
+            <input class="main-input" id="cron-input" type="text" value="0 */6 * * *"
+              placeholder="* * * * *" spellcheck="false" autocomplete="off"
+              oninput="cronParse()" style="font-family:var(--mono-font);font-size:16px;letter-spacing:1px;flex:1">
+            <button class="calc-btn" onclick="cronCopy()" style="padding:11px 16px;font-size:12px;white-space:nowrap">Copy</button>
+          </div>
+        </div>
+        <div id="cron-human" style="font-size:15px;color:var(--accent);font-family:var(--mono-font);padding:10px 0 4px;min-height:28px"></div>
+        <div id="cron-error" style="display:none;font-size:12px;color:var(--error);font-family:var(--mono-font);padding:4px 0"></div>
+
+        <!-- Field labels -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);text-transform:uppercase">Minute</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);text-transform:uppercase">Hour</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);text-transform:uppercase">Day (month)</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);text-transform:uppercase">Month</div>
+          <div style="font-size:10px;color:var(--muted);font-family:var(--mono-font);text-transform:uppercase">Day (week)</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px;text-align:center">
+          <div id="cf-min"  style="background:var(--surface2);border:var(--bw) solid var(--accent);border-radius:var(--r-input);padding:10px 6px;font-family:var(--mono-font);font-size:18px;color:var(--accent);font-weight:700">*</div>
+          <div id="cf-hour" style="background:var(--surface2);border:var(--bw) solid var(--accent);border-radius:var(--r-input);padding:10px 6px;font-family:var(--mono-font);font-size:18px;color:var(--accent);font-weight:700">*</div>
+          <div id="cf-dom"  style="background:var(--surface2);border:var(--bw) solid var(--accent);border-radius:var(--r-input);padding:10px 6px;font-family:var(--mono-font);font-size:18px;color:var(--accent);font-weight:700">*</div>
+          <div id="cf-mon"  style="background:var(--surface2);border:var(--bw) solid var(--accent);border-radius:var(--r-input);padding:10px 6px;font-family:var(--mono-font);font-size:18px;color:var(--accent);font-weight:700">*</div>
+          <div id="cf-dow"  style="background:var(--surface2);border:var(--bw) solid var(--accent);border-radius:var(--r-input);padding:10px 6px;font-family:var(--mono-font);font-size:18px;color:var(--accent);font-weight:700">*</div>
+        </div>
+
+        <!-- Quick presets -->
+        <div class="examples" style="margin-top:16px">
+          <span class="examples-label">Presets:</span>
+          <div class="example-chip" onclick="cronSet('* * * * *')">Every minute</div>
+          <div class="example-chip" onclick="cronSet('0 * * * *')">Every hour</div>
+          <div class="example-chip" onclick="cronSet('0 0 * * *')">Daily midnight</div>
+          <div class="example-chip" onclick="cronSet('0 9 * * 1-5')">Weekdays 9am</div>
+          <div class="example-chip" onclick="cronSet('0 */6 * * *')">Every 6 hours</div>
+          <div class="example-chip" onclick="cronSet('0 0 * * 0')">Weekly Sunday</div>
+          <div class="example-chip" onclick="cronSet('0 0 1 * *')">Monthly 1st</div>
+          <div class="example-chip" onclick="cronSet('*/15 * * * *')">Every 15 min</div>
+          <div class="example-chip" onclick="cronSet('0 0 1 1 *')">Yearly Jan 1</div>
+          <div class="example-chip" onclick="cronSet('30 8 * * 1-5')">Weekdays 8:30am</div>
+        </div>
+      </div>
+
+      <!-- Visual builder -->
+      <div class="card animate">
+        <div class="section-label">Visual Builder</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Minute -->
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text2)">Minute <span style="color:var(--muted)">(0–59)</span></span>
+              <div style="display:flex;gap:6px">
+                <button class="example-chip" onclick="cronSetField('min','*')" style="padding:2px 8px;font-size:11px">Every</button>
+                <button class="example-chip" onclick="cronFieldDialog('min')" style="padding:2px 8px;font-size:11px">Custom</button>
+              </div>
+            </div>
+            <div id="cron-min-grid" style="display:flex;flex-wrap:wrap;gap:3px"></div>
+          </div>
+
+          <!-- Hour -->
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text2)">Hour <span style="color:var(--muted)">(0–23)</span></span>
+              <div style="display:flex;gap:6px">
+                <button class="example-chip" onclick="cronSetField('hour','*')" style="padding:2px 8px;font-size:11px">Every</button>
+                <button class="example-chip" onclick="cronFieldDialog('hour')" style="padding:2px 8px;font-size:11px">Custom</button>
+              </div>
+            </div>
+            <div id="cron-hour-grid" style="display:flex;flex-wrap:wrap;gap:3px"></div>
+          </div>
+
+          <!-- Day of month -->
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text2)">Day of Month <span style="color:var(--muted)">(1–31)</span></span>
+              <div style="display:flex;gap:6px">
+                <button class="example-chip" onclick="cronSetField('dom','*')" style="padding:2px 8px;font-size:11px">Every</button>
+                <button class="example-chip" onclick="cronFieldDialog('dom')" style="padding:2px 8px;font-size:11px">Custom</button>
+              </div>
+            </div>
+            <div id="cron-dom-grid" style="display:flex;flex-wrap:wrap;gap:3px"></div>
+          </div>
+
+          <!-- Month -->
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text2)">Month <span style="color:var(--muted)">(1–12)</span></span>
+              <div style="display:flex;gap:6px">
+                <button class="example-chip" onclick="cronSetField('mon','*')" style="padding:2px 8px;font-size:11px">Every</button>
+              </div>
+            </div>
+            <div id="cron-mon-grid" style="display:flex;flex-wrap:wrap;gap:3px"></div>
+          </div>
+
+          <!-- Day of week -->
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12px;color:var(--text2)">Day of Week <span style="color:var(--muted)">(0=Sun … 6=Sat)</span></span>
+              <div style="display:flex;gap:6px">
+                <button class="example-chip" onclick="cronSetField('dow','*')" style="padding:2px 8px;font-size:11px">Every</button>
+              </div>
+            </div>
+            <div id="cron-dow-grid" style="display:flex;flex-wrap:wrap;gap:3px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next executions -->
+      <div class="card animate" id="cron-next-card" style="display:none">
+        <div class="section-label">Next 5 Executions</div>
+        <div id="cron-next-list" style="display:flex;flex-direction:column;gap:6px"></div>
+        <div style="font-size:11px;color:var(--muted);font-family:var(--mono-font);margin-top:10px" id="cron-tz"></div>
+      </div>
+
+    </div>
+    <!-- ══ END CRON BUILDER ═══════════════════════════════════════ -->
+
+
+    <!-- ══ YAML / JSON / TOML CONVERTER ═════════════════════════ -->
+    <div class="tool-panel" id="panel-converter">
+      <div class="tool-header">
+        <h1>YAML / JSON / <span>TOML</span></h1>
+        <p>Convert between YAML, JSON and TOML formats instantly</p>
+      </div>
+      <div class="tool-info">
+        <div class="tool-info-title">💡 What it does</div>
+        <div class="tool-info-desc">Converts between YAML, JSON and TOML — the three most common config formats. Used by DevOps, developers, and sysadmins for Docker Compose, Kubernetes, Rust/Cargo, Python pyproject.toml, Hugo, and more. Libraries loaded on demand.</div>
+      </div>
+
+      <div class="card">
+        <!-- Format tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--muted);align-self:center;margin-right:4px">Convert:</div>
+          <button class="calc-btn" onclick="convSetFrom('json')"  id="conv-from-json"  style="padding:7px 16px;font-size:13px">JSON</button>
+          <button class="calc-btn" onclick="convSetFrom('yaml')"  id="conv-from-yaml"  style="padding:7px 16px;font-size:13px;opacity:0.5">YAML</button>
+          <button class="calc-btn" onclick="convSetFrom('toml')"  id="conv-from-toml"  style="padding:7px 16px;font-size:13px;opacity:0.5">TOML</button>
+        </div>
+
+        <!-- Split editor -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-height:320px">
+          <div class="card" style="padding:0;display:flex;flex-direction:column">
+            <div style="padding:10px 16px;border-bottom:var(--bw) solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <span class="section-label" style="margin:0;font-size:11px" id="conv-input-label">JSON Input</span>
+              <button onclick="convClear()" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">clear</button>
+            </div>
+            <textarea id="conv-input" spellcheck="false"
+              style="flex:1;background:transparent;border:none;outline:none;resize:none;padding:14px 16px;font-family:var(--mono-font);font-size:12px;color:var(--text);line-height:1.6;min-height:260px;width:100%"
+              oninput="convConvert()" placeholder='{"name": "project", "version": "1.0.0"}'></textarea>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <!-- To YAML -->
+            <div class="card" style="padding:0;display:flex;flex-direction:column;flex:1" id="conv-out-yaml-wrap">
+              <div style="padding:8px 16px;border-bottom:var(--bw) solid var(--border);display:flex;align-items:center;justify-content:space-between">
+                <span class="section-label" style="margin:0;font-size:11px">YAML</span>
+                <button onclick="convCopyOut('yaml')" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">copy</button>
+              </div>
+              <pre id="conv-out-yaml" style="flex:1;padding:10px 16px;font-family:var(--mono-font);font-size:11px;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;color:var(--text);min-height:80px"></pre>
+            </div>
+            <!-- To JSON -->
+            <div class="card" style="padding:0;display:flex;flex-direction:column;flex:1" id="conv-out-json-wrap">
+              <div style="padding:8px 16px;border-bottom:var(--bw) solid var(--border);display:flex;align-items:center;justify-content:space-between">
+                <span class="section-label" style="margin:0;font-size:11px">JSON</span>
+                <button onclick="convCopyOut('json')" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">copy</button>
+              </div>
+              <pre id="conv-out-json" style="flex:1;padding:10px 16px;font-family:var(--mono-font);font-size:11px;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;color:var(--text);min-height:80px"></pre>
+            </div>
+            <!-- To TOML -->
+            <div class="card" style="padding:0;display:flex;flex-direction:column;flex:1" id="conv-out-toml-wrap">
+              <div style="padding:8px 16px;border-bottom:var(--bw) solid var(--border);display:flex;align-items:center;justify-content:space-between">
+                <span class="section-label" style="margin:0;font-size:11px">TOML</span>
+                <button onclick="convCopyOut('toml')" style="background:none;border:none;cursor:pointer;font-family:var(--mono-font);font-size:10px;color:var(--muted)">copy</button>
+              </div>
+              <pre id="conv-out-toml" style="flex:1;padding:10px 16px;font-family:var(--mono-font);font-size:11px;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;color:var(--text);min-height:80px"></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Examples -->
+        <div class="examples" style="margin-top:12px">
+          <span class="examples-label">Examples:</span>
+          <div class="example-chip" onclick="convLoadExample('docker')">Docker Compose</div>
+          <div class="example-chip" onclick="convLoadExample('cargo')">Cargo.toml</div>
+          <div class="example-chip" onclick="convLoadExample('k8s')">Kubernetes</div>
+          <div class="example-chip" onclick="convLoadExample('pyproject')">pyproject.toml</div>
+        </div>
+      </div>
+
+      <div class="card animate" id="conv-stats" style="display:none">
+        <div class="section-label">Stats</div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-key">Input Format</div><div class="info-val c-accent" id="conv-stat-from"></div></div>
+          <div class="info-item"><div class="info-key">Input Size</div><div class="info-val" id="conv-stat-size"></div></div>
+          <div class="info-item"><div class="info-key">Keys (top level)</div><div class="info-val c-info" id="conv-stat-keys"></div></div>
+          <div class="info-item"><div class="info-key">Libraries</div><div class="info-val" id="conv-stat-libs"></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- ══ END YAML/JSON/TOML ══════════════════════════════════════ -->
 
 
   </main>
@@ -6246,6 +6465,723 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
     const output = document.getElementById('url-output').textContent;
     if (input && output) urlShowStats(input, output, document.getElementById('url-mode').value);
   }
+
+
+  // ── Cron Builder ────────────────────────────────────────────
+  const CRON_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const CRON_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // State: selected values per field (null = *)
+  const cronState = { min: null, hour: null, dom: null, mon: null, dow: null };
+
+  function cronInit() {
+    cronBuildGrid('min',  60, 0,  v => v);
+    cronBuildGrid('hour', 24, 0,  v => v);
+    cronBuildGrid('dom',  31, 1,  v => v);
+    cronBuildGrid('mon',  12, 1,  v => CRON_MONTHS[v-1]);
+    cronBuildGrid('dow',  7,  0,  v => CRON_DAYS[v]);
+    cronParse();
+  }
+
+  function cronBuildGrid(field, count, start, label) {
+    const el = document.getElementById('cron-' + field + '-grid');
+    if (!el) return;
+    el.innerHTML = '';
+    for (let i = start; i < start + count; i++) {
+      const btn = document.createElement('button');
+      btn.id = 'cron-cell-' + field + '-' + i;
+      btn.textContent = label(i);
+      btn.style.cssText = 'min-width:32px;padding:4px 6px;font-size:11px;font-family:var(--mono-font);background:var(--surface2);border:var(--bw) solid var(--border);border-radius:4px;color:var(--muted);cursor:pointer;transition:all 0.15s';
+      btn.onclick = () => cronToggleCell(field, i, label);
+      el.appendChild(btn);
+    }
+  }
+
+  function cronToggleCell(field, val, label) {
+    if (!cronState[field]) cronState[field] = new Set();
+    if (cronState[field] === '*') cronState[field] = new Set();
+    if (cronState[field].has(val)) {
+      cronState[field].delete(val);
+      if (cronState[field].size === 0) cronState[field] = null;
+    } else {
+      cronState[field].add(val);
+    }
+    cronUpdateFromState();
+  }
+
+  function cronSetField(field, val) {
+    cronState[field] = val === '*' ? null : val;
+    cronUpdateFromState();
+  }
+
+  function cronFieldDialog(field) {
+    const val = prompt(`Enter value for ${field} (e.g. */5, 1-5, 0,15,30,45):`);
+    if (val === null) return;
+    cronState[field] = val.trim() || null;
+    cronUpdateFromState();
+  }
+
+  function cronUpdateFromState() {
+    const fields = ['min','hour','dom','mon','dow'];
+    const parts = fields.map(f => {
+      if (!cronState[f]) return '*';
+      if (typeof cronState[f] === 'string') return cronState[f];
+      if (cronState[f] instanceof Set) {
+        const arr = Array.from(cronState[f]).sort((a,b)=>a-b);
+        return arr.join(',');
+      }
+      return '*';
+    });
+    document.getElementById('cron-input').value = parts.join(' ');
+    cronParse();
+  }
+
+  function cronSet(expr) {
+    document.getElementById('cron-input').value = expr;
+    cronParse();
+  }
+
+  function cronParse() {
+    const expr = document.getElementById('cron-input').value.trim();
+    const errEl = document.getElementById('cron-error');
+    const humanEl = document.getElementById('cron-human');
+
+    if (!expr) { humanEl.textContent = ''; return; }
+
+    const parts = expr.split(/\s+/);
+    if (parts.length !== 5) {
+      errEl.textContent = '⚠ Expected 5 fields: minute hour day-of-month month day-of-week';
+      errEl.style.display = 'block';
+      humanEl.textContent = '';
+      return;
+    }
+
+    errEl.style.display = 'none';
+
+    const [min, hour, dom, mon, dow] = parts;
+
+    // Update field display boxes
+    document.getElementById('cf-min').textContent  = min;
+    document.getElementById('cf-hour').textContent = hour;
+    document.getElementById('cf-dom').textContent  = dom;
+    document.getElementById('cf-mon').textContent  = mon;
+    document.getElementById('cf-dow').textContent  = dow;
+
+    // Update grid highlights
+    cronHighlightGrid('min',  min,  60, 0);
+    cronHighlightGrid('hour', hour, 24, 0);
+    cronHighlightGrid('dom',  dom,  31, 1);
+    cronHighlightGrid('mon',  mon,  12, 1);
+    cronHighlightGrid('dow',  dow,  7,  0);
+
+    // Human readable
+    humanEl.textContent = cronToHuman(min, hour, dom, mon, dow);
+
+    // Next executions
+    cronNextExecutions(parts);
+  }
+
+  function cronHighlightGrid(field, expr, count, start) {
+    const active = cronExpandField(expr, start, start + count - 1);
+    for (let i = start; i < start + count; i++) {
+      const btn = document.getElementById('cron-cell-' + field + '-' + i);
+      if (!btn) continue;
+      const on = active.has(i);
+      btn.style.background    = on ? 'var(--accent)'       : 'var(--surface2)';
+      btn.style.borderColor   = on ? 'var(--accent)'       : 'var(--border)';
+      btn.style.color         = on ? 'var(--bg)'           : 'var(--muted)';
+      btn.style.fontWeight    = on ? '700'                  : '400';
+    }
+  }
+
+  function cronExpandField(expr, min, max) {
+    const result = new Set();
+    if (expr === '*') {
+      for (let i = min; i <= max; i++) result.add(i);
+      return result;
+    }
+    for (const part of expr.split(',')) {
+      if (part.includes('/')) {
+        const [range, step] = part.split('/');
+        const s = parseInt(step);
+        const [lo, hi] = range === '*' ? [min, max] : range.split('-').map(Number);
+        for (let i = (lo || min); i <= (hi || max); i += s) result.add(i);
+      } else if (part.includes('-')) {
+        const [lo, hi] = part.split('-').map(Number);
+        for (let i = lo; i <= hi; i++) result.add(i);
+      } else {
+        const n = parseInt(part);
+        if (!isNaN(n)) result.add(n);
+      }
+    }
+    return result;
+  }
+
+  function cronToHuman(min, hour, dom, mon, dow) {
+    const everyMin  = min  === '*';
+    const everyHour = hour === '*';
+    const everyDom  = dom  === '*';
+    const everyMon  = mon  === '*';
+    const everyDow  = dow  === '*';
+
+    let time = '';
+    if (!everyMin && !everyHour) {
+      const mins  = min.includes('/') ? null : min.includes(',') ? min : null;
+      const hours = hour.includes('/') ? null : hour.includes(',') ? hour : null;
+      if (!mins && !hours) {
+        time = `at ${hour.padStart(2,'0')}:${min.padStart(2,'0')}`;
+      }
+    }
+
+    // Step patterns
+    if (min.startsWith('*/')) {
+      const n = min.slice(2);
+      return `Every ${n} minute${n==='1'?'':'s'}`;
+    }
+    if (hour.startsWith('*/') && everyMin) {
+      const n = hour.slice(2);
+      return `Every ${n} hour${n==='1'?'':'s'}`;
+    }
+    if (hour.startsWith('*/') && min !== '*') {
+      const n = hour.slice(2);
+      return `At minute ${min} past every ${n} hours`;
+    }
+
+    // Common patterns
+    if (everyMin && everyHour && everyDom && everyMon && everyDow) return 'Every minute';
+    if (min === '0' && everyHour && everyDom && everyMon && everyDow) return 'Every hour (at :00)';
+    if (min === '0' && hour === '0' && everyDom && everyMon && everyDow) return 'Every day at midnight';
+    if (min === '0' && hour === '12' && everyDom && everyMon && everyDow) return 'Every day at noon';
+    if (min === '0' && hour === '0' && everyDom && everyMon && dow === '0') return 'Every Sunday at midnight';
+    if (min === '0' && hour === '0' && dom === '1' && everyMon && everyDow) return 'First day of every month at midnight';
+    if (min === '0' && hour === '0' && dom === '1' && mon === '1' && everyDow) return 'Every year on January 1st at midnight';
+
+    // Day of week
+    let dowStr = '';
+    if (!everyDow) {
+      if (dow === '1-5') dowStr = 'on weekdays';
+      else if (dow === '6,0' || dow === '0,6') dowStr = 'on weekends';
+      else {
+        const days = cronExpandField(dow, 0, 6);
+        dowStr = 'on ' + Array.from(days).map(d => CRON_DAYS[d]).join(', ');
+      }
+    }
+
+    // Month
+    let monStr = '';
+    if (!everyMon) {
+      const months = cronExpandField(mon, 1, 12);
+      monStr = 'in ' + Array.from(months).map(m => CRON_MONTHS[m-1]).join(', ');
+    }
+
+    // Day of month
+    let domStr = '';
+    if (!everyDom) {
+      domStr = `on day ${dom} of the month`;
+    }
+
+    // Time
+    if (!time) {
+      if (!everyMin && everyHour) time = `at minute ${min} of every hour`;
+      else if (everyMin && !everyHour) time = `every minute of hour ${hour}`;
+      else if (!everyMin && !everyHour) time = `at ${hour}:${min.padStart(2,'0')}`;
+      else time = 'every minute';
+    }
+
+    return [time, dowStr, domStr, monStr].filter(Boolean).join(' ').trim() || expr;
+  }
+
+  function cronNextExecutions(parts) {
+    try {
+      const [minE, hourE, domE, monE, dowE] = parts;
+      const now    = new Date();
+      const results= [];
+      let   d      = new Date(now);
+      d.setSeconds(0);
+      d.setMilliseconds(0);
+      d.setMinutes(d.getMinutes() + 1); // start from next minute
+
+      let tries = 0;
+      while (results.length < 5 && tries < 100000) {
+        tries++;
+        // Check month (1-based)
+        const mMatch = cronExpandField(monE, 1, 12).has(d.getMonth() + 1);
+        if (!mMatch) { d.setDate(1); d.setMonth(d.getMonth() + 1); d.setHours(0); d.setMinutes(0); continue; }
+        // Check dom
+        const domMatch = cronExpandField(domE, 1, 31).has(d.getDate());
+        // Check dow
+        const dowMatch = cronExpandField(dowE, 0, 6).has(d.getDay());
+        const dayMatch = (domE === '*' && dowE === '*') ? true :
+                         (domE !== '*' && dowE !== '*') ? (domMatch || dowMatch) :
+                         domE !== '*' ? domMatch : dowMatch;
+        if (!dayMatch) { d.setDate(d.getDate() + 1); d.setHours(0); d.setMinutes(0); continue; }
+        // Check hour
+        const hMatch = cronExpandField(hourE, 0, 23).has(d.getHours());
+        if (!hMatch) { d.setHours(d.getHours() + 1); d.setMinutes(0); continue; }
+        // Check minute
+        const minMatch = cronExpandField(minE, 0, 59).has(d.getMinutes());
+        if (!minMatch) { d.setMinutes(d.getMinutes() + 1); continue; }
+
+        results.push(new Date(d));
+        d.setMinutes(d.getMinutes() + 1);
+      }
+
+      const card = document.getElementById('cron-next-card');
+      const list = document.getElementById('cron-next-list');
+      if (!results.length) { card.style.display = 'none'; return; }
+
+      list.innerHTML = results.map((dt, i) => {
+        const diff = Math.round((dt - now) / 60000);
+        const diffStr = diff < 60 ? `${diff}m` : diff < 1440 ? `${Math.floor(diff/60)}h ${diff%60}m` : `${Math.floor(diff/1440)}d`;
+        return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:var(--bw) solid var(--border);border-radius:var(--r-input);padding:10px 14px">
+          <span style="font-family:var(--mono-font);font-size:13px;color:var(--text)">${dt.toLocaleString()}</span>
+          <span style="font-family:var(--mono-font);font-size:11px;color:var(--muted)">in ${diffStr}</span>
+        </div>`;
+      }).join('');
+
+      document.getElementById('cron-tz').textContent = 'Timezone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+      card.style.display = 'block';
+    } catch(e) {
+      document.getElementById('cron-next-card').style.display = 'none';
+    }
+  }
+
+  function cronCopy() {
+    const val = document.getElementById('cron-input').value.trim();
+    if (val) copyToClipboard(val, 'Cron expression');
+  }
+
+  // Init cron grids on load
+  document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('cron-min-grid')) cronInit();
+  });
+
+
+  // ── YAML / JSON / TOML Converter ────────────────────────────
+  let convFromFormat = 'json';
+  let jsYamlLoaded   = false;
+  let smolTomlLoaded = false;
+
+  const CONV_EXAMPLES = {
+    docker: {
+      format: 'yaml',
+      text: `version: "3.9"
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    environment:
+      - NODE_ENV=production
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/postgresql/data
+volumes:
+  db_data:`
+    },
+    cargo: {
+      format: 'toml',
+      text: `[package]
+name = "my-project"
+version = "0.1.0"
+edition = "2021"
+authors = ["DarkenAmber <dev@darkenamber.com>"]
+description = "A fast CLI tool"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4", features = ["derive"] }
+anyhow = "1.0"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+
+[profile.release]
+opt-level = 3
+lto = true`
+    },
+    k8s: {
+      format: 'yaml',
+      text: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: app
+          image: my-app:1.0.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"`
+    },
+    pyproject: {
+      format: 'toml',
+      text: `[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "my-package"
+version = "1.0.0"
+description = "A Python package"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "pydantic>=2.0",
+    "fastapi>=0.100",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff>=0.1", "mypy>=1.5"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+strict = true`
+    }
+  };
+
+  function convSetFrom(fmt) {
+    convFromFormat = fmt;
+    ['json','yaml','toml'].forEach(f => {
+      const btn = document.getElementById('conv-from-' + f);
+      if (btn) btn.style.opacity = f === fmt ? '1' : '0.5';
+    });
+    document.getElementById('conv-input-label').textContent = fmt.toUpperCase() + ' Input';
+    document.getElementById('conv-input').placeholder = convPlaceholder(fmt);
+
+    // Hide the matching output panel
+    ['json','yaml','toml'].forEach(f => {
+      const wrap = document.getElementById('conv-out-' + f + '-wrap');
+      if (wrap) wrap.style.display = f === fmt ? 'none' : 'flex';
+    });
+    convConvert();
+  }
+
+  function convPlaceholder(fmt) {
+    if (fmt === 'json') return '{"name": "project", "version": "1.0.0"}';
+    if (fmt === 'yaml') return 'name: project\nversion: 1.0.0';
+    return 'name = "project"\nversion = "1.0.0"';
+  }
+
+  function convLoadExample(key) {
+    const ex = CONV_EXAMPLES[key];
+    if (!ex) return;
+    convSetFrom(ex.format);
+    document.getElementById('conv-input').value = ex.text;
+    convConvert();
+  }
+
+  function convClear() {
+    document.getElementById('conv-input').value = '';
+    ['json','yaml','toml'].forEach(f => {
+      const el = document.getElementById('conv-out-' + f);
+      if (el) el.textContent = '';
+    });
+    document.getElementById('conv-stats').style.display = 'none';
+  }
+
+  function convCopyOut(fmt) {
+    const el = document.getElementById('conv-out-' + fmt);
+    if (el && el.textContent) copyToClipboard(el.textContent, fmt.toUpperCase());
+  }
+
+  async function convConvert() {
+    const input = document.getElementById('conv-input').value.trim();
+    if (!input) {
+      ['json','yaml','toml'].forEach(f => {
+        const el = document.getElementById('conv-out-' + f);
+        if (el) el.textContent = '';
+      });
+      document.getElementById('conv-stats').style.display = 'none';
+      return;
+    }
+
+    // Ensure libraries loaded
+    await convLoadLibs();
+
+    try {
+      // Parse input to JS object
+      let obj;
+      if (convFromFormat === 'json') {
+        obj = JSON.parse(input);
+      } else if (convFromFormat === 'yaml') {
+        if (!window.jsyaml) { showToast('⚠ YAML library not loaded'); return; }
+        obj = window.jsyaml.load(input);
+      } else if (convFromFormat === 'toml') {
+        if (!window.SmolTOML) { showToast('⚠ TOML library not loaded'); return; }
+        obj = window.SmolTOML.parse(input);
+      }
+
+      if (obj === null || typeof obj !== 'object') {
+        throw new Error('Input must be an object/mapping, not a primitive');
+      }
+
+      // Convert to all formats
+      const outputs = {};
+
+      // → JSON
+      outputs.json = JSON.stringify(obj, null, 2);
+
+      // → YAML
+      if (window.jsyaml) {
+        try { outputs.yaml = window.jsyaml.dump(obj, { indent: 2, lineWidth: -1, noRefs: true }); }
+        catch(e) { outputs.yaml = '⚠ ' + e.message; }
+      } else {
+        outputs.yaml = '⏳ Loading js-yaml...';
+      }
+
+      // → TOML
+      if (window.SmolTOML) {
+        try { outputs.toml = window.SmolTOML.stringify(obj); }
+        catch(e) { outputs.toml = '⚠ ' + e.message; }
+      } else {
+        outputs.toml = '⚠ TOML not available';
+      }
+
+      // Render outputs (hide current format)
+      ['json','yaml','toml'].forEach(f => {
+        const el = document.getElementById('conv-out-' + f);
+        if (el && f !== convFromFormat) el.textContent = outputs[f] || '';
+      });
+
+      // Stats
+      const keys = Object.keys(obj).length;
+      document.getElementById('conv-stat-from').textContent  = convFromFormat.toUpperCase();
+      document.getElementById('conv-stat-size').textContent  = input.length + ' chars';
+      document.getElementById('conv-stat-keys').textContent  = keys;
+      document.getElementById('conv-stat-libs').textContent  = [
+        window.jsyaml   ? 'js-yaml ✓' : 'js-yaml ✗',
+        'TOML built-in ✓'
+      ].join(', ');
+      document.getElementById('conv-stats').style.display = 'block';
+
+    } catch(e) {
+      let errMsg = '⚠ ' + e.message;
+
+      if (convFromFormat === 'json') {
+        const posMatch = e.message.match(/position (\d+)/);
+        if (posMatch) {
+          const pos = parseInt(posMatch[1]);
+          const before = input.slice(0, pos).split('\n');
+          const line = before.length;
+          const col  = before[before.length - 1].length + 1;
+          errMsg = '⚠ JSON syntax error at line ' + line + ', col ' + col + ':\n' + e.message;
+          convHighlightLine(line - 1);
+        }
+      }
+
+      if (convFromFormat === 'yaml' && e.mark) {
+        const line = e.mark.line + 1;
+        const col  = e.mark.column + 1;
+        errMsg = '⚠ YAML error at line ' + line + ', col ' + col + ':\n' + (e.reason || e.message);
+        convHighlightLine(e.mark.line);
+      }
+
+      if (convFromFormat === 'toml' && e.line) {
+        errMsg = '⚠ TOML error at line ' + e.line + ':\n' + e.message;
+        convHighlightLine(e.line - 1);
+      }
+
+      ['json','yaml','toml'].forEach(f => {
+        if (f !== convFromFormat) {
+          const el = document.getElementById('conv-out-' + f);
+          if (el) { el.textContent = errMsg; el.style.color = 'var(--error)'; }
+        }
+      });
+      document.getElementById('conv-stats').style.display = 'none';
+    }
+  }
+
+  function convHighlightLine(lineIndex) {
+    const ta = document.getElementById('conv-input');
+    if (!ta) return;
+    const lines = ta.value.split('\n');
+    let start = 0;
+    for (let i = 0; i < lineIndex && i < lines.length; i++) start += lines[i].length + 1;
+    const end = start + (lines[lineIndex] || '').length;
+    ta.focus();
+    ta.setSelectionRange(start, end);
+  }
+
+  async function convLoadLibs() {
+    // Load js-yaml for YAML support
+    if (!window.jsyaml) {
+      await new Promise((res) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js';
+        s.onload = res; s.onerror = res;
+        document.head.appendChild(s);
+      });
+    }
+    // TOML is built-in — no external library needed
+    if (!window.SmolTOML) {
+      window.SmolTOML = { parse: tomlParse, stringify: tomlStringify };
+    }
+  }
+
+  // ── Built-in TOML parser/serializer ────────────────────────
+  function tomlParse(str) {
+    const result = {};
+    let current = result;
+    const stack = [];
+    const lines = str.split(/\r?\n/);
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].replace(/#.*$/, '').trim();
+      if (!line) continue;
+
+      // Array of tables [[section]]
+      if (line.startsWith('[[') && line.endsWith(']]')) {
+        const key = line.slice(2, -2).trim();
+        const parts = key.split('.');
+        current = result;
+        for (let j = 0; j < parts.length - 1; j++) {
+          if (!current[parts[j]]) current[parts[j]] = {};
+          current = current[parts[j]];
+        }
+        const last = parts[parts.length - 1];
+        if (!Array.isArray(current[last])) current[last] = [];
+        const obj = {};
+        current[last].push(obj);
+        current = obj;
+        continue;
+      }
+
+      // Table [section]
+      if (line.startsWith('[') && line.endsWith(']')) {
+        const key = line.slice(1, -1).trim();
+        const parts = key.split('.');
+        current = result;
+        for (const p of parts) {
+          if (!current[p]) current[p] = {};
+          current = current[p];
+        }
+        continue;
+      }
+
+      // Key = value
+      const eqIdx = line.indexOf('=');
+      if (eqIdx === -1) continue;
+      const k = line.slice(0, eqIdx).trim().replace(/^["']|["']$/g, '');
+      const v = line.slice(eqIdx + 1).trim();
+      current[k] = tomlParseValue(v);
+    }
+    return result;
+  }
+
+  function tomlParseValue(v) {
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+    if (v.startsWith('"') && v.endsWith('"')) return v.slice(1,-1).replace(/\\n/g,'\n').replace(/\\t/g,'\t').replace(/\\"/g,'"');
+    if (v.startsWith("'") && v.endsWith("'")) return v.slice(1,-1);
+    if (v.startsWith('[') && v.endsWith(']')) {
+      const inner = v.slice(1,-1).trim();
+      if (!inner) return [];
+      return inner.split(',').map(s => tomlParseValue(s.trim())).filter(x => x !== undefined);
+    }
+    if (v.startsWith('{') && v.endsWith('}')) {
+      const obj = {};
+      const inner = v.slice(1,-1).trim();
+      if (inner) {
+        inner.split(',').forEach(pair => {
+          const [pk, pv] = pair.split('=').map(s => s.trim());
+          if (pk && pv) obj[pk.replace(/^["']|["']$/g,'')] = tomlParseValue(pv);
+        });
+      }
+      return obj;
+    }
+    // Number
+    if (/^-?[0-9]+$/.test(v)) return parseInt(v);
+    if (/^-?[0-9]*\.[0-9]+$/.test(v)) return parseFloat(v);
+    // Inline with comment stripped
+    const noComment = v.replace(/#.*$/, '').trim();
+    if (noComment !== v) return tomlParseValue(noComment);
+    return v;
+  }
+
+  function tomlStringify(obj, prefix) {
+    if (typeof obj !== 'object' || obj === null) return String(obj);
+    let simple = '';
+    let sections = '';
+    const pfx = prefix || '';
+
+    for (const [k, v] of Object.entries(obj)) {
+      const fullKey = pfx ? pfx + '.' + k : k;
+      if (v === null || v === undefined) continue;
+      if (typeof v === 'object' && !Array.isArray(v)) {
+        const inner = tomlStringifySection(v, fullKey);
+        sections += '\n[' + fullKey + ']\n' + inner;
+      } else if (Array.isArray(v) && v.length && typeof v[0] === 'object') {
+        v.forEach(item => {
+          sections += '\n[[' + fullKey + ']]\n' + tomlStringifySection(item, fullKey);
+        });
+      } else {
+        simple += k + ' = ' + tomlStringifyValue(v) + '\n';
+      }
+    }
+    return (simple ? simple + '\n' : '') + sections.trimStart();
+  }
+
+  function tomlStringifySection(obj, prefix) {
+    let simple = '';
+    let sections = '';
+    for (const [k, v] of Object.entries(obj)) {
+      if (v === null || v === undefined) continue;
+      if (typeof v === 'object' && !Array.isArray(v)) {
+        const inner = tomlStringifySection(v, prefix + '.' + k);
+        sections += '\n[' + prefix + '.' + k + ']\n' + inner;
+      } else if (Array.isArray(v) && v.length && typeof v[0] === 'object') {
+        v.forEach(item => {
+          sections += '\n[[' + prefix + '.' + k + ']]\n' + tomlStringifySection(item, prefix + '.' + k);
+        });
+      } else {
+        simple += k + ' = ' + tomlStringifyValue(v) + '\n';
+      }
+    }
+    return simple + sections;
+  }
+
+    function tomlStringifyValue(v) {
+    if (typeof v === 'string') return '"' + v.replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n') + '"';
+    if (typeof v === 'boolean') return v ? 'true' : 'false';
+    if (typeof v === 'number') return String(v);
+    if (Array.isArray(v)) return '[' + v.map(tomlStringifyValue).join(', ') + ']';
+    if (typeof v === 'object') return '{' + Object.entries(v).map(([k,val]) => k + ' = ' + tomlStringifyValue(val)).join(', ') + '}';
+    return String(v);
+  }
+
+  // Init converter on panel open
+  document.addEventListener('DOMContentLoaded', () => {
+    convSetFrom('json');
+  });
 
 
 </script>
