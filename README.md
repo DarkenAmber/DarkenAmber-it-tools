@@ -2,13 +2,15 @@
 
 > **The IT toolkit that works without internet, servers, or trust.**
 
+🌐 **[https://darkenamber.github.io/DarkenAmber-it-tools](https://darkenamber.github.io/DarkenAmber-it-tools)**
+
 One HTML file. Open it. Use it. No npm. No cloud. No tracking. Ever.
 
 ```bash
 open index.html
 ```
 
-🌐 **[Live Demo](https://darkenamber.github.io/DarkenAmber-it-tools)** · ⭐ Star if useful · 🐛 [Report Bug](https://github.com/DarkenAmber/DarkenAmber-it-tools/issues)
+⭐ Star if useful · 🐛 [Report Bug](https://github.com/DarkenAmber/DarkenAmber-it-tools/issues)
 
 ---
 
@@ -189,3 +191,8 @@ If it saved you time, consider supporting:
 ---
 
 Made with ❤️ by **[DarkenAmber](https://github.com/DarkenAmber)**
+
+Part of the **DarkenAmber Ecosystem**:
+- 🌐 [IT Tools](https://darkenamber.github.io/DarkenAmber-it-tools) — Free web toolkit
+- 📱 Mobile Apps (iOS/Android) — coming soon
+- 🏠 Smart Home & IoT Projects — coming soon
