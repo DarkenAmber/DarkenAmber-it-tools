@@ -6,6 +6,8 @@
 
 One HTML file. Open it. Use it. No npm. No cloud. No tracking. Ever.
 
+🌍 **EN / RU** language switch built-in
+
 ```bash
 open index.html
 ```
@@ -72,7 +74,7 @@ Most toolkits have JSON formatters and Base64 encoders. This one also has:
 - UUID Generator — v4 · bulk up to 1000
 - Base64 Encoder/Decoder — text & file
 - Regex Tester — live matching · flags & patterns
-- Timestamp Converter — Unix ↔ readable · timezone-aware
+- Timestamp Converter — Unix / readable · timezone-aware
 - Cron Builder — visual grid · human description · next 5 executions
 - YAML/JSON/TOML Converter — bidirectional · Docker/Cargo examples
 
@@ -142,8 +144,8 @@ The only exception: `qrcodejs` and `js-yaml` loaded once on first use.
 ## Tech
 
 ```
-Single HTML file    ~440 KB
-Lines of code       ~9800
+Single HTML file    ~460 KB
+Lines of code       ~10100
 Dependencies        0 (npm)
 Build tools         0
 External APIs       0
@@ -168,7 +170,8 @@ MIT — fork it, modify it, ship it.
 
 - [ ] PCAP file viewer
 - [ ] Keyboard shortcuts
-- [ ] More languages (RU, AZ, ES)
+- [x] RU localization — done
+- [ ] More languages (AZ, ES)
 - [ ] Export results (PDF, CSV)
 
 ---
