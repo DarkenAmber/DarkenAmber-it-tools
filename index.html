@@ -100,7 +100,7 @@
     --shadow:       rgba(124,58,237,0.3);
     --btn-bg:       #7c3aed;
     --btn-text:     #fbbf24;
-    --h1-accent:    #e879f9;
+    --h1-accent:    #FFB300;
     --val-accent:   #fbbf24;
     --link-color:   #fbbf24;
     --badge-color:  #e879f9;
@@ -906,7 +906,16 @@
     <div class="theme-switcher">
       <button class="theme-btn" id="btn-dark"  onclick="setTheme('dark')"  title="Dark">🌙</button>
       <button class="theme-btn" id="btn-light" onclick="setTheme('light')" title="Light">☀️</button>
-      <button class="theme-btn" id="btn-retro" onclick="setTheme('retro')" title="Retro">👾</button>
+      <button class="theme-btn" id="btn-retro" onclick="setTheme('retro')" title="Retro">🕹️</button>
+    </div>
+    <div style="position:relative" id="lang-wrapper">
+      <button id="lang-btn" onclick="langToggleMenu()" title="Switch language" style="background:transparent;border:2px solid var(--border2);color:var(--text2);padding:6px 12px;font-size:11px;border-radius:var(--r-btn);cursor:pointer;transition:all 0.2s;font-family:var(--mono-font);letter-spacing:0.05em;font-weight:700;display:flex;align-items:center;gap:5px">
+        <span id="lang-label">EN</span> <span style="font-size:9px">▼</span>
+      </button>
+      <div id="lang-menu" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:var(--bw) solid var(--border2);border-radius:var(--r-card);padding:4px;min-width:80px;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,0.3)">
+        <div onclick="setLang('en')" id="lang-opt-en" style="padding:7px 14px;font-family:var(--mono-font);font-size:12px;cursor:pointer;border-radius:4px;color:var(--text);transition:background 0.15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">EN</div>
+        <div onclick="setLang('ru')" id="lang-opt-ru" style="padding:7px 14px;font-family:var(--mono-font);font-size:12px;cursor:pointer;border-radius:4px;color:var(--text);transition:background 0.15s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">RU</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1851,10 +1860,10 @@
           <div class="input-group" style="min-width:140px">
             <label class="input-label">Error Correction</label>
             <select class="main-input" id="qr-ecl" onchange="qrGenerate()" style="cursor:pointer">
-              <option value="L">L — 7% (small)</option>
-              <option value="M" selected>M — 15% (medium)</option>
-              <option value="Q">Q — 25% (good)</option>
-              <option value="H">H — 30% (best)</option>
+              <option value="L">L - 7% (small)</option>
+              <option value="M" selected>M - 15% (medium)</option>
+              <option value="Q">Q - 25% (good)</option>
+              <option value="H">H - 30% (best)</option>
             </select>
           </div>
           <div class="input-group">
@@ -2220,86 +2229,101 @@
       </div>
 
       <div class="card">
-        <div class="section-label">🔒 Zero Data Collection</div>
+        <div class="section-label" data-i18n="priv-s1">🔒 Zero Data Collection</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
           <div style="margin-bottom:16px">
-            <strong style="color:var(--val-accent)">Your IP addresses?</strong>
-            <div style="color:var(--text2);margin-top:4px">Stay with YOU. We never see them.</div>
+            <strong style="color:var(--val-accent)" data-i18n="priv-ip-q">Your IP addresses?</strong>
+            <div style="color:var(--text2);margin-top:4px" data-i18n="priv-ip-a">Stay with YOU. We never see them.</div>
           </div>
           <div style="margin-bottom:16px">
-            <strong style="color:var(--val-accent)">Your passwords?</strong>
-            <div style="color:var(--text2);margin-top:4px">Stay with YOU. Encrypted locally.</div>
+            <strong style="color:var(--val-accent)" data-i18n="priv-pass-q">Your passwords?</strong>
+            <div style="color:var(--text2);margin-top:4px" data-i18n="priv-pass-a">Stay with YOU. Encrypted locally.</div>
           </div>
           <div style="margin-bottom:16px">
-            <strong style="color:var(--val-accent)">Your documents?</strong>
-            <div style="color:var(--text2);margin-top:4px">Stay with YOU. Never uploaded.</div>
+            <strong style="color:var(--val-accent)" data-i18n="priv-doc-q">Your documents?</strong>
+            <div style="color:var(--text2);margin-top:4px" data-i18n="priv-doc-a">Stay with YOU. Never uploaded.</div>
           </div>
           <div>
-            <strong style="color:var(--val-accent)">Your data?</strong>
-            <div style="color:var(--text2);margin-top:4px">We don't want it. Even for free.</div>
+            <strong style="color:var(--val-accent)" data-i18n="priv-data-q">Your data?</strong>
+            <div style="color:var(--text2);margin-top:4px" data-i18n="priv-data-a">We don't want it. Even for free.</div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">🔓 Completely Offline</div>
+        <div class="section-label" data-i18n="priv-s2">🔓 Completely Offline</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:12px">✓ <strong>No internet = Works perfectly</strong></div>
-          <div style="margin-bottom:12px">✓ <strong>No API calls = No data leaks</strong></div>
-          <div>✓ <strong>Everything in your browser = Only you see it</strong></div>
+          <div style="margin-bottom:12px">✓ <strong data-i18n="priv-off1">No internet = Works perfectly</strong></div>
+          <div style="margin-bottom:12px">✓ <strong data-i18n="priv-off2">No API calls = No data leaks</strong></div>
+          <div>✓ <strong data-i18n="priv-off3">Everything in your browser = Only you see it</strong></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">📖 100% Open Source</div>
+        <div class="section-label" data-i18n="priv-s3">📖 100% Open Source</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:12px">All code is visible on <a href="https://github.com/DarkenAmber/DarkenAmber-it-tools" target="_blank" style="color:var(--link-color);font-weight:600;text-decoration:none">GitHub</a></div>
-          <div style="margin-bottom:12px">Anyone can audit it for security</div>
-          <div>No hidden trackers. No malicious scripts.</div>
+          <div style="margin-bottom:12px" data-i18n="priv-os1">All code is visible on <a href="https://github.com/DarkenAmber/DarkenAmber-it-tools" target="_blank" style="color:var(--link-color);font-weight:600;text-decoration:none">GitHub</a></div>
+          <div style="margin-bottom:12px" data-i18n="priv-os2">Anyone can audit it for security</div>
+          <div data-i18n="priv-os3">No hidden trackers. No malicious scripts.</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">❌ What We DON'T Do</div>
+        <div class="section-label" data-i18n="priv-s4">❌ What We DON'T Do</div>
         <div style="color:var(--error);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:8px">❌ Don't collect IP addresses</div>
-          <div style="margin-bottom:8px">❌ Don't log your operations</div>
-          <div style="margin-bottom:8px">❌ Don't send data to servers</div>
-          <div style="margin-bottom:8px">❌ Don't sell your information</div>
-          <div style="margin-bottom:8px">❌ Don't use Google Analytics</div>
-          <div style="margin-bottom:8px">❌ Don't set tracking cookies</div>
-          <div style="margin-bottom:8px">❌ Don't show advertisements</div>
-          <div>❌ Don't use hidden scripts</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d1">❌ Don't collect IP addresses</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d2">❌ Don't log your operations</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d3">❌ Don't send data to servers</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d4">❌ Don't sell your information</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d5">❌ Don't use Google Analytics</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d6">❌ Don't set tracking cookies</div>
+          <div style="margin-bottom:8px" data-i18n="priv-d7">❌ Don't show advertisements</div>
+          <div data-i18n="priv-d8">❌ Don't use hidden scripts</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">💾 Local Storage Only</div>
+        <div class="section-label" data-i18n="priv-s5">💾 Local Storage Only</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:12px">Your preferences (theme, saved data) are stored ONLY on your device</div>
-          <div style="margin-bottom:12px">Nothing is transmitted to our servers</div>
-          <div>You can delete everything with the "CLEAR ALL" button anytime</div>
+          <div style="margin-bottom:12px" data-i18n="priv-ls1">Your preferences (theme, saved data) are stored ONLY on your device</div>
+          <div style="margin-bottom:12px" data-i18n="priv-ls2">Nothing is transmitted to our servers</div>
+          <div data-i18n="priv-ls3">You can delete everything with the "CLEAR ALL" button anytime</div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">🛡️ Security Details</div>
+        <div class="section-label" data-i18n="priv-s6">🛡️ Security Details</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:12px"><strong>Web Crypto API</strong> - Uses browser's native encryption (AES, SHA, etc)</div>
-          <div style="margin-bottom:12px"><strong>No custom crypto</strong> - Standard algorithms = fewer vulnerabilities</div>
-          <div style="margin-bottom:12px"><strong>Client-side only</strong> - All processing happens in YOUR browser</div>
-          <div><strong>Transparent code</strong> - Open GitHub repo = anyone can verify</div>
+          <div style="margin-bottom:12px"><strong>Web Crypto API</strong> - <span data-i18n="priv-sec1">Uses browser's native encryption (AES, SHA, etc)</span></div>
+          <div style="margin-bottom:12px"><strong>No custom crypto</strong> - <span data-i18n="priv-sec2">Standard algorithms = fewer vulnerabilities</span></div>
+          <div style="margin-bottom:12px"><strong>Client-side only</strong> - <span data-i18n="priv-sec3">All processing happens in YOUR browser</span></div>
+          <div><strong>Transparent code</strong> - <span data-i18n="priv-sec4">Open GitHub repo = anyone can verify</span></div>
         </div>
       </div>
 
       <div class="card">
-        <div class="section-label">🔍 Verify Yourself</div>
+        <div class="section-label" data-i18n="priv-s8">❤️ Support the Project</div>
         <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
-          <div style="margin-bottom:12px">1. Press <strong>F12</strong> to open DevTools</div>
-          <div style="margin-bottom:12px">2. Go to <strong>Network</strong> tab</div>
-          <div style="margin-bottom:12px">3. Use any tool and process data</div>
-          <div style="margin-bottom:12px">4. Look at Network requests</div>
-          <div><strong style="color:var(--success)">✓ You'll see ZERO requests to external servers</strong></div>
+          <div style="margin-bottom:12px" data-i18n="priv-sup1">This tool is free and will always be free. No ads, no subscriptions, no paywalls.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+            <a href="https://ko-fi.com/darkenamber" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:var(--bw) solid var(--border2);border-radius:var(--r-input);padding:10px 16px;color:var(--text);text-decoration:none;font-family:var(--mono-font);font-size:12px;transition:all 0.2s">
+              ☕ <span data-i18n="priv-kofi">Buy me a coffee — Ko-fi (one-time)</span>
+            </a>
+            <a href="https://www.patreon.com/cw/DarkenAmber" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:var(--bw) solid var(--border2);border-radius:var(--r-input);padding:10px 16px;color:var(--text);text-decoration:none;font-family:var(--mono-font);font-size:12px;transition:all 0.2s">
+              🎯 <span data-i18n="priv-patreon">Support on Patreon — $3/month</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-label" data-i18n="priv-s7">🔍 Verify Yourself</div>
+        <div style="color:var(--text);line-height:1.8;font-size:13px;padding:16px 0">
+          <div style="margin-bottom:12px" data-i18n-html="priv-v1">1. Press <strong>F12</strong> to open DevTools</div>
+          <div style="margin-bottom:12px" data-i18n-html="priv-v2">2. Go to <strong>Network</strong> tab</div>
+          <div style="margin-bottom:12px" data-i18n="priv-v3">3. Use any tool and process data</div>
+          <div style="margin-bottom:12px" data-i18n="priv-v4">4. Look at Network requests</div>
+          <div data-i18n="priv-v5"><strong style="color:var(--success)">✓ You'll see ZERO requests to external servers</strong></div>
         </div>
       </div>
 
@@ -2314,7 +2338,7 @@
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Creates cryptographically secure passwords using Web Crypto API. Customize length, character sets, and generate in bulk. All generation happens locally — never sent anywhere.</div>
+        <div class="tool-info-desc">Creates cryptographically secure passwords using Web Crypto API. Customize length, character sets, and generate in bulk. All generation happens locally - never sent anywhere.</div>
       </div>
       <div class="card">
         <div class="input-row" style="align-items:center;flex-wrap:wrap;gap:16px">
@@ -2374,7 +2398,7 @@
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Uses AES-GCM 256-bit via Web Crypto API — the same standard used by banks and governments. Everything runs in your browser. The encrypted output includes the IV, so you can decrypt it back anytime with the same password.</div>
+        <div class="tool-info-desc">Uses AES-GCM 256-bit via Web Crypto API - the same standard used by banks and governments. Everything runs in your browser. The encrypted output includes the IV, so you can decrypt it back anytime with the same password.</div>
       </div>
       <div class="card">
         <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
@@ -2425,7 +2449,7 @@
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Computes cryptographic hashes of files directly in your browser. No upload — the file never leaves your device. Use to verify file integrity, check downloads, or detect tampering.</div>
+        <div class="tool-info-desc">Computes cryptographic hashes of files directly in your browser. No upload - the file never leaves your device. Use to verify file integrity, check downloads, or detect tampering.</div>
       </div>
       <div class="card">
         <div id="fh-dropzone" onclick="document.getElementById('fh-file').click()" style="border:2px dashed var(--border2);border-radius:var(--r-card);padding:40px 24px;text-align:center;cursor:pointer;transition:all 0.2s" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="fhDrop(event)">
@@ -2544,7 +2568,7 @@
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Decodes X.509 SSL/TLS certificates from PEM format. Extracts subject, issuer, validity dates, SANs, key info, and fingerprints. Everything runs locally — your certificate never leaves the browser.</div>
+        <div class="tool-info-desc">Decodes X.509 SSL/TLS certificates from PEM format. Extracts subject, issuer, validity dates, SANs, key info, and fingerprints. Everything runs locally - your certificate never leaves the browser.</div>
       </div>
       <div class="card">
         <div class="input-group">
@@ -2621,7 +2645,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">PBKDF2 (Password-Based Key Derivation Function 2) turns a password into a cryptographic key. Used for secure password storage, key generation, and encryption. Runs via Web Crypto API — entirely in your browser.</div>
+        <div class="tool-info-desc">PBKDF2 (Password-Based Key Derivation Function 2) turns a password into a cryptographic key. Used for secure password storage, key generation, and encryption. Runs via Web Crypto API - entirely in your browser.</div>
       </div>
       <div class="card">
         <div class="input-group" style="margin-bottom:12px">
@@ -2632,7 +2656,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
           </div>
         </div>
         <div class="input-group" style="margin-bottom:12px">
-          <label class="input-label">Salt <span style="color:var(--muted);font-size:10px">(hex or text — leave empty to auto-generate)</span></label>
+          <label class="input-label">Salt <span style="color:var(--muted);font-size:10px">(hex or text - leave empty to auto-generate)</span></label>
           <div style="display:flex;gap:8px">
             <input class="main-input" id="pbkdf2-salt" type="text" placeholder="Auto-generate random salt..." style="flex:1" spellcheck="false">
             <button class="calc-btn" onclick="pbkdf2GenSalt()" style="padding:11px 16px;font-size:12px;white-space:nowrap">Random Salt</button>
@@ -2813,7 +2837,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Generates RSA key pairs using Web Crypto API. Exports in PEM format for direct use with OpenSSL, TLS, SSH, and JWT signing. Keys are generated in your browser — never transmitted anywhere.</div>
+        <div class="tool-info-desc">Generates RSA key pairs using Web Crypto API. Exports in PEM format for direct use with OpenSSL, TLS, SSH, and JWT signing. Keys are generated in your browser - never transmitted anywhere.</div>
       </div>
       <div class="card">
         <div class="input-row" style="flex-wrap:wrap;gap:12px;margin-bottom:16px">
@@ -3025,7 +3049,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Converts between YAML, JSON and TOML — the three most common config formats. Used by DevOps, developers, and sysadmins for Docker Compose, Kubernetes, Rust/Cargo, Python pyproject.toml, Hugo, and more. Libraries loaded on demand.</div>
+        <div class="tool-info-desc">Converts between YAML, JSON and TOML - the three most common config formats. Used by DevOps, developers, and sysadmins for Docker Compose, Kubernetes, Rust/Cargo, Python pyproject.toml, Hugo, and more. Libraries loaded on demand.</div>
       </div>
 
       <div class="card">
@@ -3108,7 +3132,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Decodes raw network packets from hex dump format (Wireshark, tcpdump, or manual). Parses Ethernet II, IPv4, IPv6, TCP, UDP, ICMP, DNS, HTTP headers. Visualizes protocol layers. No upload — runs entirely in your browser.</div>
+        <div class="tool-info-desc">Decodes raw network packets from hex dump format (Wireshark, tcpdump, or manual). Parses Ethernet II, IPv4, IPv6, TCP, UDP, ICMP, DNS, HTTP headers. Visualizes protocol layers. No upload - runs entirely in your browser.</div>
       </div>
 
       <div class="card">
@@ -3278,7 +3302,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
     <div class="tool-panel" id="panel-certchain">
       <div class="tool-header">
         <h1>Certificate Chain <span>Builder</span></h1>
-        <p>Paste multiple PEM certificates — build and validate the chain</p>
+        <p>Paste multiple PEM certificates - build and validate the chain</p>
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
@@ -3287,7 +3311,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
 
       <div class="card">
         <div class="input-group" style="margin-bottom:12px">
-          <label class="input-label">PEM Certificates <span style="color:var(--muted);font-size:10px">(paste one or more — in any order)</span></label>
+          <label class="input-label">PEM Certificates <span style="color:var(--muted);font-size:10px">(paste one or more - in any order)</span></label>
           <textarea class="main-input" id="cc-input" spellcheck="false"
             style="min-height:180px;resize:vertical;font-family:var(--mono-font);font-size:11px"
             placeholder="-----BEGIN CERTIFICATE-----
@@ -3451,7 +3475,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Parses raw HTTP response headers and analyzes security posture. Grades each security header (CSP, HSTS, X-Frame-Options, etc.), detects missing or misconfigured headers, and gives actionable recommendations. Works offline — no data sent anywhere.</div>
+        <div class="tool-info-desc">Parses raw HTTP response headers and analyzes security posture. Grades each security header (CSP, HSTS, X-Frame-Options, etc.), detects missing or misconfigured headers, and gives actionable recommendations. Works offline - no data sent anywhere.</div>
       </div>
 
       <div class="card">
@@ -3603,7 +3627,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       </div>
       <div class="tool-info">
         <div class="tool-info-title">💡 What it does</div>
-        <div class="tool-info-desc">Generates SSH key pairs using Web Crypto API. Exports private key in OpenSSH PEM format and public key in authorized_keys format (ssh-ed25519/ecdsa/rsa ...). Keys are generated locally — never transmitted. Ready to paste into ~/.ssh/authorized_keys or use with ssh-keygen workflows.</div>
+        <div class="tool-info-desc">Generates SSH key pairs using Web Crypto API. Exports private key in OpenSSH PEM format and public key in authorized_keys format (ssh-ed25519/ecdsa/rsa ...). Keys are generated locally - never transmitted. Ready to paste into ~/.ssh/authorized_keys or use with ssh-keygen workflows.</div>
       </div>
 
       <div class="card">
@@ -4022,7 +4046,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       if (mp.includes('.')) {
         if (!isValidIp(mp)) return { state:'error', msg:'⚠ Invalid subnet mask format' };
         const mi = ipToInt(mp);
-        if (!isValidMask(mi)) return { state:'error', msg:`⚠ "${mp}" — non-contiguous bits` };
+        if (!isValidMask(mi)) return { state:'error', msg:`⚠ "${mp}" - non-contiguous bits` };
         prefix = maskToCidr(mi);
       } else {
         if (mp==='') return { state:'error', msg:'⚠ CIDR prefix missing after "/"' };
@@ -4046,10 +4070,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
     }
 
     let warn=null;
-    if (prefix===31) warn='/31 — point-to-point (RFC 3021)';
-    if (prefix===32) warn='/32 — host route, single IP';
-    if (prefix===0)  warn='/0 — entire internet space';
-    return { state:warn?'warn':'ok', msg:warn||`✓ Valid — ${ip}/${prefix}`, ip, prefix };
+    if (prefix===31) warn='/31 - point-to-point (RFC 3021)';
+    if (prefix===32) warn='/32 - host route, single IP';
+    if (prefix===0)  warn='/0 - entire internet space';
+    return { state:warn?'warn':'ok', msg:warn||`✓ Valid - ${ip}/${prefix}`, ip, prefix };
   }
 
   const inputEl = document.getElementById('ipInput');
@@ -4263,7 +4287,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
   function b64ShowStats(op, inVal, outVal) {
     const inSize  = new Blob([inVal]).size;
     const outSize = new Blob([outVal]).size;
-    const ratio   = inSize > 0 ? ((outSize/inSize)*100).toFixed(0) + '%' : '—';
+    const ratio   = inSize > 0 ? ((outSize/inSize)*100).toFixed(0) + '%' : '-';
     const valid   = isValidBase64(op==='encode' ? outVal : inVal);
     const urlSafe = isUrlSafe(op==='encode' ? outVal : inVal);
 
@@ -4307,7 +4331,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
       // Save to localStorage
       localStorage.setItem('da-base64-input', input);
     } catch(e) {
-      document.getElementById('b64-output').value = '⚠ Invalid Base64 — ' + e.message;
+      document.getElementById('b64-output').value = '⚠ Invalid Base64 - ' + e.message;
     }
   }
 
@@ -4820,7 +4844,7 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
         showToast('✓ QR image copied to clipboard');
       });
     } catch(e) {
-      showToast('⚠ Copy not supported in this browser — use Download');
+      showToast('⚠ Copy not supported in this browser - use Download');
     }
   }
 
@@ -5431,7 +5455,7 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
 
     const atIdx = raw.lastIndexOf('@');
     if (atIdx < 1) {
-      msgTxt.textContent = '⚠ Invalid email — missing @';
+      msgTxt.textContent = '⚠ Invalid email - missing @';
       msgEl.className = 'val-msg show error';
       document.getElementById('em-results').style.display = 'none';
       return;
@@ -5530,14 +5554,14 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
     let barColor, assessment;
     // Efficiency-based assessment (how close to max possible entropy)
     const eff = parseFloat(efficiency);
-    if (entropy < 1)            { barColor = 'var(--error)';   assessment = '🔴 Very low entropy — highly predictable. Likely repeated or constant data.'; }
-    else if (entropy < 2)       { barColor = 'var(--error)';   assessment = '🔴 Low entropy — very limited randomness. Not suitable for any security use.'; }
-    else if (entropy < 3)       { barColor = 'var(--warning)'; assessment = '🟡 Below average entropy — typical for structured or repetitive text.'; }
-    else if (entropy < 4)       { barColor = 'var(--warning)'; assessment = '🟡 Moderate entropy — typical for natural language or limited charsets (e.g. hex).'; }
-    else if (entropy < 5)       { barColor = 'var(--success)'; assessment = '🟢 Good entropy — suitable for passwords. Higher length increases security.'; }
-    else if (entropy < 6)       { barColor = 'var(--success)'; assessment = '🟢 High entropy — strong randomness. Good for security keys and passwords.'; }
-    else if (entropy < 7)       { barColor = 'var(--info)';    assessment = '🔵 Very high entropy — excellent randomness. Suitable for cryptographic keys.'; }
-    else                        { barColor = 'var(--info)';    assessment = '🔵 Near-maximum entropy — outstanding randomness. Ideal for cryptographic use.'; }
+    if (entropy < 1)            { barColor = 'var(--error)';   assessment = '🔴 Very low entropy - highly predictable. Likely repeated or constant data.'; }
+    else if (entropy < 2)       { barColor = 'var(--error)';   assessment = '🔴 Low entropy - very limited randomness. Not suitable for any security use.'; }
+    else if (entropy < 3)       { barColor = 'var(--warning)'; assessment = '🟡 Below average entropy - typical for structured or repetitive text.'; }
+    else if (entropy < 4)       { barColor = 'var(--warning)'; assessment = '🟡 Moderate entropy - typical for natural language or limited charsets (e.g. hex).'; }
+    else if (entropy < 5)       { barColor = 'var(--success)'; assessment = '🟢 Good entropy - suitable for passwords. Higher length increases security.'; }
+    else if (entropy < 6)       { barColor = 'var(--success)'; assessment = '🟢 High entropy - strong randomness. Good for security keys and passwords.'; }
+    else if (entropy < 7)       { barColor = 'var(--info)';    assessment = '🔵 Very high entropy - excellent randomness. Suitable for cryptographic keys.'; }
+    else                        { barColor = 'var(--info)';    assessment = '🔵 Near-maximum entropy - outstanding randomness. Ideal for cryptographic use.'; }
     // Add efficiency context
     if (eff >= 95 && entropy >= 3.5) assessment += ` Efficiency: ${efficiency}% of theoretical maximum.`;
 
@@ -5691,7 +5715,7 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
         const timeLeft  = isExpired
           ? 'EXPIRED ' + jwtTimeDiff(payload.exp * 1000, Date.now()) + ' ago'
           : 'Expires in ' + jwtTimeDiff(Date.now(), payload.exp * 1000);
-        document.getElementById('jwt-exp').textContent = expDate + ' — ' + timeLeft;
+        document.getElementById('jwt-exp').textContent = expDate + ' - ' + timeLeft;
         document.getElementById('jwt-exp').style.color = isExpired ? 'var(--error)' : 'var(--success)';
       } else {
         document.getElementById('jwt-exp').textContent = 'Not set (no expiry)';
@@ -5728,14 +5752,14 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
 
       // Signature note
       const algNote = {
-        'HS256':'HMAC-SHA256 (symmetric — needs secret key)',
-        'HS384':'HMAC-SHA384 (symmetric — needs secret key)',
-        'HS512':'HMAC-SHA512 (symmetric — needs secret key)',
-        'RS256':'RSA-SHA256 (asymmetric — needs public key)',
-        'RS384':'RSA-SHA384 (asymmetric — needs public key)',
-        'RS512':'RSA-SHA512 (asymmetric — needs public key)',
-        'ES256':'ECDSA-SHA256 (asymmetric — needs public key)',
-        'none' :'⚠ NONE — no signature! Insecure!',
+        'HS256':'HMAC-SHA256 (symmetric - needs secret key)',
+        'HS384':'HMAC-SHA384 (symmetric - needs secret key)',
+        'HS512':'HMAC-SHA512 (symmetric - needs secret key)',
+        'RS256':'RSA-SHA256 (asymmetric - needs public key)',
+        'RS384':'RSA-SHA384 (asymmetric - needs public key)',
+        'RS512':'RSA-SHA512 (asymmetric - needs public key)',
+        'ES256':'ECDSA-SHA256 (asymmetric - needs public key)',
+        'none' :'⚠ NONE - no signature! Insecure!',
       };
       const sigNote = algNote[header.alg] || 'Unknown algorithm';
       document.getElementById('jwt-signature').textContent = signature + '\n\n// Algorithm: ' + sigNote;
@@ -7009,8 +7033,8 @@ UZhVHbNsYbTqr8UCmTF5J8vNrmSk5nFXp3K5jvmKx4zBb8qzqHFflFcilMcBoaX7
 
     result.style.display = 'block';
     result.innerHTML = match
-      ? `<span style="color:var(--success);font-family:var(--mono-font);font-size:13px">✓ Match! (${algo}) — File is authentic</span>`
-      : `<span style="color:var(--error);font-family:var(--mono-font);font-size:13px">✗ No match — File may be corrupted or tampered</span>`;
+      ? `<span style="color:var(--success);font-family:var(--mono-font);font-size:13px">✓ Match! (${algo}) - File is authentic</span>`
+      : `<span style="color:var(--error);font-family:var(--mono-font);font-size:13px">✗ No match - File may be corrupted or tampered</span>`;
   }
 
   function fhReset() {
@@ -7656,7 +7680,7 @@ strict = true`
         document.head.appendChild(s);
       });
     }
-    // TOML is built-in — no external library needed
+    // TOML is built-in - no external library needed
     if (!window.SmolTOML) {
       window.SmolTOML = { parse: tomlParse, stringify: tomlStringify };
     }
@@ -7923,7 +7947,7 @@ strict = true`
 
     document.getElementById('pkt-eth-dst').textContent  = ethDst + (ethDst === 'FF:FF:FF:FF:FF:FF' ? ' (Broadcast)' : '');
     document.getElementById('pkt-eth-src').textContent  = ethSrc;
-    document.getElementById('pkt-eth-type').textContent = pktHex(etherType,4) + ' — ' + etherName;
+    document.getElementById('pkt-eth-type').textContent = pktHex(etherType,4) + ' - ' + etherName;
     document.getElementById('pkt-eth-size').textContent = buf.length + ' bytes';
     document.getElementById('pkt-eth-card').style.display = 'block';
 
@@ -7974,7 +7998,7 @@ strict = true`
 
       document.getElementById('pkt-ip-src').textContent      = ipSrc;
       document.getElementById('pkt-ip-dst').textContent      = ipDst;
-      document.getElementById('pkt-ip-proto').textContent    = ipProto + ' — ' + protoName;
+      document.getElementById('pkt-ip-proto').textContent    = ipProto + ' - ' + protoName;
       document.getElementById('pkt-ip-ttl').textContent      = ipTTL + (ipTTL <= 1 ? ' ⚠ Expiring!' : '');
       document.getElementById('pkt-ip-len').textContent      = ipLen + ' bytes';
       document.getElementById('pkt-ip-hlen').textContent     = ipHLen + ' bytes';
@@ -8084,7 +8108,7 @@ strict = true`
 
       document.getElementById('pkt-ip6-src').textContent  = ip6Src;
       document.getElementById('pkt-ip6-dst').textContent  = ip6Dst;
-      document.getElementById('pkt-ip6-next').textContent = ip6Next + ' — ' + nextName;
+      document.getElementById('pkt-ip6-next').textContent = ip6Next + ' - ' + nextName;
       document.getElementById('pkt-ip6-hop').textContent  = ip6Hop;
       document.getElementById('pkt-ip6-plen').textContent = ip6PLen + ' bytes';
       document.getElementById('pkt-ip6-tc').textContent   = pktHex(ip6TC);
@@ -8116,7 +8140,7 @@ strict = true`
     }
     document.getElementById('pkt-hexdump').textContent = hexDump;
     document.getElementById('pkt-results').style.display = 'block';
-    showToast('✓ Packet analyzed — ' + buf.length + ' bytes, ' + stack.map(s=>s.label).join('/'));
+    showToast('✓ Packet analyzed - ' + buf.length + ' bytes, ' + stack.map(s=>s.label).join('/'));
   }
 
   function pktParseDns(buf, off) {
@@ -9038,8 +9062,8 @@ alt-svc: h3=":443"; ma=2592000`
         if (!age) return { ok: false, issues: ['Missing max-age directive'] };
         const seconds = parseInt(age[1]);
         if (seconds < 15552000) issues.push('max-age too short (< 180 days). Recommend: 63072000 (2 years)');
-        if (!v.includes('includeSubDomains')) issues.push('Missing includeSubDomains — subdomains not protected');
-        if (!v.includes('preload')) issues.push('Missing preload — consider adding for HSTS preload list');
+        if (!v.includes('includeSubDomains')) issues.push('Missing includeSubDomains - subdomains not protected');
+        if (!v.includes('preload')) issues.push('Missing preload - consider adding for HSTS preload list');
         return { ok: issues.length === 0, issues };
       },
       recommend: 'Strict-Transport-Security: max-age=63072000; includeSubDomains; preload'
@@ -9049,11 +9073,11 @@ alt-svc: h3=":443"; ma=2592000`
       weight: 15,
       check: (v) => {
         const issues = [];
-        if (v.includes("'unsafe-inline'")) issues.push("'unsafe-inline' allows inline scripts — XSS risk");
-        if (v.includes("'unsafe-eval'"))  issues.push("'unsafe-eval' allows eval() — XSS risk");
+        if (v.includes("'unsafe-inline'")) issues.push("'unsafe-inline' allows inline scripts - XSS risk");
+        if (v.includes("'unsafe-eval'"))  issues.push("'unsafe-eval' allows eval() - XSS risk");
         if (v.includes('*'))              issues.push('Wildcard * in source list weakens policy');
         if (!v.includes('default-src') && !v.includes('script-src')) issues.push('No default-src or script-src defined');
-        if (!v.includes("frame-ancestors")) issues.push('Missing frame-ancestors — use instead of X-Frame-Options');
+        if (!v.includes("frame-ancestors")) issues.push('Missing frame-ancestors - use instead of X-Frame-Options');
         return { ok: issues.length === 0, issues };
       },
       recommend: "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'"
@@ -9127,11 +9151,11 @@ alt-svc: h3=":443"; ma=2592000`
       weight: 3,
       check: (v) => {
         const val = v.trim();
-        if (val === '0') return { ok: true, issues: ['Set to 0 (disabled) — correct if CSP is present, disables buggy browser XSS filter'] };
+        if (val === '0') return { ok: true, issues: ['Set to 0 (disabled) - correct if CSP is present, disables buggy browser XSS filter'] };
         if (val.startsWith('1; mode=block')) return { ok: true, issues: ['Deprecated header. Use CSP instead.'] };
         return { ok: false, issues: ['Deprecated. Set to 0 if CSP is present, otherwise 1; mode=block'] };
       },
-      recommend: 'X-XSS-Protection: 0  (deprecated — use CSP instead)'
+      recommend: 'X-XSS-Protection: 0  (deprecated - use CSP instead)'
     },
     'cache-control': {
       name: 'Cache-Control (sensitive pages)',
@@ -9180,7 +9204,7 @@ alt-svc: h3=":443"; ma=2592000`
     if (!raw) { showToast('⚠ Paste HTTP headers first'); return; }
 
     const headers = hdrParse(raw);
-    if (!Object.keys(headers).length) { showToast('✗ No headers found — check format'); return; }
+    if (!Object.keys(headers).length) { showToast('✗ No headers found - check format'); return; }
 
     // Score security headers
     let score = 0, maxScore = 0;
@@ -9283,7 +9307,7 @@ alt-svc: h3=":443"; ma=2592000`
     ).join('');
 
     document.getElementById('hdr-results').style.display = 'block';
-    showToast('✓ Analyzed ' + Object.keys(headers).length + ' headers — Grade: ' + grade);
+    showToast('✓ Analyzed ' + Object.keys(headers).length + ' headers - Grade: ' + grade);
   }
 
   function hdrGrade(pct) {
@@ -9292,7 +9316,7 @@ alt-svc: h3=":443"; ma=2592000`
     if (pct >= 60) return { grade:'B',  color:'var(--info)',     label:'Fair Security',          desc:'Some important security headers missing or misconfigured.' };
     if (pct >= 40) return { grade:'C',  color:'var(--warning)',  label:'Poor Security',          desc:'Multiple security headers missing. Site is vulnerable.' };
     if (pct >= 20) return { grade:'D',  color:'var(--warning)',  label:'Very Poor Security',     desc:'Critical security headers missing. High risk of attacks.' };
-    return           { grade:'F',  color:'var(--error)',   label:'Critical — No Security',  desc:'Almost no security headers. Vulnerable to XSS, clickjacking, and more.' };
+    return           { grade:'F',  color:'var(--error)',   label:'Critical - No Security',  desc:'Almost no security headers. Vulnerable to XSS, clickjacking, and more.' };
   }
 
   function hdrSecRow(r, present) {
@@ -9704,7 +9728,7 @@ alt-svc: h3=":443"; ma=2592000`
     // Extract the raw public key point from SPKI
     // SPKI for ECDSA: SEQUENCE { SEQUENCE { OID ecdsa, OID curve }, BIT STRING { 04 x y } }
     const der = new Uint8Array(spkiBuf);
-    // Find the BIT STRING (tag 0x03) — typically at offset 23 for P-256
+    // Find the BIT STRING (tag 0x03) - typically at offset 23 for P-256
     let offset = 0;
     while (offset < der.length && der[offset] !== 0x03) offset++;
     offset += 2; // skip tag and length
@@ -9760,7 +9784,7 @@ alt-svc: h3=":443"; ma=2592000`
 
       // Inner SEQUENCE with n and e
       pos++; readLen(); // SEQUENCE
-      pos++; readLen(); // INTEGER n tag+len — skip
+      pos++; readLen(); // INTEGER n tag+len - skip
       // Actually let's find integers
       let nStart = pos + 1; // after SEQUENCE tag+len
       // find first INTEGER
@@ -9809,13 +9833,241 @@ alt-svc: h3=":443"; ma=2592000`
   }
 
 
+const I18N = {
+  en: {
+    'what-it-does': '💡 What it does',
+    tools: {
+      'ip-calc':    { sub: 'Enter an IP address with CIDR or subnet mask to calculate network details', desc: 'Calculates network info: broadcast address, usable hosts, subnet mask, CIDR notation, and binary representation. Essential for network planning and subnet management.' },
+      'subnet':     { sub: 'Visualize subnet ranges, host distribution, and network blocks', desc: 'Visual breakdown of IP ranges, subnet sizes, and host distribution. Helps understand subnetting concepts and plan network topology.' },
+      'mac':        { sub: 'Look up vendor information from a MAC address', desc: 'Identifies the manufacturer of a network device by its MAC address. Supports multiple formats (colons, dashes, no separator). Useful for network troubleshooting and inventory.' },
+      'json':       { sub: 'Format, validate and explore JSON data', desc: 'Validates, formats, minifies JSON. Shows structure info (keys, depth, size). Perfect for debugging API responses and working with complex JSON data.' },
+      'base64':     { sub: 'Encode text or files to Base64, decode Base64 strings back to text', desc: 'Encodes/decodes text and files to Base64. Useful for data transmission, API integration, and handling binary data in text format. Supports file upload up to 5MB.' },
+      'hash':       { sub: 'Generate MD5, SHA1, SHA256, SHA512 hashes from any text input', desc: 'Generates MD5, SHA1, SHA256, SHA512 hashes. Used for password hashing, data integrity verification, and security applications.' },
+      'regex':      { sub: 'Test and validate regular expressions with real-time matching', desc: 'Tests regular expressions in real-time with live matching, flags, and quick pattern examples. Essential for text search, validation, and string replacement.' },
+      'jwt':        { sub: 'Decode and inspect JWT tokens. Parse header, payload, and verify structure', desc: 'Decodes JSON Web Tokens to view header, payload, signature. Checks expiry status. Useful for debugging API authentication and OAuth.' },
+      'ts':         { sub: 'Convert between Unix timestamps and readable dates, timezone aware', desc: 'Converts Unix timestamps to human-readable dates and vice versa. Supports multiple formats and timezones. Useful for log analysis and API debugging.' },
+      'uuid':       { sub: 'Generate cryptographically secure UUID v4 identifiers', desc: 'Generates RFC 4122 compliant UUID v4 identifiers. Bulk generation up to 1000 UUIDs. Used for database keys, session IDs, and unique identifiers.' },
+      'qr':         { sub: 'Generate QR codes from text, URLs, vCards, WiFi configs and more', desc: 'Generates real QR codes via qrcode.js library. Customize size, colors, error correction level. Download as PNG or SVG. Works fully offline after first load.' },
+      'csv':        { sub: 'Convert CSV data to JSON format with customizable parsing', desc: 'Converts CSV files or pasted data to JSON. Supports custom delimiters, header detection, and various export options. Useful for data processing and API preparation.' },
+      'hex':        { sub: 'Convert text to hexadecimal and back', desc: 'Converts text strings to hexadecimal representation and vice versa. Useful for debugging binary protocols, encoding analysis, and low-level data inspection.' },
+      'diff':       { sub: 'Compare two text blocks side by side with color highlights', desc: 'Shows differences between two text inputs with line-by-line comparison and color-coded highlights. Useful for comparing configs, code versions, or any text changes.' },
+      'case':       { sub: 'Convert text between different case formats', desc: 'Converts text between UPPERCASE, lowercase, camelCase, PascalCase, snake_case, kebab-case and more. Essential for code style consistency and text processing.' },
+      'words':      { sub: 'Count words, characters, lines, and estimate reading time', desc: 'Counts words, characters (with/without spaces), lines, paragraphs, and estimates reading time. Useful for content writing, documentation, and text analysis.' },
+      'color':      { sub: 'Convert colors between HEX, RGB and HSL formats', desc: 'Converts color values between HEX, RGB, and HSL formats. Shows color preview and related palette. Useful for web design and front-end development.' },
+      'unit':       { sub: 'Convert between units of storage, temperature, length, weight and more', desc: 'Converts between units across multiple categories: storage (bytes/KB/MB/GB), temperature (C/F/K), length, weight, time, and speed.' },
+      'passgen':    { sub: 'Generate strong, secure passwords with custom rules', desc: 'Creates cryptographically secure passwords using Web Crypto API. Customize length, character sets, and generate in bulk. All generation happens locally - never sent anywhere.' },
+      'aes':        { sub: 'Encrypt and decrypt text using AES-GCM 256-bit encryption', desc: 'Uses AES-GCM 256-bit via Web Crypto API - the same standard used by banks and governments. Everything runs in your browser. The encrypted output includes the IV, so you can decrypt it back anytime with the same password.' },
+      'filehash':   { sub: 'Calculate SHA-256, SHA-512, SHA-1 hashes of any file', desc: 'Computes cryptographic hashes of files directly in your browser. No upload - the file never leaves your device. Use to verify file integrity, check downloads, or detect tampering.' },
+      'urlenc':     { sub: 'Encode and decode URLs, query strings, and URI components', desc: 'Encodes special characters for safe URL transmission and decodes percent-encoded strings back to readable text. Supports full URL encoding and component encoding (encodeURIComponent).' },
+      'ssl':        { sub: 'Parse and inspect PEM/Base64 SSL/TLS certificates', desc: 'Decodes X.509 SSL/TLS certificates from PEM format. Extracts subject, issuer, validity dates, SANs, key info, and fingerprints. Everything runs locally - your certificate never leaves the browser.' },
+      'pbkdf2':     { sub: 'Derive cryptographic keys from passwords using PBKDF2', desc: 'PBKDF2 (Password-Based Key Derivation Function 2) turns a password into a cryptographic key. Used for secure password storage, key generation, and encryption. Runs via Web Crypto API - entirely in your browser.' },
+      'emailmask':  { sub: 'Mask, anonymize, and generate safe email variants for testing', desc: 'Masks email addresses for privacy (logs, screenshots, demos). Generates test email variants, validates format, extracts domain info, and creates disposable-style aliases. All processing is local.' },
+      'entropy':    { sub: 'Measure randomness and information entropy of text or data', desc: 'Calculates Shannon entropy, character frequency distribution, and randomness metrics. Useful for analyzing passwords, keys, encrypted data, and random number generators. Higher entropy = more random = more secure.' },
+      'rsa':        { sub: 'Generate RSA public/private key pairs for encryption and signing', desc: 'Generates RSA key pairs using Web Crypto API. Exports in PEM format for direct use with OpenSSL, TLS, SSH, and JWT signing. Keys are generated in your browser - never transmitted anywhere.' },
+      'sshkey':     { sub: 'Generate ECDSA and RSA SSH key pairs in your browser', desc: 'Generates SSH key pairs using Web Crypto API. Exports private key in OpenSSH PEM format and public key in authorized_keys format. Keys are generated locally - never transmitted.' },
+      'headers':    { sub: 'Analyze security headers, detect vulnerabilities, get recommendations', desc: 'Parses raw HTTP response headers and analyzes security posture. Grades each security header (CSP, HSTS, X-Frame-Options, etc.), detects missing or misconfigured headers, and gives actionable recommendations.' },
+      'cron':       { sub: 'Build and understand cron expressions visually', desc: 'Converts cron expressions to human-readable descriptions and vice versa. Visual sliders for each field. Shows next 5 execution times. Supports standard 5-field cron syntax.' },
+      'converter':  { sub: 'Convert between YAML, JSON and TOML formats instantly', desc: 'Converts between YAML, JSON and TOML - the three most common config formats. Used by DevOps, developers, and sysadmins for Docker Compose, Kubernetes, Rust/Cargo, Python pyproject.toml, Hugo, and more.' },
+      'packet':     { sub: 'Parse Ethernet/IP/TCP/UDP/ICMP packets from hex dumps', desc: 'Decodes raw network packets from hex dump format (Wireshark, tcpdump, or manual). Parses Ethernet II, IPv4, IPv6, TCP, UDP, ICMP, DNS, HTTP headers. Visualizes protocol layers. No upload - runs entirely in your browser.' },
+      'certchain':  { sub: 'Paste multiple PEM certificates - build and validate the chain', desc: 'Takes multiple PEM certificates (leaf, intermediates, root) and automatically orders them into a valid chain. Validates issuer/subject relationships, checks expiry, detects self-signed root, and exports the complete chain.' },
+      'configdiff': { sub: 'Smart diff for Cisco IOS, Juniper, nginx, YAML, JSON configs', desc: 'Compares two configuration files with syntax-aware highlighting. Detects the config type automatically. Shows added, removed, and changed lines with context. Useful for auditing config changes before deployment.' },
+      'cidr-agg':   { sub: 'Aggregate, summarize and deduplicate IP ranges and subnets', desc: 'Takes a list of IP addresses, ranges, or CIDR subnets and computes the minimal set of CIDRs that covers them all. Removes duplicates, merges adjacent subnets, and sorts the result.' },
+      'privacy':    { sub: 'Why you can trust DarkenAmber IT Tools', desc: 'All tools run entirely in your browser. No data is ever sent to any server. No analytics, no tracking, no cookies. Your IPs, passwords, certificates and configs stay on your device.' },
+    },
+    privacy: {
+      'priv-s8':     '❤️ Support the Project',
+      'priv-sup1':   'This tool is free and will always be free. No ads, no subscriptions, no paywalls.',
+      'priv-kofi':   'Buy me a coffee - Ko-fi (one-time)',
+      'priv-patreon':'Support on Patreon - $3/month',
+    },
+    ui: {
+      'about-bio': 'Just an engineer from Baku building things as a hobby. IT tools, mobile apps, IoT and embedded projects. All free, all open-source.',
+    }
+  },
+  ru: {
+    'what-it-does': '💡 Что делает',
+    tools: {
+      'ip-calc':    { sub: 'Введите IP-адрес с CIDR или маской подсети для расчёта параметров сети', desc: 'Вычисляет сетевые параметры: широковещательный адрес, количество хостов, маску подсети, CIDR-нотацию и двоичное представление. Незаменим при планировании сети.' },
+      'subnet':     { sub: 'Визуализация диапазонов подсетей, распределения хостов и сетевых блоков', desc: 'Наглядная разбивка IP-диапазонов, размеров подсетей и распределения хостов. Помогает понять принципы разбиения на подсети и спланировать топологию сети.' },
+      'mac':        { sub: 'Определение производителя устройства по MAC-адресу', desc: 'Идентифицирует производителя сетевого устройства по его MAC-адресу. Поддерживает различные форматы записи. Полезен при диагностике сети и инвентаризации оборудования.' },
+      'json':       { sub: 'Форматирование, валидация и анализ JSON-данных', desc: 'Валидирует, форматирует и минифицирует JSON. Отображает структуру (ключи, глубина, размер). Идеален для отладки ответов API и работы со сложными JSON-данными.' },
+      'base64':     { sub: 'Кодирование текста и файлов в Base64 и декодирование обратно', desc: 'Кодирует и декодирует текст и файлы в формат Base64. Используется для передачи данных, интеграции с API и работы с бинарными данными в текстовом формате.' },
+      'hash':       { sub: 'Генерация хэшей MD5, SHA1, SHA256, SHA512 из любого текста', desc: 'Генерирует хэши MD5, SHA1, SHA256, SHA512. Применяется для хэширования паролей, проверки целостности данных и в задачах безопасности.' },
+      'regex':      { sub: 'Тестирование и проверка регулярных выражений в реальном времени', desc: 'Проверяет регулярные выражения в реальном времени с подсветкой совпадений, поддержкой флагов и примерами шаблонов. Незаменим для поиска, валидации и замены текста.' },
+      'jwt':        { sub: 'Декодирование и проверка JWT-токенов', desc: 'Декодирует JSON Web Token для просмотра заголовка, полезной нагрузки и подписи. Проверяет срок действия. Полезен при отладке аутентификации API и OAuth.' },
+      'ts':         { sub: 'Конвертация Unix-временных меток в читаемые даты с учётом часового пояса', desc: 'Конвертирует Unix-временные метки в читаемые даты и обратно. Поддерживает несколько форматов и часовых поясов. Удобен для анализа логов и отладки API.' },
+      'uuid':       { sub: 'Генерация криптографически стойких идентификаторов UUID v4', desc: 'Генерирует UUID v4 согласно RFC 4122. Массовая генерация до 1000 UUID. Используется для ключей баз данных, идентификаторов сессий и уникальных ID.' },
+      'qr':         { sub: 'Генерация QR-кодов из текста, URL, vCard, WiFi и других форматов', desc: 'Генерирует настоящие QR-коды через библиотеку qrcode.js. Настройка размера, цветов и уровня коррекции ошибок. Экспорт в PNG и SVG. Работает полностью офлайн.' },
+      'csv':        { sub: 'Конвертация CSV-данных в формат JSON', desc: 'Конвертирует CSV-файлы или вставленные данные в JSON. Поддерживает пользовательские разделители и автоопределение заголовков. Удобен для обработки данных и подготовки к API.' },
+      'hex':        { sub: 'Конвертация текста в шестнадцатеричный формат и обратно', desc: 'Преобразует текстовые строки в шестнадцатеричное представление и обратно. Полезен при отладке бинарных протоколов и низкоуровневом анализе данных.' },
+      'diff':       { sub: 'Сравнение двух текстовых блоков с цветовой подсветкой различий', desc: 'Показывает различия между двумя текстами с построчным сравнением и цветовой подсветкой. Удобен для сравнения конфигураций, версий кода и любых текстовых изменений.' },
+      'case':       { sub: 'Конвертация текста между различными регистровыми форматами', desc: 'Конвертирует текст между UPPERCASE, lowercase, camelCase, PascalCase, snake_case, kebab-case и другими форматами. Необходим для соблюдения стиля кода и обработки текста.' },
+      'words':      { sub: 'Подсчёт слов, символов, строк и оценка времени чтения', desc: 'Подсчитывает слова, символы (с пробелами и без), строки, абзацы и оценивает время чтения. Полезен для написания контента, документации и анализа текста.' },
+      'color':      { sub: 'Конвертация цветов между форматами HEX, RGB и HSL', desc: 'Конвертирует значения цветов между форматами HEX, RGB и HSL. Показывает предпросмотр цвета и связанную палитру. Полезен для веб-дизайна и фронтенд-разработки.' },
+      'unit':       { sub: 'Конвертация единиц хранения, температуры, длины, веса и других величин', desc: 'Конвертирует единицы измерения по нескольким категориям: хранение данных (байты/КБ/МБ/ГБ), температура (°C/°F/K), длина, вес, время и скорость.' },
+      'passgen':    { sub: 'Генерация надёжных паролей с настраиваемыми правилами', desc: 'Создаёт криптографически стойкие пароли с помощью Web Crypto API. Настройка длины, наборов символов, массовая генерация. Всё происходит локально - данные никуда не отправляются.' },
+      'aes':        { sub: 'Шифрование и дешифрование текста с использованием AES-GCM 256-bit', desc: 'Использует AES-GCM 256-bit через Web Crypto API - стандарт, применяемый в банках и государственных структурах. Всё работает в браузере. IV встроен в результат - расшифруйте обратно тем же паролем.' },
+      'filehash':   { sub: 'Вычисление хэшей SHA-256, SHA-512, SHA-1 для любого файла', desc: 'Вычисляет криптографические хэши файлов прямо в браузере. Без загрузки на сервер - файл никогда не покидает ваше устройство. Используйте для проверки целостности файлов.' },
+      'urlenc':     { sub: 'Кодирование и декодирование URL, строк запросов и URI-компонентов', desc: 'Кодирует специальные символы для безопасной передачи в URL и декодирует процент-кодированные строки обратно в текст. Поддерживает encodeURIComponent и encodeURI.' },
+      'ssl':        { sub: 'Разбор и инспекция SSL/TLS-сертификатов в формате PEM/Base64', desc: 'Декодирует X.509 SSL/TLS сертификаты из PEM-формата. Извлекает subject, issuer, даты действия, SAN, информацию о ключе и отпечатки. Сертификат никогда не покидает браузер.' },
+      'pbkdf2':     { sub: 'Получение криптографических ключей из паролей с помощью PBKDF2', desc: 'PBKDF2 превращает пароль в криптографический ключ. Применяется для безопасного хранения паролей, генерации ключей и шифрования. Работает через Web Crypto API - полностью в браузере.' },
+      'emailmask':  { sub: 'Маскировка, анонимизация и генерация безопасных вариантов email для тестирования', desc: 'Маскирует адреса электронной почты для обеспечения конфиденциальности в логах, скриншотах и демонстрациях. Генерирует тестовые варианты, валидирует формат и создаёт алиасы.' },
+      'entropy':    { sub: 'Измерение случайности и информационной энтропии текста или данных', desc: 'Вычисляет энтропию Шеннона, распределение частот символов и метрики случайности. Полезен для анализа паролей, ключей, зашифрованных данных. Больше энтропия = больше случайность = надёжнее.' },
+      'rsa':        { sub: 'Генерация пар открытого/закрытого ключей RSA для шифрования и подписи', desc: 'Генерирует пары ключей RSA через Web Crypto API. Экспорт в формате PEM для использования с OpenSSL, TLS, SSH и подписью JWT. Ключи генерируются в браузере - никуда не передаются.' },
+      'sshkey':     { sub: 'Генерация SSH-ключей ECDSA и RSA прямо в браузере', desc: 'Генерирует пары SSH-ключей через Web Crypto API. Экспортирует закрытый ключ в формате PEM и открытый ключ в формате authorized_keys. Ключи генерируются локально - никуда не передаются.' },
+      'headers':    { sub: 'Анализ заголовков безопасности, обнаружение уязвимостей, рекомендации', desc: 'Разбирает HTTP-заголовки ответа и анализирует уровень безопасности. Оценивает каждый заголовок безопасности (CSP, HSTS, X-Frame-Options и др.), выявляет отсутствующие или неправильно настроенные.' },
+      'cron':       { sub: 'Визуальное построение и расшифровка cron-выражений', desc: 'Конвертирует cron-выражения в читаемые описания и обратно. Визуальная сетка для каждого поля. Показывает 5 следующих запусков. Поддерживает стандартный синтаксис из 5 полей.' },
+      'converter':  { sub: 'Мгновенная конвертация между форматами YAML, JSON и TOML', desc: 'Конвертирует между YAML, JSON и TOML - тремя наиболее распространёнными форматами конфигурации. Используется DevOps-инженерами для Docker Compose, Kubernetes, Cargo.toml, pyproject.toml и других.' },
+      'packet':     { sub: 'Разбор пакетов Ethernet/IP/TCP/UDP/ICMP из hex-дампов', desc: 'Декодирует сырые сетевые пакеты из hex-дампа (Wireshark, tcpdump или вручную). Разбирает Ethernet II, IPv4, IPv6, TCP, UDP, ICMP, DNS, HTTP. Визуализирует стек протоколов. Без загрузки - работает в браузере.' },
+      'certchain':  { sub: 'Вставьте несколько PEM-сертификатов - постройте и проверьте цепочку', desc: 'Принимает несколько PEM-сертификатов (конечный, промежуточные, корневой) и автоматически упорядочивает их в корректную цепочку. Проверяет связи issuer/subject, срок действия и самоподписанный корень.' },
+      'configdiff': { sub: 'Умное сравнение конфигов Cisco IOS, Juniper, nginx, YAML, JSON', desc: 'Сравнивает два конфигурационных файла с синтаксически-aware подсветкой. Автоматически определяет тип конфигурации. Показывает добавленные, удалённые и изменённые строки с контекстом.' },
+      'cidr-agg':   { sub: 'Агрегация, суммаризация и дедупликация IP-диапазонов и подсетей', desc: 'Принимает список IP-адресов, диапазонов или CIDR-подсетей и вычисляет минимальный набор CIDR, покрывающий их все. Удаляет дубликаты, объединяет смежные подсети и сортирует результат.' },
+      'privacy':    { sub: 'Почему вы можете доверять DarkenAmber IT Tools', desc: 'Все инструменты работают полностью в вашем браузере. Никакие данные не передаются на серверы. Никакой аналитики, трекинга и cookies. Ваши IP, пароли, сертификаты и конфиги остаются на вашем устройстве.' },
+    },
+    privacy: {
+      'priv-s1':     '🔒 Нулевой сбор данных',
+      'priv-ip-q':   'Ваши IP-адреса?',
+      'priv-ip-a':   'Остаются у ВАС. Мы их никогда не видим.',
+      'priv-pass-q': 'Ваши пароли?',
+      'priv-pass-a': 'Остаются у ВАС. Шифруются локально.',
+      'priv-doc-q':  'Ваши документы?',
+      'priv-doc-a':  'Остаются у ВАС. Никогда не загружаются.',
+      'priv-data-q': 'Ваши данные?',
+      'priv-data-a': 'Нам они не нужны. Даже бесплатно.',
+      'priv-s2':     '🔓 Полностью офлайн',
+      'priv-off1':   'Нет интернета = Работает идеально',
+      'priv-off2':   'Нет API-запросов = Нет утечек данных',
+      'priv-off3':   'Всё в вашем браузере = Только вы это видите',
+      'priv-s3':     '📖 100% Открытый исходный код',
+      'priv-os2':    'Любой может проверить код на безопасность',
+      'priv-os3':    'Нет скрытых трекеров. Нет вредоносных скриптов.',
+      'priv-s4':     '❌ Что мы НЕ делаем',
+      'priv-d1':     '❌ Не собираем IP-адреса',
+      'priv-d2':     '❌ Не логируем ваши действия',
+      'priv-d3':     '❌ Не отправляем данные на серверы',
+      'priv-d4':     '❌ Не продаём вашу информацию',
+      'priv-d5':     '❌ Не используем Google Analytics',
+      'priv-d6':     '❌ Не устанавливаем tracking cookies',
+      'priv-d7':     '❌ Не показываем рекламу',
+      'priv-d8':     '❌ Не используем скрытые скрипты',
+      'priv-s5':     '💾 Только локальное хранилище',
+      'priv-ls1':    'Ваши настройки (тема, данные) хранятся ТОЛЬКО на вашем устройстве',
+      'priv-ls2':    'Ничего не передаётся на наши серверы',
+      'priv-ls3':    'Вы можете удалить всё кнопкой "CLEAR ALL" в любой момент',
+      'priv-s6':     '🛡️ Детали безопасности',
+      'priv-sec1':   'Использует нативное шифрование браузера (AES, SHA и др.)',
+      'priv-sec2':   'Стандартные алгоритмы = меньше уязвимостей',
+      'priv-sec3':   'Вся обработка происходит В ВАШЕМ браузере',
+      'priv-sec4':   'Открытый GitHub-репозиторий = любой может проверить',
+      'priv-s7':     '🔍 Проверьте сами',
+      'priv-v1':     '1. Нажмите <strong>F12</strong>, чтобы открыть DevTools',
+      'priv-v2':     '2. Перейдите на вкладку <strong>Network</strong>',
+      'priv-v3':     '3. Используйте любой инструмент',
+      'priv-v4':     '4. Смотрите на Network-запросы',
+      'priv-v5':     '✓ Вы увидите НОЛЬ запросов к внешним серверам',
+      'priv-s8':     '❤️ Поддержать проект',
+      'priv-sup1':   'Этот инструмент бесплатный и останется бесплатным. Без рекламы, подписок и ограничений.',
+      'priv-kofi':   'Угостить кофе — Ko-fi (разовый платёж)',
+      'priv-patreon':'Поддержать на Patreon — $3/месяц',
+    },
+    ui: {
+      'about-bio': 'Просто инженер из Баку, который строит вещи как хобби. IT-инструменты, мобильные приложения, IoT и встраиваемые проекты. Всё бесплатно и с открытым исходным кодом.',
+    }
+  }
+};
+
+  // ── Language switcher ───────────────────────────────────────
+  let currentLang = localStorage.getItem('da-lang') || 'en';
+
+  function langToggleMenu() {
+    const menu = document.getElementById('lang-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('da-lang', lang);
+    document.getElementById('lang-menu').style.display = 'none';
+    applyLang();
+  }
+
+  // Close menu on outside click
+  document.addEventListener('click', e => {
+    const wrapper = document.getElementById('lang-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      const menu = document.getElementById('lang-menu');
+      if (menu) menu.style.display = 'none';
+    }
+  });
+
+  function applyLang() {
+    const btn = document.getElementById('lang-btn');
+    const label = document.getElementById('lang-label');
+    if (label) label.textContent = currentLang === 'en' ? 'EN' : 'RU';
+
+    const lang = I18N[currentLang];
+    if (!lang) return;
+
+    // Update "What it does" labels
+    document.querySelectorAll('.tool-info-title').forEach(el => {
+      el.textContent = lang['what-it-does'];
+    });
+
+    // Update privacy panel static texts
+    if (lang.privacy) {
+      Object.entries(lang.privacy).forEach(([key, text]) => {
+        document.querySelectorAll('[data-i18n="' + key + '"]').forEach(el => {
+          el.textContent = text;
+        });
+      });
+      // Special: v5 needs strong tag
+      const v5 = document.querySelector('[data-i18n="priv-v5"]');
+      if (v5 && lang.privacy['priv-v5']) v5.innerHTML = '<strong style="color:var(--success)">' + lang.privacy['priv-v5'] + '</strong>';
+      // data-i18n-html elements
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.getAttribute('data-i18n-html');
+        if (lang.privacy && lang.privacy[key]) el.innerHTML = lang.privacy[key];
+      });
+    }
+
+    // Update UI strings
+    if (lang.ui) {
+      Object.entries(lang.ui).forEach(([key, text]) => {
+        document.querySelectorAll('[data-i18n="' + key + '"]').forEach(el => {
+          el.textContent = text;
+        });
+      });
+    }
+
+    // Update each tool's subtitle and description
+    Object.entries(lang.tools).forEach(([toolId, texts]) => {
+      const panel = document.getElementById('panel-' + toolId);
+      if (!panel) return;
+
+      const subtitle = panel.querySelector('.tool-header p');
+      if (subtitle) subtitle.textContent = texts.sub;
+
+      const desc = panel.querySelector('.tool-info-desc');
+      if (desc) desc.textContent = texts.desc;
+    });
+  }
+
+  // Init lang on load
+  document.addEventListener('DOMContentLoaded', () => {
+    if (currentLang !== 'en') applyLang();
+    const btn = document.getElementById('lang-btn');
+    const label = document.getElementById('lang-label');
+    if (label) label.textContent = currentLang === 'en' ? 'EN' : 'RU';
+  });
+
+
 </script>
 
 <div class="about-modal" id="aboutModal" onclick="if(event.target===this)closeAboutModal()">
   <div class="about-modal-content">
     <button class="about-modal-close" onclick="closeAboutModal()">✕</button>
     <h2>DarkenAmber</h2>
-    <p class="about-modal-bio">Building free IT tools, mobile apps, and IoT projects. Open source advocate & maker enthusiast. Creator of the DarkenAmber ecosystem.</p>
+    <p class="about-modal-bio" data-i18n="about-bio">Just an engineer from Baku building things as a hobby. IT tools, mobile apps, IoT and embedded projects. All free, all open-source.</p>
     <div class="about-modal-links">
       <a class="about-modal-link" href="https://github.com/DarkenAmber" target="_blank" rel="noopener">
         <span class="about-modal-link-icon">🐙</span>
@@ -9825,9 +10077,9 @@ alt-svc: h3=":443"; ma=2592000`
         <span class="about-modal-link-icon">❤️</span>
         <span>Support on Patreon</span>
       </a>
-      <a class="about-modal-link" href="https://twitter.com/darkenamber_dev" target="_blank" rel="noopener">
-        <span class="about-modal-link-icon">𝕏</span>
-        <span>Twitter / X</span>
+      <a class="about-modal-link" href="https://ko-fi.com/darkenamber" target="_blank" rel="noopener">
+        <span class="about-modal-link-icon">☕</span>
+        <span>Ko-fi</span>
       </a>
     </div>
   </div>
